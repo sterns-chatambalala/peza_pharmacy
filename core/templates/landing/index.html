@@ -27,7 +27,7 @@
     <meta property="twitter:image" content="https://camo.githubusercontent.com/7801068d0f353d1366c9959d10f227699b0a2e3481657e1a85bf3f2d25dc60fa/68747470733a2f2f73696d706c65786f66742e636f6d2f696d616765732f323032332f31312f31302f646f74736c696e65735f32346670732d312e676966">
 
     <link rel="canonical" href="http://ims.medicoremw.com/">
-    <link rel="icon" href="{% static 'logo.png' %}" type="image/png">
+    <link rel="icon" href="{% static 'logo.png' %}?v=2" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -517,14 +517,28 @@
         .dash-sidebar .dash-logo {
             display: flex;
             align-items: center;
-            gap: 0.4rem;
+            gap: 0.55rem;
             font-weight: 800;
             font-size: 0.95rem;
             color: var(--mc-navy);
             margin-bottom: 1.25rem;
         }
 
-        .dash-sidebar .dash-logo img { width: 20px; }
+        .dash-logo-mark {
+            width: 38px;
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border-radius: 0.85rem;
+            background: linear-gradient(135deg, var(--mc-teal), var(--mc-blue));
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            box-shadow: 0 10px 20px rgba(15, 184, 172, 0.2);
+        }
         .dash-sidebar .dash-logo span { color: var(--mc-teal); }
 
         .dash-nav-item {
@@ -1801,7 +1815,7 @@
     <header>
         <nav>
             <div class="logo">
-               <img src="{% static 'logo.png' %}" alt="MediCore Logo" loading="eager">
+               <img src="{% static 'logo.png' %}?v=2" alt="MediCore Logo" loading="eager">
                <div class="logo-text">
                    <div>Medi<span>Core</span></div>
                    <div class="logo-sub">PHARMACY SYSTEM</div>
@@ -1883,7 +1897,10 @@
         <div class="hero-image">
             <div class="dash-mock">
                 <div class="dash-sidebar">
-                    <div class="dash-logo"><img src="{% static 'logo.png' %}" alt="MediCore"> Medi<span>Core</span></div>
+                    <div class="dash-logo">
+                        <span class="dash-logo-mark">MC</span>
+                        <span>Medi<span>Core</span></span>
+                    </div>
                     <div class="dash-nav-item active"><i class="fas fa-th-large"></i> Dashboard</div>
                     <div class="dash-nav-item"><i class="fas fa-boxes"></i> Inventory</div>
                     <div class="dash-nav-item"><i class="fas fa-cash-register"></i> Sales</div>
@@ -1988,7 +2005,7 @@
                 </div>
             </div>
             <div class="about-media">
-                <img src="{% static 'image.png' %}" alt="Pharmacist reviewing inventory on a tablet">
+                <img src="{% static 'image 2.png' %}" alt="Pharmacist reviewing inventory on a tablet">
                 <div class="about-trust-card">
                     <div class="trust-tag">Trusted by</div>
                     <div class="trust-num">500+</div>
