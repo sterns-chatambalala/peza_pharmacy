@@ -715,7 +715,7 @@
     <div class="renew-subscription-container">
         <div class="payment-card">
             <div class="payment-header">
-                <img src="https://esltd.co.uk/wp-content/uploads/2016/07/IMS.png" alt="moyotechmw IMS Logo">
+                <img src="{% static 'logo.png' %}" alt="moyotechmw IMS Logo">
                 <h1>Renew Subscription</h1>
                 <p>Complete your subscription renewal in just 2 easy steps</p>
             </div>

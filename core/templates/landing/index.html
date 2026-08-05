@@ -4,16 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MoyoTech IMS - Integrated Management System</title>
-    <meta name="description" content="MoyoTech IMS is an all-in-one integrated management solution for pharmacies, schools, and businesses. Streamline operations, enhance productivity, and drive growth.">
-    <meta name="keywords" content="pharmacy management system, school management system, integrated management system, business intelligence, project management, HR management, CRM, MoyoTech">
-    <meta name="author" content="MoyoTech">
+    <title>MediCore IMS - Integrated Management System</title>
+    <meta name="description" content="MediCore IMS is an all-in-one integrated management solution for pharmacies, schools, and businesses. Streamline operations, enhance productivity, and drive growth.">
+    <meta name="keywords" content="pharmacy management system, school management system, integrated management system, business intelligence, project management, HR management, CRM, MediCore">
+    <meta name="author" content="MediCore">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="http://ims.moyotechmw.com/">
-    <meta property="og:title" content="MoyoTech IMS - Integrated Management System">
-    <meta property="og:description" content="MoyoTech IMS is an all-in-one integrated management solution for pharmacies, schools, and businesses. Streamline operations, enhance productivity, and drive growth.">
+    <meta property="og:url" content="http://ims.medicoremw.com/">
+    <meta property="og:title" content="MediCore IMS - Integrated Management System">
+    <meta property="og:description" content="MediCore IMS is an all-in-one integrated management solution for pharmacies, schools, and businesses. Streamline operations, enhance productivity, and drive growth.">
     <meta property="og:image" content="https://camo.githubusercontent.com/7801068d0f353d1366c9959d10f227699b0a2e3481657e1a85bf3f2d25dc60fa/68747470733a2f2f73696d706c65786f66742e636f6d2f696d616765732f323032332f31312f31302f646f74736c696e65735f32346670732d312e676966">
 
     <!-- Google -->
@@ -21,13 +21,13 @@
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="http://ims.moyotechmw.com/">
-    <meta property="twitter:title" content="MoyoTech IMS - Integrated Management System">
-    <meta property="twitter:description" content="MoyoTech IMS is an all-in-one integrated management solution for pharmacies, schools, and businesses. Streamline operations, enhance productivity, and drive growth.">
+    <meta property="twitter:url" content="http://ims.medicoremw.com/">
+    <meta property="twitter:title" content="MediCore IMS - Integrated Management System">
+    <meta property="twitter:description" content="MediCore IMS is an all-in-one integrated management solution for pharmacies, schools, and businesses. Streamline operations, enhance productivity, and drive growth.">
     <meta property="twitter:image" content="https://camo.githubusercontent.com/7801068d0f353d1366c9959d10f227699b0a2e3481657e1a85bf3f2d25dc60fa/68747470733a2f2f73696d706c65786f66742e636f6d2f696d616765732f323032332f31312f31302f646f74736c696e65735f32346670732d312e676966">
 
-    <link rel="canonical" href="http://ims.moyotechmw.com/">
-    <link rel="icon" href="http://ims.moyotechmw.com/static/logo.png" type="image/png">
+    <link rel="canonical" href="http://ims.medicoremw.com/">
+    <link rel="icon" href="{% static 'logo.png' %}" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -45,6 +45,21 @@
             --dark-background: #111827;
             --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
             --transition: all 0.3s ease;
+
+            /* MediCore hero/header theme (matches brand mock) */
+            --mc-teal: #0fb8ac;
+            --mc-teal-dark: #0b9a90;
+            --mc-blue: #2f7bf6;
+            --mc-navy: #0b1730;
+            --mc-slate: #5b6b82;
+            --mc-bg: #eef6fb;
+            --mc-card: #ffffff;
+            --mc-border: #e6edf3;
+        }
+
+        /* Zoom out page slightly for wider view */
+        html {
+            zoom: 0.7;
         }
 
         @font-face {
@@ -70,14 +85,15 @@
         
         /* Header Styles */
         header {
-            background-color: rgba(17, 24, 39, 0.95);
-            padding: 1rem 5%;
+            background-color: rgba(255, 255, 255, 0.92);
+            padding: 0.9rem 5%;
             position: fixed;
             width: 100%;
             z-index: 1000;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 20px rgba(15, 23, 42, 0.06);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--mc-border);
         }
         
         nav {
@@ -89,14 +105,15 @@
         .logo {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            color: white;
-            font-size: 1.75rem;
-            font-weight: 700;
+            gap: 0.65rem;
+            color: var(--mc-navy);
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
         }
         
         .logo img {
-            width: 50px;
+            width: 38px;
             height: auto;
             transition: var(--transition);
         }
@@ -104,21 +121,36 @@
         .logo:hover img {
             transform: rotate(5deg);
         }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.1;
+        }
+
+        .logo-text .logo-sub {
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            color: var(--mc-slate);
+            margin-top: 0.1rem;
+        }
         
         .logo span {
-            color: var(--primary-light);
+            color: var(--mc-teal);
             font-weight: 800;
         }
         
         .nav-links {
             display: flex;
-            gap: 2.5rem;
+            gap: 2.25rem;
         }
         
         .nav-links a {
-            color: white;
+            color: var(--mc-navy);
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 0.95rem;
             transition: var(--transition);
             position: relative;
             padding: 0.5rem 0;
@@ -131,7 +163,7 @@
             left: 0;
             width: 0;
             height: 2px;
-            background-color: var(--primary-light);
+            background-color: var(--mc-teal);
             transition: var(--transition);
         }
         
@@ -140,19 +172,20 @@
         }
         
         .nav-links a:hover {
-            color: var(--primary-light);
+            color: var(--mc-teal);
         }
         
         .nav-buttons {
             display: flex;
             gap: 1rem;
+            align-items: center;
         }
         
         .mobile-menu-btn {
             display: none;
             background: none;
             border: none;
-            color: white;
+            color: var(--mc-navy);
             font-size: 1.5rem;
             cursor: pointer;
             padding: 0.5rem;
@@ -161,12 +194,12 @@
         }
         
         .mobile-menu-btn:hover {
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(15, 184, 172, 0.1);
         }
         
         .btn {
             padding: 0.75rem 1.75rem;
-            border-radius: 0.5rem;
+            border-radius: 2rem;
             font-weight: 600;
             cursor: pointer;
             transition: var(--transition);
@@ -174,6 +207,29 @@
             display: inline-block;
             text-align: center;
             font-size: 0.95rem;
+        }
+
+        .nav-buttons .btn-outline {
+            border-radius: 2rem;
+            color: var(--mc-teal);
+            border: 1.5px solid var(--mc-teal);
+            background: transparent;
+        }
+
+        .nav-buttons .btn-outline:hover {
+            background-color: rgba(15, 184, 172, 0.08);
+        }
+
+        .nav-buttons .btn-primary {
+            background: linear-gradient(90deg, var(--mc-teal) 0%, var(--mc-blue) 100%);
+            box-shadow: 0 8px 16px rgba(15, 184, 172, 0.25);
+            border: none;
+        }
+
+        .nav-buttons .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(15, 184, 172, 0.35);
+            background: linear-gradient(90deg, var(--mc-teal-dark) 0%, var(--secondary-dark) 100%);
         }
         
         .btn-primary {
@@ -213,74 +269,436 @@
             box-shadow: 0 6px 12px rgba(37, 99, 235, 0.3);
         }
         
-        /* Hero Section */
+        /* Hero Section - MediCore (PEZA-style) */
         .hero {
-            background: linear-gradient(135deg, var(--dark-background) 0%, #1a2b4d 100%);
-            color: white;
-            padding: 10rem 5% 6rem;
+            background: linear-gradient(180deg, #f4fafd 0%, var(--mc-bg) 100%);
+            color: var(--mc-navy);
+            padding: 3.5rem 5% 4rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            min-height: 100vh;
+            gap: 3rem;
+            min-height: 80vh;
             position: relative;
             overflow: hidden;
         }
-        
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%233b82f6' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
-            opacity: 0.5;
-        }
-        
+
+        .hero::before { content: none; }
+
         .hero-content {
-            max-width: 600px;
+            max-width: 560px;
             z-index: 2;
             animation: fadeInUp 1s ease-out;
         }
-        
-        .hero h1 {
-            font-size: 3.5rem;
-            margin-bottom: 1.5rem;
-            line-height: 1.2;
-            font-weight: 800;
-        }
-        
-        .hero p {
-            font-size: 1.25rem;
-            margin-bottom: 2.5rem;
-            opacity: 0.9;
-            font-weight: 400;
-        }
-        
-        .trial-badge {
-            display: inline-block;
-            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 0.5rem 1.25rem;
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(15, 184, 172, 0.1);
+            color: var(--mc-teal-dark);
+            padding: 0.5rem 1rem;
             border-radius: 2rem;
-            font-size: 0.9rem;
-            font-weight: 600;
+            font-size: 0.85rem;
+            font-weight: 700;
             margin-bottom: 1.5rem;
-            box-shadow: 0 4px 10px rgba(0, 102, 58, 0.3);
-            animation: pulse 2s infinite;
+            position: relative;
+            top: 2.4rem;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.15;
+            font-weight: 800;
+            color: var(--mc-navy);
+            letter-spacing: -0.02em;
+        }
+
+        .hero h1 .accent {
+            color: var(--mc-teal);
+        }
+        
+        .hero p.hero-desc {
+            font-size: 1.05rem;
+            margin-bottom: 2rem;
+            color: var(--mc-slate);
+            font-weight: 400;
+            max-width: 500px;
         }
         
         .hero-buttons {
             display: flex;
-            gap: 1rem;
+            gap: 1.75rem;
             flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 3rem;
+        }
+
+        .hero-buttons .btn-primary {
+            background: linear-gradient(90deg, var(--mc-teal) 0%, var(--mc-blue) 100%);
+            border-radius: 2rem;
+            box-shadow: 0 10px 20px rgba(15, 184, 172, 0.3);
+            padding: 0.9rem 1.85rem;
+        }
+
+        .hero-buttons .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 24px rgba(15, 184, 172, 0.4);
+        }
+
+        .watch-demo {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.65rem;
+            color: var(--mc-navy);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .watch-demo .play-circle {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1.5px solid var(--mc-border);
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--mc-navy);
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+        }
+
+        .watch-demo:hover .play-circle {
+            background: var(--mc-teal);
+            color: white;
+        }
+
+        .trust-label {
+            font-size: 0.8rem;
+            color: var(--mc-slate);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .trust-stats {
+            display: flex;
+            gap: 2.5rem;
+            /* keep stats on a single horizontal line */
+            flex-wrap: nowrap;
+            align-items: center;
+            overflow-x: auto;
+        }
+
+        .trust-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .trust-stat .stat-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .trust-stat:nth-child(1) .stat-icon { background: rgba(15,184,172,0.12); color: var(--mc-teal); }
+        .trust-stat:nth-child(2) .stat-icon { background: rgba(47,123,246,0.12); color: var(--mc-blue); }
+        .trust-stat:nth-child(3) .stat-icon { background: rgba(139,92,246,0.12); color: #8b5cf6; }
+
+        .trust-stat .stat-number {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--mc-navy);
+            line-height: 1.1;
+        }
+
+        .trust-stat .stat-label {
+            font-size: 0.8rem;
+            color: var(--mc-slate);
         }
         
         .hero-image {
-            width: 50%;
+            width: 54%;
             z-index: 2;
             animation: float 6s ease-in-out infinite;
             position: relative;
+            padding: 2.75rem 2.5rem 3rem 0;
+        }
+
+        /* Dashboard mockup */
+        .dash-mock {
+            position: relative;
+            background: var(--mc-card);
+            border-radius: 1.25rem;
+            box-shadow: 0 30px 60px -15px rgba(11, 23, 48, 0.25);
+            border: 1px solid var(--mc-border);
+            /* allow the hero photo to extend outside the mock so the hair isn't clipped */
+            overflow: visible;
+            display: flex;
+            z-index: 1;
+        }
+
+        .dash-sidebar {
+            width: 170px;
+            background: #fbfdfe;
+            border-right: 1px solid var(--mc-border);
+            padding: 1rem 0.85rem;
+            flex-shrink: 0;
+        }
+
+        .dash-sidebar .dash-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: var(--mc-navy);
+            margin-bottom: 1.25rem;
+        }
+
+        .dash-sidebar .dash-logo img { width: 20px; }
+        .dash-sidebar .dash-logo span { color: var(--mc-teal); }
+
+        .dash-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--mc-slate);
+            padding: 0.55rem 0.7rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .dash-nav-item.active {
+            background: var(--mc-teal);
+            color: white;
+        }
+
+        .dash-main {
+            flex: 1;
+            padding: 1.1rem 1.2rem;
+            min-width: 0;
+        }
+
+        .dash-main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .dash-main-header h4 {
+            font-size: 1rem;
+            color: var(--mc-navy);
+        }
+
+        .dash-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--mc-navy);
+        }
+
+        .dash-avatar {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--mc-teal), var(--mc-blue));
+        }
+
+        .dash-stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.6rem;
+            margin-bottom: 0.85rem;
+        }
+
+        .dash-stat-card {
+            background: white;
+            border: 1px solid var(--mc-border);
+            border-radius: 0.65rem;
+            padding: 0.6rem 0.7rem;
+        }
+
+        .dash-stat-card .label {
+            font-size: 0.62rem;
+            color: var(--mc-slate);
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .dash-stat-card .value {
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: var(--mc-navy);
+        }
+
+        .dash-stat-card .delta {
+            font-size: 0.6rem;
+            font-weight: 700;
+            margin-top: 0.15rem;
+        }
+
+        .dash-stat-card .delta.up { color: #16a34a; }
+        .dash-stat-card .delta.down { color: #dc2626; }
+
+        .dash-chart-card {
+            background: white;
+            border: 1px solid var(--mc-border);
+            border-radius: 0.65rem;
+            padding: 0.7rem 0.8rem;
+            margin-bottom: 0.85rem;
+        }
+
+        .dash-chart-card .chart-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--mc-navy);
+            margin-bottom: 0.4rem;
+        }
+
+        .dash-chart-card .chart-head span.tag {
+            font-weight: 600;
+            color: var(--mc-slate);
+            background: var(--mc-bg);
+            padding: 0.15rem 0.5rem;
+            border-radius: 1rem;
+            font-size: 0.6rem;
+        }
+
+        .dash-orders {
+            background: white;
+            border: 1px solid var(--mc-border);
+            border-radius: 0.65rem;
+            padding: 0.7rem 0.8rem;
+        }
+
+        .dash-orders .orders-head {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--mc-navy);
+            margin-bottom: 0.45rem;
+        }
+
+        .dash-order-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.62rem;
+            color: var(--mc-slate);
+            padding: 0.28rem 0;
+            border-bottom: 1px dashed var(--mc-border);
+        }
+
+        .dash-order-row:last-child { border-bottom: none; }
+
+        .dash-order-row .oid { font-weight: 700; color: var(--mc-navy); }
+
+        .status-pill {
+            padding: 0.05rem 0.45rem;
+            border-radius: 1rem;
+            font-weight: 700;
+            font-size: 0.58rem;
+        }
+
+        .status-pill.paid { background: #dcfce7; color: #16a34a; }
+        .status-pill.processing { background: #fef3c7; color: #d97706; }
+
+        /* Floating cards on the mockup */
+        .float-card {
+            position: absolute;
+            background: white;
+            border-radius: 0.85rem;
+            box-shadow: 0 15px 30px rgba(11, 23, 48, 0.15);
+            border: 1px solid var(--mc-border);
+            padding: 0.85rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            z-index: 3;
+        }
+
+        .float-card .float-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 0.65rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .float-rx {
+            top: -0.5rem;
+            /* move further right so the card clears the hero photo */
+            right: 1.2rem;
+            max-width: 195px;
+        }
+
+        .float-rx .float-icon { background: rgba(47,123,246,0.12); color: var(--mc-blue); }
+        .float-rx .float-title { font-size: 0.78rem; font-weight: 800; color: var(--mc-navy); }
+        .float-rx .float-sub { font-size: 0.65rem; color: var(--mc-slate); margin: 0.15rem 0 0.45rem; }
+        .float-rx button {
+            border: none;
+            background: var(--mc-teal);
+            color: white;
+            font-size: 0.62rem;
+            font-weight: 700;
+            padding: 0.3rem 0.7rem;
+            border-radius: 1rem;
+            cursor: pointer;
+        }
+
+        .float-top {
+            bottom: -0.75rem;
+            /* further move the bottom floating card off to the right edge as requested */
+            right: -4rem;
+            max-width: 185px;
+        }
+
+        .float-top .float-icon { background: rgba(15,184,172,0.12); color: var(--mc-teal); }
+        .float-top .float-title { font-size: 0.68rem; font-weight: 700; color: var(--mc-slate); }
+        .float-top .float-value { font-size: 0.78rem; font-weight: 800; color: var(--mc-navy); }
+        .float-top .float-sub2 { font-size: 0.62rem; color: var(--mc-slate); }
+
+        /* Pharmacist hero photo — sits in front of the dashboard mock, bottom-right
+           of the hero-image container, matching the reference composition */
+        .hero-photo {
+            position: absolute;
+            /* nudge more on-canvas so increased zoom won't crop the head */
+            right: -0.3rem;
+            bottom: -0.4rem;
+            /* slightly wider container to emphasize horizontal zoom */
+            width: 82%;
+            max-width: 640px;
+            z-index: 2;
+            pointer-events: none;
+            user-select: none;
+            /* allow image overflow to show hair */
+            overflow: visible;
+        }
+
+        .hero-photo img {
+            display: block;
+            width: 100%;
+            height: auto;
+            /* increase horizontal zoom while keeping vertical scale acceptable */
+            transform: scale(1.25, 1.18);
+            transform-origin: top right;
         }
         
         .hero-image img {
@@ -290,9 +708,10 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             transition: var(--transition);
         }
-        
-        .hero-image img:hover {
-            transform: translateY(-10px);
+
+        .hero-photo img {
+            border-radius: 0;
+            box-shadow: none;
         }
         
         @keyframes fadeInUp {
@@ -1170,9 +1589,21 @@ footer {
             .hero-buttons {
                 justify-content: center;
             }
+
+            .trust-stats {
+                justify-content: center;
+            }
             
             .hero-image {
-                width: 80%;
+                width: 90%;
+            }
+
+            .float-rx, .float-top {
+                display: none;
+            }
+
+            .hero-photo {
+                display: none;
             }
             
             .about-content {
@@ -1211,20 +1642,25 @@ footer {
             }
             
             .hero h1 {
-                font-size: 2.5rem;
+                font-size: 2.25rem;
             }
             
-            .hero p {
-                font-size: 1.1rem;
+            .hero p.hero-desc {
+                font-size: 1.05rem;
             }
             
             .hero-buttons {
                 flex-direction: column;
+                align-items: flex-start;
                 gap: 1rem;
             }
             
             .hero-image {
                 width: 100%;
+            }
+
+            .dash-sidebar {
+                display: none;
             }
             
             section {
@@ -1323,8 +1759,11 @@ footer {
     <header>
         <nav>
             <div class="logo">
-               <img src="{% static 'logo.png' %}" alt="MoyoTech Logo">
-                <span>MoyoTech</span> IMS
+               <img src="{% static 'logo.png' %}" alt="MediCore Logo">
+               <div class="logo-text">
+                   <div>Medi<span>Core</span></div>
+                   <div class="logo-sub">PHARMACY SYSTEM</div>
+               </div>
             </div>
             <div class="nav-links">
                 <a href="#about">About Us</a>
@@ -1335,7 +1774,7 @@ footer {
             </div>
             <div class="nav-buttons">
                 <a href="{% url 'login' %}" class="btn btn-outline">Log In</a>
-                <a href="{% url 'register' %}" class="btn btn-primary">Get Started</a>
+                <a href="{% url 'register' %}" class="btn btn-primary">Get Started <i class="fas fa-arrow-right" style="font-size:0.8em;margin-left:0.35rem;"></i></a>
             </div>
             <button class="mobile-menu-btn">
                 <i class="fas fa-bars"></i>
@@ -1364,30 +1803,125 @@ footer {
 
     <section class="hero">
         <div class="hero-content">
-            <div class="trial-badge">
-                <i class="fas fa-gift"></i> Start your 1-month free trial today!
+            <div class="hero-badge">
+                <i class="fas fa-shield-alt"></i> Smart Pharmacy Management
             </div>
-            <h1>Your All-in-One Integrated Management Solution</h1>
-            <p>MoyoTech IMS brings together all your critical business systems in one powerful platform. Streamline operations, enhance productivity, and drive growth with our comprehensive management solution.</p>
+            <h1>Simplify. Manage.<br>Care <span class="accent">Better.</span></h1>
+            <p class="hero-desc">MediCore Pharmacy System helps you manage inventory, sales, prescriptions, and customers — all in one powerful platform. Built for pharmacies. Designed for growth.</p>
             <div class="hero-buttons">
-                <a href="{% url 'register' %}" class="btn btn-primary">Get Started Free</a>
-                <a href="#systems" class="btn btn-outline">Explore Systems</a>
+                <a href="{% url 'register' %}" class="btn btn-primary">Get Started Now <i class="fas fa-arrow-right" style="font-size:0.85em;margin-left:0.4rem;"></i></a>
+                <a href="#" class="watch-demo"><span class="play-circle"><i class="fas fa-play" style="font-size:0.7em;"></i></span> Watch Demo</a>
+            </div>
+
+            <div class="trust-label">Trusted by Pharmacies Worldwide</div>
+            <div class="trust-stats">
+                <div class="trust-stat">
+                    <div class="stat-icon"><i class="fas fa-store"></i></div>
+                    <div>
+                        <div class="stat-number">500+</div>
+                        <div class="stat-label">Pharmacies</div>
+                    </div>
+                </div>
+                <div class="trust-stat">
+                    <div class="stat-icon"><i class="fas fa-box"></i></div>
+                    <div>
+                        <div class="stat-number">50K+</div>
+                        <div class="stat-label">Products Managed</div>
+                    </div>
+                </div>
+                <div class="trust-stat">
+                    <div class="stat-icon"><i class="fas fa-users"></i></div>
+                    <div>
+                        <div class="stat-number">100K+</div>
+                        <div class="stat-label">Happy Customers</div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="hero-image">
-            <img src="https://camo.githubusercontent.com/7801068d0f353d1366c9959d10f227699b0a2e3481657e1a85bf3f2d25dc60fa/68747470733a2f2f73696d706c65786f66742e636f6d2f696d616765732f323032332f31312f31302f646f74736c696e65735f32346670732d312e676966" alt="MoyoTech IMS Dashboard">
+            <div class="dash-mock">
+                <div class="dash-sidebar">
+                    <div class="dash-logo"><img src="{% static 'logo.png' %}" alt="MediCore"> Medi<span>Core</span></div>
+                    <div class="dash-nav-item active"><i class="fas fa-th-large"></i> Dashboard</div>
+                    <div class="dash-nav-item"><i class="fas fa-boxes"></i> Inventory</div>
+                    <div class="dash-nav-item"><i class="fas fa-cash-register"></i> Sales</div>
+                    <div class="dash-nav-item"><i class="fas fa-file-prescription"></i> Prescriptions</div>
+                    <div class="dash-nav-item"><i class="fas fa-user-friends"></i> Customers</div>
+                    <div class="dash-nav-item"><i class="fas fa-truck"></i> Suppliers</div>
+                    <div class="dash-nav-item"><i class="fas fa-chart-bar"></i> Reports</div>
+                    <div class="dash-nav-item"><i class="fas fa-cog"></i> Settings</div>
+                </div>
+                <div class="dash-main">
+                    <div class="dash-main-header">
+                        <h4>Dashboard</h4>
+                        <div class="dash-profile"><i class="far fa-bell"></i> <span class="dash-avatar"></span> Pharmacist</div>
+                    </div>
+                    <div class="dash-stats-row">
+                        <div class="dash-stat-card">
+                            <div class="label">Total Sales</div>
+                            <div class="value">MWK 12,540,000</div>
+                            <div class="delta up">↑ 12.5% from last month</div>
+                        </div>
+                        <div class="dash-stat-card">
+                            <div class="label">Total Orders</div>
+                            <div class="value">1,482</div>
+                            <div class="delta up">↑ 8.3% from last month</div>
+                        </div>
+                        <div class="dash-stat-card">
+                            <div class="label">Low Stock</div>
+                            <div class="value">24</div>
+                            <div class="delta down">↓ 4 since yesterday</div>
+                        </div>
+                    </div>
+                    <div class="dash-chart-card">
+                        <div class="chart-head">Sales Overview <span class="tag">This Month</span></div>
+                        <svg viewBox="0 0 300 80" width="100%" height="70" preserveAspectRatio="none">
+                            <polyline points="0,60 30,45 60,50 90,30 120,38 150,20 180,28 210,15 240,22 270,10 300,18" fill="none" stroke="#0fb8ac" stroke-width="2.5"/>
+                            <polygon points="0,60 30,45 60,50 90,30 120,38 150,20 180,28 210,15 240,22 270,10 300,18 300,80 0,80" fill="#0fb8ac" opacity="0.08"/>
+                        </svg>
+                    </div>
+                    <div class="dash-orders">
+                        <div class="orders-head">Recent Orders</div>
+                        <div class="dash-order-row"><span class="oid">#ORD-001</span><span>Customer</span><span>MWK 250,000</span><span class="status-pill paid">Paid</span></div>
+                        <div class="dash-order-row"><span class="oid">#ORD-002</span><span>Customer</span><span>MWK 125,000</span><span class="status-pill processing">Processing</span></div>
+                        <div class="dash-order-row"><span class="oid">#ORD-003</span><span>Customer</span><span>MWK 320,000</span><span class="status-pill paid">Paid</span></div>
+                    </div>
+                </div>
+
+                <div class="float-card float-rx">
+                    <div class="float-icon"><i class="fas fa-file-prescription"></i></div>
+                    <div>
+                        <div class="float-title">Prescription</div>
+                        <div class="float-sub">Upload &amp; Manage Prescriptions easily</div>
+                        <button>Upload Now</button>
+                    </div>
+                </div>
+
+                <div class="float-card float-top">
+                    <div class="float-icon"><i class="fas fa-pills"></i></div>
+                    <div>
+                        <div class="float-title">Top Selling Product</div>
+                        <div class="float-value">Paracetamol 500mg</div>
+                        <div class="float-sub2">1,250 units sold</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-photo">
+                <img src="{% static 'image.png' %}" alt="Pharmacist reviewing inventory on a tablet">
+            </div>
         </div>
     </section>
 
     <section id="about" class="about">
         <div class="section-title">
-            <h2>About MoyoTech IMS</h2>
+            <h2>About MediCore IMS</h2>
             <p>Transforming the way businesses manage their operations through innovative integration</p>
         </div>
         <div class="about-content">
             <div class="about-text">
                 <h3>One Platform, Endless Possibilities</h3>
-                <p>MoyoTech Integrated Management System (IMS) eliminates inefficiencies caused by disconnected tools by providing a unified platform. With IMS, you can manage your entire operation from a single dashboard, ensuring seamless data flow, stronger collaboration, and smarter decisions.</p>
+                <p>MediCore Integrated Management System (IMS) eliminates inefficiencies caused by disconnected tools by providing a unified platform. With IMS, you can manage your entire operation from a single dashboard, ensuring seamless data flow, stronger collaboration, and smarter decisions.</p>
 
                 <div class="about-features">
                     <div class="about-feature">
@@ -1411,7 +1945,7 @@ footer {
                 <a href="{% url 'register' %}" class="btn btn-primary">Start Your Free Trial</a>
             </div>
             <div class="about-image">
-                <img src="https://miro.medium.com/v2/resize:fit:1400/0*vVdc_FbpeSHXEpnj.gif" alt="MoyoTech team collaboration">
+                <img src="https://miro.medium.com/v2/resize:fit:1400/0*vVdc_FbpeSHXEpnj.gif" alt="MediCore team collaboration">
             </div>
         </div>
     </section>
@@ -1476,7 +2010,7 @@ footer {
     <section class="features" id="features">
         <div class="section-title">
             <h2>Key Features</h2>
-            <p>Why businesses choose MoyoTech IMS as their management solution</p>
+            <p>Why businesses choose MediCore IMS as their management solution</p>
         </div>
         <div class="feature-list">
             <div class="feature-item">
@@ -1793,7 +2327,7 @@ footer {
     <section class="cta">
         <div class="cta-content">
             <h2>Ready to Transform Your Business?</h2>
-            <p>Join hundreds of forward-thinking companies that have revolutionized their operations with MoyoTech IMS. Get started today with our 30-day free trial and see the difference an integrated approach can make.</p>
+            <p>Join hundreds of forward-thinking companies that have revolutionized their operations with MediCore IMS. Get started today with our 30-day free trial and see the difference an integrated approach can make.</p>
             <a href="{% url 'register' %}" class="btn">Get Started Now</a>
         </div>
     </section>
@@ -1803,8 +2337,8 @@ footer {
     <div class="footer-content">
         <!-- <div class="footer-brand">
             <div class="footer-logo">
-                <img src="{% static 'logo.png' %}" alt="MoyoTech IMS - Integrated Management System">
-                <div>Moyo<span>Tech</span> IMS</div>
+                <img src="{% static 'logo.png' %}" alt="MediCore IMS - Integrated Management System">
+                <div>Medi<span>Core</span> IMS</div>
             </div>
             <p class="footer-description">Comprehensive integrated management solutions for businesses of all sizes. Streamline operations with our all-in-one platform.</p>
             <div class="social-links">
@@ -1852,7 +2386,7 @@ footer {
             <h4>Contact Us</h4>
             <div class="contact-info">
                 <p><i class="fas fa-map-marker-alt"></i> Area 25B P.O. Box: 40343, Lilongwe, Malawi</p>
-                <p><i class="fas fa-envelope"></i> Moyotech6@gmail.com</p>
+                <p><i class="fas fa-envelope"></i> info@medicoremw.com</p>
                 <!-- <p><i class="fas fa-phone"></i> +265 997 03 27 04</p> -->
                 <p><i class="fas fa-phone"></i> +265 880 41 98 97</p>
             </div>
@@ -1869,7 +2403,7 @@ footer {
     
     <div class="footer-bottom">
         <div class="footer-bottom-content">
-            <p>&copy; <span id="year"></span> MoyoTech IMS. All rights reserved.</p>
+            <p>&copy; <span id="year"></span> MediCore IMS. All rights reserved.</p>
             <div class="legal-links">
                 <a href="#">Privacy Policy</a>
                 <a href="#">Terms of Service</a>
