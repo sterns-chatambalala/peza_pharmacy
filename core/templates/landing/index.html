@@ -271,19 +271,43 @@
         
         /* Hero Section - MediCore (PEZA-style) */
         .hero {
-            background: linear-gradient(180deg, #f4fafd 0%, var(--mc-bg) 100%);
+            background: linear-gradient(180deg, #eaf8fb 0%, #f8fbfe 45%, var(--mc-bg) 100%);
             color: var(--mc-navy);
-            padding: 3.5rem 5% 4rem;
+            padding: 5.5rem 5% 3.2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 3rem;
-            min-height: 80vh;
+            min-height: 78vh;
             position: relative;
             overflow: hidden;
         }
 
-        .hero::before { content: none; }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 4%;
+            right: 9%;
+            width: 28rem;
+            height: 28rem;
+            background: radial-gradient(circle, rgba(15,184,172,0.22) 0%, rgba(15,184,172,0.00) 60%);
+            filter: blur(64px);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: 6%;
+            left: 6%;
+            width: 20rem;
+            height: 20rem;
+            background: radial-gradient(circle, rgba(59,130,246,0.1) 0%, rgba(59,130,246,0.00) 65%);
+            filter: blur(54px);
+            pointer-events: none;
+            z-index: 1;
+        }
 
         .hero-content {
             max-width: 560px;
@@ -294,25 +318,35 @@
         .hero-badge {
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            background: rgba(15, 184, 172, 0.1);
+            gap: 0.75rem;
+            background: rgba(15, 184, 172, 0.16);
             color: var(--mc-teal-dark);
-            padding: 0.5rem 1rem;
-            border-radius: 2rem;
-            font-size: 0.85rem;
+            padding: 0.85rem 1.25rem;
+            border-radius: 2.4rem;
+            font-size: 0.9rem;
             font-weight: 700;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.8rem;
             position: relative;
-            top: 2.4rem;
+            z-index: 1010;
+            border: 1px solid rgba(15, 184, 172, 0.2);
+            box-shadow: 0 22px 48px rgba(15, 184, 172, 0.08);
+            transition: transform 0.3s ease, opacity 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .hero-badge:hover {
+            transform: translateY(1px);
+            opacity: 0.98;
         }
 
         .hero h1 {
-            font-size: 3rem;
-            margin-bottom: 1.5rem;
-            line-height: 1.15;
+            font-size: clamp(3rem, 4vw, 3.6rem);
+            margin-bottom: 1.6rem;
+            line-height: 1.04;
             font-weight: 800;
             color: var(--mc-navy);
-            letter-spacing: -0.02em;
+            letter-spacing: -0.03em;
+            max-width: 38rem;
+            text-shadow: 0 8px 20px rgba(14, 22, 48, 0.04);
         }
 
         .hero h1 .accent {
@@ -321,25 +355,33 @@
         
         .hero p.hero-desc {
             font-size: 1.05rem;
-            margin-bottom: 2rem;
-            color: var(--mc-slate);
+            margin-bottom: 2.3rem;
+            color: #475569;
             font-weight: 400;
-            max-width: 500px;
+            max-width: 42rem;
+            line-height: 1.8;
         }
         
         .hero-buttons {
             display: flex;
-            gap: 1.75rem;
-            flex-wrap: wrap;
+            gap: 1rem;
+            flex-wrap: nowrap;
             align-items: center;
-            margin-bottom: 3rem;
+            margin-bottom: 2.4rem;
+            white-space: nowrap;
         }
 
         .hero-buttons .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             background: linear-gradient(90deg, var(--mc-teal) 0%, var(--mc-blue) 100%);
             border-radius: 2rem;
-            box-shadow: 0 10px 20px rgba(15, 184, 172, 0.3);
-            padding: 0.9rem 1.85rem;
+            box-shadow: 0 16px 36px rgba(15, 184, 172, 0.22);
+            height: 56px;
+            padding: 0 2rem;
+            min-width: 190px;
+            letter-spacing: 0.01em;
         }
 
         .hero-buttons .btn-primary:hover {
@@ -350,25 +392,36 @@
         .watch-demo {
             display: inline-flex;
             align-items: center;
-            gap: 0.65rem;
+            gap: 0.85rem;
             color: var(--mc-navy);
             text-decoration: none;
-            font-weight: 700;
-            font-size: 0.95rem;
+            height: 56px;
+            padding: 0 1.15rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid rgba(15, 184, 172, 0.24);
+            box-shadow: 0 14px 32px rgba(15, 23, 48, 0.08);
+            transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .watch-demo:hover {
+            transform: translateY(-1px);
+            background: rgba(15, 184, 172, 0.08);
+            border-color: rgba(15, 184, 172, 0.35);
         }
 
         .watch-demo .play-circle {
-            width: 38px;
-            height: 38px;
+            width: 46px;
+            height: 46px;
             border-radius: 50%;
-            border: 1.5px solid var(--mc-border);
+            border: 1.75px solid rgba(15, 184, 172, 0.28);
             background: white;
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--mc-navy);
-            box-shadow: var(--card-shadow);
-            transition: var(--transition);
+            box-shadow: 0 14px 32px rgba(15, 23, 48, 0.08);
+            transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
 
         .watch-demo:hover .play-circle {
@@ -379,17 +432,19 @@
         .trust-label {
             font-size: 0.8rem;
             color: var(--mc-slate);
-            font-weight: 600;
-            margin-bottom: 1rem;
+            font-weight: 700;
+            margin: 1.8rem 0 1rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
         }
 
         .trust-stats {
             display: flex;
-            gap: 2.5rem;
-            /* keep stats on a single horizontal line */
+            gap: 2.2rem;
             flex-wrap: nowrap;
             align-items: center;
             overflow-x: auto;
+            padding-bottom: 0.3rem;
         }
 
         .trust-stat {
@@ -429,17 +484,17 @@
             z-index: 2;
             animation: float 6s ease-in-out infinite;
             position: relative;
-            padding: 2.75rem 2.5rem 3rem 0;
+            padding: 2.5rem 2.25rem 2.5rem 0;
+            min-width: 500px;
         }
 
         /* Dashboard mockup */
         .dash-mock {
             position: relative;
-            background: var(--mc-card);
-            border-radius: 1.25rem;
-            box-shadow: 0 30px 60px -15px rgba(11, 23, 48, 0.25);
-            border: 1px solid var(--mc-border);
-            /* allow the hero photo to extend outside the mock so the hair isn't clipped */
+            background: rgba(255, 255, 255, 0.96);
+            border-radius: 1.75rem;
+            box-shadow: 0 38px 90px -40px rgba(11, 23, 48, 0.22);
+            border: 1px solid rgba(15, 184, 172, 0.12);
             overflow: visible;
             display: flex;
             z-index: 1;
@@ -665,8 +720,8 @@
 
         .float-top {
             bottom: -0.75rem;
-            /* further move the bottom floating card off to the right edge as requested */
-            right: -4rem;
+            /* keep the bottom float visible near the hero edge */
+            right: 1.8rem;
             max-width: 185px;
         }
 
@@ -679,16 +734,13 @@
            of the hero-image container, matching the reference composition */
         .hero-photo {
             position: absolute;
-            /* nudge more on-canvas so increased zoom won't crop the head */
-            right: -0.3rem;
-            bottom: -0.4rem;
-            /* slightly wider container to emphasize horizontal zoom */
+            right: -0.4rem;
+            bottom: -1.1rem;
             width: 82%;
-            max-width: 640px;
+            max-width: 700px;
             z-index: 2;
             pointer-events: none;
             user-select: none;
-            /* allow image overflow to show hair */
             overflow: visible;
         }
 
@@ -696,9 +748,9 @@
             display: block;
             width: 100%;
             height: auto;
-            /* increase horizontal zoom while keeping vertical scale acceptable */
-            transform: scale(1.25, 1.18);
-            transform-origin: top right;
+            transform: scale(1.34, 1.3);
+            transform-origin: center right;
+            transition: transform 0.4s ease;
         }
         
         .hero-image img {
@@ -1810,7 +1862,7 @@ footer {
             <p class="hero-desc">MediCore Pharmacy System helps you manage inventory, sales, prescriptions, and customers — all in one powerful platform. Built for pharmacies. Designed for growth.</p>
             <div class="hero-buttons">
                 <a href="{% url 'register' %}" class="btn btn-primary">Get Started Now <i class="fas fa-arrow-right" style="font-size:0.85em;margin-left:0.4rem;"></i></a>
-                <a href="#" class="watch-demo"><span class="play-circle"><i class="fas fa-play" style="font-size:0.7em;"></i></span> Watch Demo</a>
+                <a href="#" class="watch-demo"><span class="play-circle"><i class="fas fa-play" style="font-size:1rem;"></i></span> Watch Demo</a>
             </div>
 
             <div class="trust-label">Trusted by Pharmacies Worldwide</div>
