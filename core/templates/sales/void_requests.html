@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% block title %}Void Requests{% endblock %}
+{% block content %}
+<div class="dashboard-header">
+    <div class="dashboard-title">
+        <h1>Void Requests</h1>
+        <p class="dashboard-subtitle">Manage pending void requests</p>
+    </div>
+</div>
+
+<div class="table-container">
+    <div class="table-header">
+        <div class="table-title">Pending Void Requests ({{ page_obj.paginator.count }})</div>
+    </div>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Request ID</th>
+                <th>Sale ID</th>
+                <th>Requested By</th>
+                <th>Date Requested</th>
+                <th>Reason</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in page_obj %}
+            <tr>
+                <td>#{{ request.id }}</td>
+                <td><a href="{% url 'sale_detail' request.sale.id %}">#{{ request.sale.sale_id }}</a></td>
+                <td>{{ request.requested_by.username }}</td>
+                <td>{{ request.requested_at|date:"M d, Y H:i" }}</td>
+                <td>{{ request.reason|truncatewords:20 }}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn-icon approve-request" data-id="{{ request.id }}" title="Approve">
+                            <span class="material-icons">check</span>
+                        </button>
+                        <button class="btn-icon reject-request" data-id="{{ request.id }}" title="Reject">
+                            <span class="material-icons">close</span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 40px; color: var(--light-text);">
+                    <div style="font-size: 3rem; margin-bottom: 15px;">📋</div>
+                    <h3>No pending void requests</h3>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+        <a href="?page=1" class="pagination-btn">
+            <span class="material-icons">first_page</span>
+        </a>
+        <a href="?page={{ page_obj.previous_page_number }}" class="pagination-btn">
+            <span class="material-icons">chevron_left</span>
+        </a>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <span class="pagination-btn active">{{ num }}</span>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <a href="?page={{ num }}" class="pagination-btn">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="pagination-btn">
+            <span class="material-icons">chevron_right</span>
+        </a>
+        <a href="?page={{ page_obj.paginator.num_pages }}" class="pagination-btn">
+            <span class="material-icons">last_page</span>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    /* Styles for table and pagination (similar to sales/list.html) */
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .approve-request {
+        color: var(--success-color);
+    }
+    
+    .reject-request {
+        color: var(--danger-color);
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Approve request
+        document.querySelectorAll('.approve-request').forEach(button => {
+            button.addEventListener('click', function() {
+                const requestId = this.dataset.id;
+                const notes = prompt('Enter approval notes (optional):');
+                processVoidRequest(requestId, 'approve', notes);
+            });
+        });
+        
+        // Reject request
+        document.querySelectorAll('.reject-request').forEach(button => {
+            button.addEventListener('click', function() {
+                const requestId = this.dataset.id;
+                const notes = prompt('Enter rejection notes (optional):');
+                processVoidRequest(requestId, 'reject', notes);
+            });
+        });
+    });
+
+    function processVoidRequest(requestId, action, notes) {
+        fetch(`/void-request/${requestId}/process/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: `action=${action}&notes=${encodeURIComponent(notes || '')}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            if (data.success) {
+                location.reload();
+            }
+        })
+        .catch(error => {
+            alert('Error processing request: ' + error);
+        });
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}

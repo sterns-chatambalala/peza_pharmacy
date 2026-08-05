@@ -1,0 +1,31 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Verify Your Account</title>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #f8f9fa; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 40px; background: white; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        .header { text-align: center; margin-bottom: 30px; }
+        .otp { font-size: 2rem; font-weight: bold; text-align: center; padding: 20px; background: #e6f7f3; border-radius: 8px; color: #00663a; }
+        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://esltd.co.uk/wp-content/uploads/2016/07/IMS.png" alt="IMS Logo" style="height: 70px;">
+            <h1>Welcome to MoyoTech IMS</h1>
+            <p>Dear {{ user.username }},</p>
+            <p>Thank you for registering. To verify your account, please use the following OTP:</p>
+        </div>
+        <div class="otp">{{ otp }}</div>
+        <p style="text-align: center; margin-top: 20px;">This OTP will expire in 10 minutes.</p>
+        <div class="footer">
+            <p>If you didn't register, please ignore this email.</p>
+            <p>&copy; 2025 IMS. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

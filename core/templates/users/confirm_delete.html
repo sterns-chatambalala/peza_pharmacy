@@ -1,0 +1,275 @@
+{% extends 'base.html' %}
+{% block title %}Confirm User Deletion{% endblock %}
+{% block content %}
+<div class="dashboard-header">
+    <div class="dashboard-title">
+        <h1>Confirm User Deletion</h1>
+        <p class="dashboard-subtitle">Permanently remove user from the system</p>
+    </div>
+    
+    <div class="header-actions">
+        <a href="{% url 'user_list' %}" class="btn-secondary">
+            <span class="material-icons">arrow_back</span>
+            Back to Users
+        </a>
+    </div>
+</div>
+
+<div class="confirmation-container">
+    <div class="confirmation-card">
+        <div class="confirmation-header">
+            <div class="warning-icon">
+                <span class="material-icons">warning</span>
+            </div>
+            <h2>Are you sure you want to delete this user?</h2>
+            <p class="confirmation-subtitle">This action cannot be undone. All user data will be permanently removed from the system.</p>
+        </div>
+        
+        <div class="user-to-delete">
+            <div class="user-avatar-large">
+                {{ membership.user.username|first|upper }}
+            </div>
+            <div class="user-details">
+                <h3>{{ membership.user.username }}</h3>
+                <p class="user-email">{{ membership.user.email }}</p>
+                <div class="user-role">
+                    <span class="role-badge role-{{ membership.role }}">
+                        {{ membership.role|title }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="deletion-impact">
+            <h4>This will permanently:</h4>
+            <ul class="impact-list">
+                <li>Remove user account and all associated data</li>
+                <li>Delete user's sales and prescription records</li>
+                <li>Revoke all system access immediately</li>
+                <li>Cannot be recovered or restored</li>
+            </ul>
+        </div>
+        
+        <div class="confirmation-actions">
+            <form method="post">
+                {% csrf_token %}
+                <button type="button" class="btn-secondary" onclick="window.history.back()">
+                    <span class="material-icons">cancel</span>
+                    Cancel
+                </button>
+                <button type="submit" class="btn-danger">
+                    <span class="material-icons">delete_forever</span>
+                    Delete User Permanently
+                </button>
+            </form>
+        </div>
+        
+        {% if membership.role == 'owner' %}
+        <div class="owner-warning">
+            <span class="material-icons">error</span>
+            <p>Owner accounts cannot be deleted. Please contact system administration for assistance.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .confirmation-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .confirmation-card {
+        background: var(--card-bg);
+        border-radius: var(--card-radius);
+        padding: 30px;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border-color);
+        text-align: center;
+    }
+    
+    .confirmation-header {
+        margin-bottom: 30px;
+    }
+    
+    .warning-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: rgba(239, 68, 68, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--danger-color);
+        font-size: 2.5rem;
+        margin: 0 auto 20px;
+    }
+    
+    .confirmation-header h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-color);
+        margin-bottom: 10px;
+    }
+    
+    .confirmation-subtitle {
+        color: var(--light-text);
+        line-height: 1.6;
+    }
+    
+    .user-to-delete {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 25px;
+        background: var(--bg-color);
+        border-radius: 12px;
+        margin-bottom: 25px;
+        justify-content: center;
+    }
+    
+    .user-avatar-large {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: var(--primary-gradient);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 1.5rem;
+    }
+    
+    .user-details h3 {
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: var(--text-color);
+    }
+    
+    .user-email {
+        color: var(--light-text);
+        margin-bottom: 10px;
+    }
+    
+    .deletion-impact {
+        text-align: left;
+        margin-bottom: 30px;
+        padding: 20px;
+        background: rgba(239, 68, 68, 0.05);
+        border-radius: 8px;
+        border-left: 4px solid var(--danger-color);
+    }
+    
+    .deletion-impact h4 {
+        color: var(--danger-color);
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+    
+    .impact-list {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .impact-list li {
+        padding: 8px 0;
+        color: var(--text-color);
+        position: relative;
+        padding-left: 25px;
+    }
+    
+    .impact-list li::before {
+        content: '⨯';
+        position: absolute;
+        left: 0;
+        color: var(--danger-color);
+        font-weight: bold;
+    }
+    
+    .confirmation-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+    }
+    
+    .btn-danger {
+        background: var(--danger-color);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-danger:hover {
+        background: #dc2626;
+        transform: translateY(-2px);
+    }
+    
+    .owner-warning {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 15px;
+        background: rgba(245, 158, 11, 0.1);
+        border-radius: 8px;
+        border-left: 4px solid var(--warning-color);
+        margin-top: 20px;
+        text-align: left;
+    }
+    
+    .owner-warning .material-icons {
+        color: var(--warning-color);
+        flex-shrink: 0;
+    }
+    
+    .owner-warning p {
+        color: var(--text-color);
+        margin: 0;
+        font-size: 0.9rem;
+    }
+    
+    @media (max-width: 768px) {
+        .confirmation-actions {
+            flex-direction: column;
+        }
+        
+        .user-to-delete {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .owner-warning {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Disable delete button for owner accounts
+        const deleteButton = document.querySelector('.btn-danger');
+        {% if membership.role == 'owner' %}
+            deleteButton.disabled = true;
+            deleteButton.style.opacity = '0.6';
+            deleteButton.style.cursor = 'not-allowed';
+        {% endif %}
+        
+        // Confirm before submitting
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            if (!confirm('Are you absolutely sure? This action cannot be undone.')) {
+                e.preventDefault();
+            }
+        });
+    });
+</script>
+{% endblock %}

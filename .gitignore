@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.python-version
+
+# Django
+*.log
+*.pot
+*.pyc
+*.sqlite3
+/media
+/staticfiles
+
+# Environments
+venv/
+ENV/
+env/
+.venv/
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+*.swp
+*.swo
+*.swn
+*~
+
+# Pytest
+.cache/
+
+# Database
+db.sqlite3
+
+# Mac
+.AppleDouble
+.LSOverride
+
+# Distribution
+build/
+dist/
+*.egg-info/

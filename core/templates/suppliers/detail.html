@@ -1,0 +1,419 @@
+{% extends 'base.html' %}
+{% block title %}{{ supplier.name }} - Supplier Details{% endblock %}
+{% block content %}
+<div class="dashboard-header">
+    <div class="dashboard-title">
+        <h1>{{ supplier.name }}</h1>
+        <p class="dashboard-subtitle">Supplier Details & Information</p>
+    </div>
+    
+    <div class="header-actions">
+        <a href="{% url 'supplier_update' supplier.id %}" class="btn-primary">
+            <span class="material-icons">edit</span>
+            Edit Supplier
+        </a><br>
+        <a href="{% url 'supplier_list' %}" class="btn-secondary">
+            <span class="material-icons">arrow_back</span>
+            Back to List
+        </a>
+    </div>
+</div>
+
+<div class="charts-grid">
+    <!-- Supplier Information -->
+    <div class="chart-card">
+        <div class="chart-header">
+            <h3 class="chart-title">Supplier Information</h3>
+        </div>
+        
+        <div class="detail-grid">
+            <div class="detail-item">
+                <span class="detail-label">Company Name:</span>
+                <span class="detail-value">{{ supplier.name }}</span>
+            </div>
+            
+            <div class="detail-item">
+                <span class="detail-label">Contact Person:</span>
+                <span class="detail-value">{{ supplier.contact_person|default:"Not specified" }}</span>
+            </div>
+            
+            <div class="detail-item">
+                <span class="detail-label">Phone:</span>
+                <span class="detail-value">{{ supplier.phone }}</span>
+            </div>
+            
+            <div class="detail-item">
+                <span class="detail-label">Email:</span>
+                <span class="detail-value">
+                    {% if supplier.email %}
+                    <a href="mailto:{{ supplier.email }}" class="email-link">{{ supplier.email }}</a>
+                    {% else %}
+                    Not provided
+                    {% endif %}
+                </span>
+            </div>
+            
+            <div class="detail-item full-width">
+                <span class="detail-label">Address:</span>
+                <span class="detail-value">{{ supplier.address|default:"Not provided" }}</span>
+            </div>
+            
+            <div class="detail-item">
+                <span class="detail-label">Created By:</span>
+                <span class="detail-value">{{ supplier.created_by.username }} on {{ supplier.created_at|date:"M d, Y" }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Card -->
+    <div class="chart-card">
+        <div class="chart-header">
+            <h3 class="chart-title">Statistics</h3>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-icon">
+                    <span class="material-icons">medication</span>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ supplier.supplied_drugs.count }}</div>
+                    <div class="stat-label">Supplied Drugs</div>
+                </div>
+            </div>
+            
+            <div class="stat-item">
+                <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                    <span class="material-icons">inventory</span>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ active_drugs_count }}</div>
+                    <div class="stat-label">Active Drugs</div>
+                </div>
+            </div>
+            
+            <div class="stat-item">
+                <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                    <span class="material-icons">low_priority</span>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ low_stock_count }}</div>
+                    <div class="stat-label">Low Stock</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Supplied Drugs -->
+<div class="table-container">
+    <div class="table-header">
+        <h3 class="table-title">Supplied Drugs ({{ supplier.supplied_drugs.count }})</h3>
+        <div class="table-actions">
+            <a href="{% url 'drug_create' %}?supplier={{ supplier.id }}" class="btn-primary">
+                <span class="material-icons">add</span>
+                Add New Drug
+            </a>
+        </div>
+    </div>
+    
+    {% if supplier.supplied_drugs.all %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Drug Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for drug in supplier.supplied_drugs.all %}
+            <tr>
+                <td>
+                    <div class="drug-info">
+                        <div class="drug-name">{{ drug.name }}</div>
+                        <div class="drug-batch">Batch: {{ drug.batch_no }}</div>
+                    </div>
+                </td>
+                <td>{{ drug.category }}</td>
+                <td>MK{{ drug.price }}</td>
+                <td>{{ drug.quantity }} units</td>
+                <td>
+                    {% if drug.is_expired %}
+                    <span class="status-badge expired">Expired</span>
+                    {% elif drug.is_low_stock %}
+                    <span class="status-badge low">Low Stock</span>
+                    {% else %}
+                    <span class="status-badge high">In Stock</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'drug_detail' drug.id %}" class="btn-icon" title="View">
+                        <span class="material-icons">visibility</span>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <span class="material-icons">medication</span>
+        <h4>No Drugs Associated</h4>
+        <p>This supplier doesn't have any drugs associated yet</p>
+        <a href="{% url 'drug_create' %}?supplier={{ supplier.id }}" class="btn-primary">
+            <span class="material-icons">add</span>
+            Add First Drug
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<br>
+<!-- Quick Actions -->
+<!-- <div class="table-container">
+    <div class="table-header">
+        <h3 class="table-title">Quick Actions</h3>
+    </div>
+    
+    <div class="quick-actions-grid">
+        <a href="{% url 'supplier_update' supplier.id %}" class="action-card">
+            <span class="material-icons">edit</span>
+            <h4>Edit Supplier</h4>
+            <p>Update supplier information</p>
+        </a>
+        
+        <a href="{% url 'drug_create' %}?supplier={{ supplier.id }}" class="action-card">
+            <span class="material-icons">add_circle</span>
+            <h4>Add Drug</h4>
+            <p>Add new drug from this supplier</p>
+        </a>
+        
+        <a href="{% url 'supplier_list' %}" class="action-card">
+            <span class="material-icons">list</span>
+            <h4>View All</h4>
+            <p>Browse all suppliers</p>
+        </a>
+        
+        <a href="mailto:{{ supplier.email|default:'#' }}" class="action-card" {% if not supplier.email %}onclick="return false;" style="opacity: 0.6;"{% endif %}>
+            <span class="material-icons">email</span>
+            <h4>Send Email</h4>
+            <p>Contact this supplier</p>
+        </a>
+    </div>
+</div> -->
+
+<style>
+    /* Header Actions */
+    .header-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .header-actions .btn-primary,
+    .header-actions .btn-secondary {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+    }
+
+    .action-text {
+        display: inline;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    
+    .detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .detail-item:last-child {
+        border-bottom: none;
+    }
+    
+    .detail-item.full-width {
+        grid-column: 1 / -1;
+    }
+    
+    .detail-label {
+        font-weight: 600;
+        color: var(--light-text);
+        font-size: 0.9rem;
+    }
+    
+    .detail-value {
+        font-weight: 500;
+        color: var(--text-color);
+    }
+    
+    .email-link {
+        color: var(--primary-color);
+        text-decoration: none;
+    }
+    
+    .email-link:hover {
+        text-decoration: underline;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-top: 10px;
+    }
+    
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 15px;
+        background: var(--primary-light);
+        border-radius: 12px;
+    }
+    
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 102, 58, 0.1);
+        color: var(--primary-color);
+    }
+    
+    .stat-content {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-color);
+    }
+    
+    .stat-label {
+        font-size: 0.8rem;
+        color: var(--light-text);
+    }
+    
+    .drug-info {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+    
+    .drug-name {
+        font-weight: 600;
+        color: var(--text-color);
+    }
+    
+    .drug-batch {
+        font-size: 0.8rem;
+        color: var(--light-text);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: var(--light-text);
+    }
+    
+    .empty-state .material-icons {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        opacity: 0.5;
+    }
+    
+    .empty-state h4 {
+        margin: 0 0 10px 0;
+        color: var(--text-color);
+    }
+    
+    .empty-state p {
+        margin: 0 0 20px 0;
+    }
+    
+    .quick-actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    
+    .action-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 25px;
+        background: var(--primary-light);
+        border-radius: 15px;
+        text-decoration: none;
+        color: var(--text-color);
+        transition: var(--transition);
+        border: 1px solid transparent;
+    }
+    
+    .action-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-hover);
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+    
+    .action-card .material-icons {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        color: var(--primary-color);
+    }
+    
+    .action-card h4 {
+        margin: 0 0 10px 0;
+        font-weight: 600;
+    }
+    
+    .action-card p {
+        margin: 0;
+        color: var(--light-text);
+        font-size: 0.9rem;
+    }
+    
+    @media (max-width: 768px) {
+        .header-actions {
+            flex-direction: column;
+            width: 100%;
+        }
+        
+        .btn-primary, .btn-secondary {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .quick-actions-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

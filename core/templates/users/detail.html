@@ -1,0 +1,328 @@
+{% extends 'base.html' %}
+{% block title %}User Details - {{ user_membership.user.username }}{% endblock %}
+{% block content %}
+<div class="dashboard-header">
+    <div class="dashboard-title">
+        <h1>User Details</h1>
+        <p class="dashboard-subtitle">View and manage user information</p>
+    </div>
+    
+    <div class="header-actions">
+        <a href="{% url 'user_list' %}" class="btn-secondary">
+            <span class="material-icons">arrow_back</span>
+            Back to Users
+        </a>
+        <a href="{% url 'user_update' user_membership.id %}" class="btn-primary">
+            <span class="material-icons">edit</span>
+            Edit User
+        </a>
+    </div>
+</div>
+
+<div class="user-detail-container">
+    <div class="user-profile-card">
+        <div class="user-profile-header">
+            <div class="user-avatar-large">
+                {{ user_membership.user.username|first|upper }}
+            </div>
+            <div class="user-profile-info">
+                <h2>{{ user_membership.user.username }}</h2>
+                <p class="user-email">{{ user_membership.user.email }}</p>
+                <div class="user-status">
+                    <span class="status-badge {% if user_membership.user.is_active %}high{% else %}low{% endif %}">
+                        {% if user_membership.user.is_active %}Active{% else %}Inactive{% endif %}
+                    </span>
+                    <span class="role-badge role-{{ user_membership.role }}">
+                        {{ user_membership.role|title }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="user-stats">
+            <div class="stat-item">
+                <div class="stat-value">{{ sales_count|default:0 }}</div>
+                <div class="stat-label">Sales Made</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{{ prescriptions_count|default:0 }}</div>
+                <div class="stat-label">Prescriptions</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{{ days_since_joined }}</div>
+                <div class="stat-label">Days Active</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="detail-grid">
+        <div class="detail-card">
+            <h3 class="detail-card-title">Personal Information</h3>
+            <div class="detail-list">
+                <div class="detail-item">
+                    <span class="detail-label">Username</span>
+                    <span class="detail-value">{{ user_membership.user.username }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Email Address</span>
+                    <span class="detail-value">{{ user_membership.user.email }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Account Status</span>
+                    <span class="detail-value">
+                        {% if user_membership.user.is_active %}Active{% else %}Inactive{% endif %}
+                    </span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Last Login</span>
+                    <span class="detail-value">{{ user_membership.user.last_login|date:"M d, Y H:i"|default:"Never" }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="detail-card">
+            <h3 class="detail-card-title">Role Information</h3>
+            <div class="detail-list">
+                <div class="detail-item">
+                    <span class="detail-label">User Role</span>
+                    <span class="detail-value">
+                        <span class="role-badge role-{{ user_membership.role }}">
+                            {{ user_membership.role|title }}
+                        </span>
+                    </span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Joined Date</span>
+                    <span class="detail-value">{{ user_membership.joined_at|date:"M d, Y" }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Tenant</span>
+                    <span class="detail-value">{{ user_membership.tenant.name }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Member For</span>
+                    <span class="detail-value">{{ user_membership.joined_at|timesince }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="detail-card">
+        <h3 class="detail-card-title">Recent Activity</h3>
+        <div class="activity-timeline">
+            {% for activity in recent_activity %}
+            <div class="activity-item">
+                <div class="activity-icon">
+                    <span class="material-icons">{{ activity.icon }}</span>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">{{ activity.title }}</div>
+                    <div class="activity-time">{{ activity.time|timesince }} ago</div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+                <span class="material-icons">history</span>
+                <p>No recent activity</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .user-detail-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    
+    .user-profile-card {
+        background: var(--card-bg);
+        border-radius: var(--card-radius);
+        padding: 30px;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border-color);
+        margin-bottom: 25px;
+    }
+    
+    .user-profile-header {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+        margin-bottom: 25px;
+    }
+    
+    .user-avatar-large {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: var(--primary-gradient);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 2rem;
+    }
+    
+    .user-profile-info h2 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+        color: var(--text-color);
+    }
+    
+    .user-email {
+        color: var(--light-text);
+        margin-bottom: 15px;
+    }
+    
+    .user-status {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .user-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 20px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .stat-item {
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 5px;
+    }
+    
+    .stat-label {
+        color: var(--light-text);
+        font-size: 0.9rem;
+    }
+    
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+        margin-bottom: 25px;
+    }
+    
+    .detail-card {
+        background: var(--card-bg);
+        border-radius: var(--card-radius);
+        padding: 25px;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border-color);
+    }
+    
+    .detail-card-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--text-color);
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .detail-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .detail-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .detail-label {
+        color: var(--light-text);
+        font-weight: 500;
+    }
+    
+    .detail-value {
+        color: var(--text-color);
+        font-weight: 600;
+    }
+    
+    .activity-timeline {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .activity-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 15px;
+        border-radius: 8px;
+        background: var(--bg-color);
+    }
+    
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--primary-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-color);
+    }
+    
+    .activity-content {
+        flex: 1;
+    }
+    
+    .activity-title {
+        font-weight: 500;
+        color: var(--text-color);
+        margin-bottom: 3px;
+    }
+    
+    .activity-time {
+        color: var(--light-text);
+        font-size: 0.85rem;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: var(--light-text);
+    }
+    
+    .empty-state .material-icons {
+        font-size: 3rem;
+        margin-bottom: 15px;
+    }
+    
+    @media (max-width: 768px) {
+        .user-profile-header {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .user-stats {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        
+        .detail-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+        }
+    }
+</style>
+{% endblock %}

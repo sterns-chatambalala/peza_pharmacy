@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% block title %}{% if supplier %}Edit{% else %}Add New{% endif %} Supplier{% endblock %}
+{% block content %}
+<div class="dashboard-header">
+    <div class="dashboard-title">
+        <h1>{% if supplier %}Edit{% else %}Add New{% endif %} Supplier</h1>
+        <p class="dashboard-subtitle">{% if supplier %}Update supplier information{% else %}Add a new supplier to your system{% endif %}</p>
+    </div>
+    
+    <a href="{% if supplier %}{% url 'supplier_detail' supplier.id %}{% else %}{% url 'supplier_list' %}{% endif %}" class="btn-secondary">
+        <span class="material-icons">arrow_back</span>
+        {% if supplier %}Back to Details{% else %}Back to List{% endif %}
+    </a>
+</div>
+
+<div class="table-container">
+    <form method="post" class="supplier-form">
+        {% csrf_token %}
+        
+        <div class="form-section">
+            <h3 class="section-title">Basic Information</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="name">Supplier Name *</label>
+                    <input type="text" id="name" name="name" value="{{ supplier.name|default:'' }}" required 
+                           class="form-input" placeholder="Enter supplier company name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="contact_person">Contact Person</label>
+                    <input type="text" id="contact_person" name="contact_person" value="{{ supplier.contact_person|default:'' }}" 
+                           class="form-input" placeholder="Enter contact person name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Phone Number *</label>
+                    <input type="tel" id="phone" name="phone" value="{{ supplier.phone|default:'' }}" required 
+                           class="form-input" placeholder="Enter phone number">
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" value="{{ supplier.email|default:'' }}" 
+                           class="form-input" placeholder="Enter email address">
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="address">Address</label>
+                    <textarea id="address" name="address" class="form-input" placeholder="Enter full address" rows="3">{{ supplier.address|default:'' }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3 class="section-title">Supplied Drugs</h3>
+            <div class="form-group">
+                <label for="supplied_drugs">Select Drugs</label>
+                <select id="supplied_drugs" name="supplied_drugs" multiple class="form-input" style="height: 200px;">
+                    {% for drug in drugs %}
+                    <option value="{{ drug.id }}" {% if drug in supplier.supplied_drugs.all %}selected{% endif %}>
+                        {{ drug.name }} - {{ drug.category }} (MK{{ drug.price }})
+                    </option>
+                    {% endfor %}
+                </select>
+                <small class="form-text">Hold Ctrl/Cmd to select multiple drugs</small>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">
+                <span class="material-icons">{% if supplier %}save{% else %}add{% endif %}</span>
+                {% if supplier %}Update Supplier{% else %}Create Supplier{% endif %}
+            </button>
+            
+            <a href="{% if supplier %}{% url 'supplier_detail' supplier.id %}{% else %}{% url 'supplier_list' %}{% endif %}" class="btn-secondary">
+                <span class="material-icons">cancel</span>
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .supplier-form {
+        padding: 0;
+    }
+    
+    .form-section {
+        margin-bottom: 30px;
+        padding-bottom: 25px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .form-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    
+    .section-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: var(--text-color);
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+    }
+    
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+    
+    .form-group label {
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: var(--text-color);
+        font-size: 0.95rem;
+    }
+    
+    .form-input {
+        padding: 12px 15px;
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        background: var(--card-bg);
+        color: var(--text-color);
+        font-size: 1rem;
+        transition: var(--transition);
+        font-family: inherit;
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(0, 102, 58, 0.1);
+    }
+    
+    .form-input::placeholder {
+        color: var(--light-text);
+    }
+    
+    textarea.form-input {
+        resize: vertical;
+        min-height: 100px;
+    }
+    
+    select.form-input {
+        padding: 12px 15px;
+    }
+    
+    .form-text {
+        color: var(--light-text);
+        font-size: 0.85rem;
+        margin-top: 5px;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: flex-end;
+        padding-top: 25px;
+        margin-top: 30px;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .btn-primary, .btn-secondary {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Form validation
+        const form = document.querySelector('.supplier-form');
+        form.addEventListener('submit', function(e) {
+            const phone = document.getElementById('phone').value;
+            const email = document.getElementById('email').value;
+            
+            // Basic phone validation
+            if (phone && !/^[\d\s\-\+\(\)]+$/.test(phone)) {
+                e.preventDefault();
+                alert('Please enter a valid phone number.');
+                return false;
+            }
+            
+            // Basic email validation
+            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                e.preventDefault();
+                alert('Please enter a valid email address.');
+                return false;
+            }
+        });
+        
+        // Enhance select with search functionality
+        const drugSelect = document.getElementById('supplied_drugs');
+        if (drugSelect) {
+            // Add search functionality for large lists
+            const searchInput = document.createElement('input');
+            searchInput.type = 'text';
+            searchInput.placeholder = 'Search drugs...';
+            searchInput.className = 'form-input';
+            searchInput.style.marginBottom = '10px';
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const options = drugSelect.options;
+                
+                for (let i = 0; i < options.length; i++) {
+                    const option = options[i];
+                    const text = option.text.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        option.style.display = '';
+                    } else {
+                        option.style.display = 'none';
+                    }
+                }
+            });
+            
+            drugSelect.parentNode.insertBefore(searchInput, drugSelect);
+        }
+    });
+</script>
+{% endblock %}

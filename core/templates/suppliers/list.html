@@ -1,0 +1,394 @@
+{% extends 'base.html' %}
+{% block title %}Supplier Management{% endblock %}
+{% block content %}
+<div class="dashboard-header">
+    <div class="dashboard-title">
+        <h1>Supplier Management</h1>
+        <p class="dashboard-subtitle">Manage your pharmacy's suppliers and vendors</p>
+    </div>
+    
+    <div class="header-actions">
+        <a href="{% url 'supplier_create' %}" class="btn-primary" title="Add New Supplier">
+            <span class="material-icons">add</span>
+            <span class="action-text">Add New Supplier</span>
+        </a>
+        <a href="{% url 'supplier_bulk_upload' %}" class="btn-primary" title="Bulk Upload">
+            <span class="material-icons">upload</span>
+            <span class="action-text">Bulk Upload</span>
+        </a>
+        <!-- <a href="{% url 'download_supplier_template' %}" class="btn-secondary" title="Download Template">
+            <span class="material-icons">download</span>
+            <span class="action-text">Download Template</span>
+        </a> -->
+        <a href="{% url 'download_supplier_data' %}" class="btn-secondary" title="Download Supplier Data">
+            <span class="material-icons">file_download</span>
+            <span class="action-text">Download Supplier Data</span>
+        </a>
+    </div>
+</div>
+
+<div class="table-container">
+    <div class="table-header">
+        <div class="table-title">All Suppliers</div>
+        <div class="table-actions">
+            <form method="GET" class="filter-form">
+                <input type="text" name="search" class="search-input" placeholder="Search suppliers..." value="{{ search_query }}">
+                <button type="submit" class="btn-primary">
+                    <span class="material-icons">search</span>
+                    <span class="action-text">Search</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Contact Person</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Supplied Drugs</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for supplier in page_obj %}
+                <tr>
+                    <td data-label="Name">
+                        <div class="supplier-info">
+                            <div class="supplier-name">{{ supplier.name }}</div>
+                            <div class="supplier-address">{{ supplier.address|truncatewords:5|default:"No address" }}</div>
+                        </div>
+                    </td>
+                    <td data-label="Contact Person">{{ supplier.contact_person|default:"Not specified" }}</td>
+                    <td data-label="Phone">{{ supplier.phone }}</td>
+                    <td data-label="Email">
+                        {% if supplier.email %}
+                        <a href="mailto:{{ supplier.email }}" class="email-link">{{ supplier.email }}</a>
+                        {% else %}
+                        Not provided
+                        {% endif %}
+                    </td>
+                    <td data-label="Supplied Drugs">
+                        <div class="drugs-count">
+                            <span class="badge {% if supplier.supplied_drugs.count > 0 %}bg-primary{% else %}bg-secondary{% endif %}">
+                                {{ supplier.supplied_drugs.count }} drugs
+                            </span>
+                        </div>
+                    </td>
+                    <td data-label="Actions">
+                        <div class="action-buttons">
+                            <a href="{% url 'supplier_detail' supplier.id %}" class="btn-icon" title="View Details">
+                                <span class="material-icons">visibility</span>
+                            </a>
+                            <a href="{% url 'supplier_update' supplier.id %}" class="btn-icon" title="Edit">
+                                <span class="material-icons">edit</span>
+                            </a>
+                            <!-- <a href="{% url 'drug_create' %}?supplier={{ supplier.id }}" class="btn-icon" title="Add Drug">
+                                <span class="material-icons">add_circle</span>
+                            </a> -->
+                            <a href="{% url 'supplier_delete' supplier.id %}" class="btn-icon" title="Delete">
+                                <span class="material-icons">delete</span>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center">
+                        <div class="empty-state">
+                            <span class="material-icons">people</span>
+                            <h4>No Suppliers Found</h4>
+                            <p>Get started by adding your first supplier</p>
+                            <a href="{% url 'supplier_create' %}" class="btn-primary">
+                                <span class="material-icons">add</span>
+                                Add Supplier
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page=1&search={{ search_query|urlencode }}">&laquo; First</a>
+            <a href="?page={{ page_obj.previous_page_number }}&search={{ search_query|urlencode }}">Previous</a>
+        {% endif %}
+        
+        <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}&search={{ search_query|urlencode }}">Next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}&search={{ search_query|urlencode }}">Last &raquo;</a>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    /* Header Actions */
+    .header-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .header-actions .btn-primary,
+    .header-actions .btn-secondary {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+    }
+
+    .action-text {
+        display: inline;
+    }
+
+    .supplier-info {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+    
+    .supplier-name {
+        font-weight: 600;
+        color: var(--text-color);
+    }
+    
+    .supplier-address {
+        font-size: 0.8rem;
+        color: var(--light-text);
+    }
+    
+    .email-link {
+        color: var(--primary-color);
+        text-decoration: none;
+    }
+    
+    .email-link:hover {
+        text-decoration: underline;
+    }
+    
+    .drugs-count {
+        display: flex;
+        justify-content: center;
+    }
+    
+    .badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .bg-primary {
+        background: var(--primary-color);
+        color: white;
+    }
+    
+    .bg-secondary {
+        background: var(--light-text);
+        color: white;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .btn-icon {
+        background: none;
+        border: none;
+        color: var(--text-color);
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 8px;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+    }
+    
+    .btn-icon:hover {
+        background: var(--primary-light);
+        color: var(--primary-color);
+        transform: translateY(-2px);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: var(--light-text);
+    }
+    
+    .empty-state .material-icons {
+        font-size: 4rem;
+        margin-bottom: 15px;
+        opacity: 0.5;
+    }
+    
+    .empty-state h4 {
+        margin: 0 0 10px 0;
+        color: var(--text-color);
+    }
+    
+    .empty-state p {
+        margin: 0 0 20px 0;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .data-table {
+        min-width: 600px;
+    }
+
+    /* Filter form */
+    .filter-form {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .filter-form .search-input {
+        flex: 1;
+        min-width: 120px;
+        padding: 8px;
+        font-size: 0.85rem;
+    }
+
+    .filter-form .btn-primary {
+        padding: 8px 12px;
+    }
+
+    /* Pagination styles */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+    }
+
+    .pagination a {
+        padding: 8px 12px;
+        border: 1px solid var(--border-color);
+        background: var(--card-bg);
+        color: var(--text-color);
+        border-radius: 5px;
+        text-decoration: none;
+        transition: var(--transition);
+    }
+
+    .pagination a:hover {
+        background: var(--primary-light);
+        color: var(--primary-color);
+    }
+
+    .pagination span {
+        padding: 8px 12px;
+        color: var(--light-text);
+    }
+
+    /* Mobile styles */
+    @media (max-width: 768px) {
+        .header-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            gap: 6px;
+        }
+
+        .header-actions .btn-primary,
+        .header-actions .btn-secondary {
+            padding: 6px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-actions .action-text {
+            display: none;
+        }
+
+        .table-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .filter-form {
+            width: 100%;
+        }
+
+        .filter-form .search-input,
+        .filter-form .btn-primary {
+            width: 100%;
+            min-width: unset;
+        }
+
+        .filter-form .btn-primary .action-text {
+            display: none;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 8px;
+            font-size: 0.75rem;
+        }
+
+        .action-buttons {
+            gap: 4px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .data-table th,
+        .data-table td {
+            padding: 6px;
+            font-size: 0.7rem;
+        }
+
+        .supplier-name {
+            font-size: 0.9rem;
+        }
+
+        .supplier-address {
+            font-size: 0.7rem;
+        }
+
+        .badge {
+            font-size: 0.65rem;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Client-side search (optional, as backend handles search on submit)
+        const searchInput = document.querySelector('.search-input');
+        const tableBody = document.querySelector('.data-table tbody');
+        const rows = Array.from(tableBody.querySelectorAll('tr:not(.text-center)'));  // Exclude empty state
+        
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+    });
+</script>
+{% endblock %}

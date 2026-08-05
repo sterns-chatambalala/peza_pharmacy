@@ -1,0 +1,364 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Timeout - PharmaCare IMS</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #00663a;
+            --primary-light: #e6f7f3;
+            --primary-gradient: linear-gradient(135deg, #00663a, #008f4a);
+            --secondary-color: #1a2533;
+            --accent-color: #00c896;
+            --border-color: #e0e0e0;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --light-text: #666666;
+            --header-bg: #ffffff;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 8px 20px rgba(0, 102, 58, 0.15);
+            --btn-hover: #e9ecef;
+            --input-focus: #f0f9f7;
+            --overlay: rgba(255, 255, 255, 0.7);
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
+            --card-radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #00c896;
+            --primary-light: #1c3832;
+            --primary-gradient: linear-gradient(135deg, #00c896, #00663a);
+            --secondary-color: #00c896;
+            --accent-color: #00c896;
+            --border-color: #3a3a3a;
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --light-text: #b0b0b0;
+            --header-bg: #1a1a1a;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 8px 20px rgba(0, 200, 150, 0.2);
+            --btn-hover: #333333;
+            --input-focus: #1c3832;
+            --overlay: rgba(0, 0, 0, 0.6);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: var(--transition);
+        }
+
+        @font-face {
+            font-family: 'Troy';
+            src: url('{% static "troy.woff2" %}') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Troy', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .error-container {
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .error-card {
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            padding: 60px 40px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .error-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: var(--primary-gradient);
+            opacity: 0.02;
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .error-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
+            background: rgba(245, 158, 11, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .error-icon .material-icons {
+            font-size: 60px;
+            color: var(--warning-color);
+        }
+
+        .error-code {
+            font-size: 6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            line-height: 1;
+        }
+
+        .error-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-color);
+        }
+
+        .error-message {
+            color: var(--light-text);
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 102, 58, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 102, 58, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--btn-hover);
+            transform: translateY(-1px);
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 5px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .theme-toggle button {
+            border: none;
+            background: transparent;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--light-text);
+        }
+
+        .theme-toggle button.active {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+        }
+
+        .countdown {
+            margin-top: 30px;
+            padding: 20px;
+            background: var(--bg-color);
+            border-radius: 8px;
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .countdown h3 {
+            margin-bottom: 10px;
+            color: var(--warning-color);
+            font-size: 1rem;
+        }
+
+        .countdown-timer {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--warning-color);
+        }
+
+        @media (max-width: 768px) {
+            .error-code {
+                font-size: 4rem;
+            }
+            
+            .error-title {
+                font-size: 1.5rem;
+            }
+            
+            .error-card {
+                padding: 40px 20px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 200px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-toggle">
+        <button id="light-mode" class="active"><span class="material-icons">light_mode</span></button>
+        <button id="dark-mode"><span class="material-icons">dark_mode</span></button>
+    </div>
+
+    <div class="error-container">
+        <div class="error-card">
+            <div class="error-icon">
+                <span class="material-icons">schedule</span>
+            </div>
+            
+            <div class="error-code">408</div>
+            <h1 class="error-title">Request Timeout</h1>
+            <p class="error-message">
+                The server timed out waiting for the request. This might be due to high traffic or a slow network connection.
+            </p>
+            
+            <div class="action-buttons">
+                <button onclick="location.reload()" class="btn btn-primary">
+                    <span class="material-icons">refresh</span>
+                    Try Again
+                </button>
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+                    <span class="material-icons">home</span>
+                    Go to Dashboard
+                </a>
+            </div>
+            
+            <div class="countdown">
+                <h3>Auto-refresh in:</h3>
+                <div class="countdown-timer" id="countdown">10</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme toggle functionality
+        const lightModeBtn = document.getElementById('light-mode');
+        const darkModeBtn = document.getElementById('dark-mode');
+        const htmlElement = document.documentElement;
+
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                applyDarkMode();
+            } else if (savedTheme === 'light') {
+                applyLightMode();
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                applyDarkMode();
+            } else {
+                applyLightMode();
+            }
+        }
+
+        function applyLightMode() {
+            htmlElement.setAttribute('data-theme', 'light');
+            lightModeBtn.classList.add('active');
+            darkModeBtn.classList.remove('active');
+            localStorage.setItem('theme', 'light');
+        }
+
+        function applyDarkMode() {
+            htmlElement.setAttribute('data-theme', 'dark');
+            darkModeBtn.classList.add('active');
+            lightModeBtn.classList.remove('active');
+            localStorage.setItem('theme', 'dark');
+        }
+
+        lightModeBtn.addEventListener('click', applyLightMode);
+        darkModeBtn.addEventListener('click', applyDarkMode);
+        initializeTheme();
+
+        // Countdown timer
+        let timeLeft = 10;
+        const countdownElement = document.getElementById('countdown');
+        
+        const countdown = setInterval(() => {
+            timeLeft--;
+            countdownElement.textContent = timeLeft;
+            
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                location.reload();
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Tenant Deleted</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .content { background: #f9f9f9; padding: 20px; border-radius: 5px; }
+        .footer { text-align: center; margin-top: 30px; font-size: 0.9em; color: #666; }
+        .warning { color: #dc3545; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Tenant Deleted</h1>
+        </div>
+        <div class="content">
+            <p>Hello {{ user.get_full_name|default:user.username }},</p>
+            <p>This email is to inform you that the tenant <strong>{{ tenant_name }}</strong> has been deleted by {{ owner_name }} on {{ timestamp|date:"F j, Y" }} at {{ timestamp|time:"H:i" }}.</p>
+            <p class="warning">All data associated with this tenant has been permanently deleted.</p>
+            <p>If you believe this was done in error, please contact our support team at {{ contact_email }}.</p>
+            <p>Your access to this tenant's resources has been revoked. If you need to continue using our services, you'll need to create or join another tenant.</p>
+        </div>
+        <div class="footer">
+            <p>This is an automated message, please do not reply.</p>
+        </div>
+    </div>
+</body>
+</html>

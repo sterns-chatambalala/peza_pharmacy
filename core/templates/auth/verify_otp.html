@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% block title %}Verify Account{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <img src="https://esltd.co.uk/wp-content/uploads/2016/07/IMS.png" alt="Logo">
+            <h1>Verify Your Account</h1>
+            <p>Enter the verification code sent to your email</p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="{{ form.code.id_for_label }}">Verification Code</label>
+                <div class="input-with-icon">
+                    <span class="material-icons">vpn_key</span>
+                    {{ form.code }}
+                </div>
+                {% if form.code.errors %}
+                    <div class="error-text">{{ form.code.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full">
+                <span class="material-icons">check_circle</span>
+                Verify Account
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Didn't receive the code?</p>
+            {% if can_resend %}
+                <form method="post" class="resend-form">
+                    {% csrf_token %}
+                    <button type="submit" name="resend" class="btn btn-secondary">
+                        <span class="material-icons">refresh</span>
+                        Resend Code
+                    </button>
+                </form>
+            {% else %}
+                <div class="resend-timer">
+                    <span class="material-icons">schedule</span>
+                    <span id="resend-timer">Resend available in <span id="countdown">{{ resend_cooldown }}</span>s</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .auth-card {
+        background: var(--card-bg);
+        border-radius: var(--card-radius);
+        padding: 40px;
+        width: 100%;
+        max-width: 450px;
+        margin: 0 auto;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border-color);
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .auth-header img {
+        height: 70px;
+        margin-bottom: 20px;
+    }
+
+    .auth-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-color);
+        margin-bottom: 10px;
+    }
+
+    .auth-header p {
+        color: var(--light-text);
+    }
+
+    .auth-form {
+        margin-bottom: 25px;
+    }
+
+    .btn-full {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .auth-footer {
+        text-align: center;
+        padding-top: 20px;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .auth-footer p {
+        color: var(--light-text);
+        margin-bottom: 15px;
+    }
+
+    .resend-timer {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        color: var(--light-text);
+    }
+
+    .resend-form {
+        margin-top: 15px;
+    }
+
+    @media (max-width: 768px) {
+        .auth-card {
+            padding: 30px 20px;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if not can_resend %}
+        // Countdown timer for resend
+        let timeLeft = {{ resend_cooldown }};
+        const countdownElement = document.getElementById('countdown');
+        const timerInterval = setInterval(() => {
+            timeLeft--;
+            countdownElement.textContent = timeLeft;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                location.reload(); // Reload to show resend button
+            }
+        }, 1000);
+        {% endif %}
+
+        // Auto-submit when 6 digits are entered
+        const codeInput = document.getElementById('{{ form.code.id_for_label }}');
+        codeInput.addEventListener('input', function() {
+            if (this.value.length === 6) {
+                this.form.submit();
+            }
+        });
+
+        // Focus on input
+        codeInput.focus();
+    });
+</script>
+{% endblock %}

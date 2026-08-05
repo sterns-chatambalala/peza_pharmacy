@@ -1,0 +1,439 @@
+{% extends 'base.html' %}
+{% block title %}Sale #{{ sale.sale_id }}{% endblock %}
+{% load humanize %}
+{% block content %}
+<div class="dashboard-header">
+    <div class="dashboard-title">
+        <h1>Sale #{{ sale.sale_id }}</h1>
+        <p class="dashboard-subtitle">Transaction details from {{ sale.date|date:"F d, Y" }}</p>
+    </div>
+    
+    <div class="header-actions">
+        {% if not sale.is_voided %}
+        <button onclick="window.print()" class="btn-primary">
+            <span class="material-icons">print</span>
+            Print Receipt
+        </button>
+        {% if sale.customer_email %}
+        <button onclick="emailReceipt({{ sale.id }})" class="btn-secondary">
+            <span class="material-icons">email</span>
+            Email Receipt
+        </button>
+        {% endif %}
+        <button onclick="showVoidModal()" class="btn-danger">
+            <span class="material-icons">cancel</span>
+            Void Sale
+        </button>
+        {% endif %}
+        <br>
+        <a href="{% url 'sales_history' %}" class="btn-secondary">
+            <span class="material-icons">arrow_back</span>
+            Back to Sales
+        </a>
+    </div>
+</div>
+
+<div class="charts-grid">
+    <!-- Sale Information -->
+    <div class="chart-card">
+        <div class="chart-header">
+            <h3 class="chart-title">Sale Information</h3>
+            <div class="status-badge {% if sale.is_voided %}expired{% else %}high{% endif %}">
+                {{ sale.is_voided|yesno:"VOIDED,COMPLETE" }}
+            </div>
+        </div>
+        
+        <div class="detail-grid">
+            <div class="detail-item">
+                <span class="detail-label">Customer Name</span>
+                <span class="detail-value">{{ sale.customer_name|default:"Walk-in Customer" }}</span>
+            </div>
+            {% if sale.customer_phone %}
+            <div class="detail-item">
+                <span class="detail-label">Phone Number</span>
+                <span class="detail-value">{{ sale.customer_phone }}</span>
+            </div>
+            {% endif %}
+            {% if sale.customer_email %}
+            <div class="detail-item">
+                <span class="detail-label">Email</span>
+                <span class="detail-value">{{ sale.customer_email }}</span>
+            </div>
+            {% endif %}
+            <div class="detail-item">
+                <span class="detail-label">Date & Time</span>
+                <span class="detail-value">{{ sale.date|date:"F d, Y h:i A" }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Processed By</span>
+                <span class="detail-value">{{ sale.processed_by.username }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Payment Method</span>
+                <span class="detail-value">{{ sale.get_payment_method_display }}</span>
+            </div>
+            {% if sale.is_voided %}
+            <div class="detail-item">
+                <span class="detail-label">Voided By</span>
+                <span class="detail-value">{{ sale.voided_by.username }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Void Date</span>
+                <span class="detail-value">{{ sale.voided_at|date:"F d, Y h:i A" }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Void Reason</span>
+                <span class="detail-value">{{ sale.void_reason }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Payment Summary -->
+    <div class="chart-card">
+        <div class="chart-header">
+            <h3 class="chart-title">Payment Summary</h3>
+        </div>
+        
+        <div class="payment-summary">
+            <div class="summary-item">
+                <span class="summary-label">Subtotal</span>
+                <span class="summary-value">MWK{{ sale.subtotal|intcomma }}</span>
+            </div>
+            {% if sale.discount_amount > 0 %}
+            <div class="summary-item">
+                <span class="summary-label">Discount ({{ sale.discount_percentage }}%)</span>
+                <span class="summary-value text-danger">-MWK{{ sale.discount_amount|intcomma }}</span>
+            </div>
+            {% endif %}
+            <div class="summary-item total">
+                <span class="summary-label">Total Amount</span>
+                <span class="summary-value">MWK{{ sale.total_amount|intcomma }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sale Items -->
+<div class="table-container">
+    <div class="table-header">
+        <h3 class="table-title">Items Purchased</h3>
+    </div>
+    
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Unit Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in sale.saleitem_set.all %}
+            <tr>
+                <td>
+                    <div class="product-info">
+                        <span class="product-name">{{ item.drug.name }}</span>
+                        <span class="product-batch">Batch: {{ item.drug.batch_no }}</span>
+                    </div>
+                </td>
+                <td>MWK{{ item.price|intcomma }}</td>
+                <td>{{ item.quantity }}</td>
+                <td><strong>MWK{{ item.total|intcomma }}</strong></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3" style="text-align: right;"><strong>Total:</strong></td>
+                <td><strong>MWK{{ sale.total_amount|intcomma }}</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<!-- Void Sale Modal -->
+<div id="voidModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Void Sale</h3>
+            <button class="modal-close" onclick="closeVoidModal()">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="voidForm">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="voidReason">Reason for voiding:</label>
+                    <textarea id="voidReason" name="reason" class="form-input" 
+                              placeholder="Please provide a reason for voiding this sale..." 
+                              required rows="4"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeVoidModal()">Cancel</button>
+                    <button type="submit" class="btn-danger">Confirm Void</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Header actions */
+    .header-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .header-actions .btn-primary,
+    .header-actions .btn-secondary {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+    
+    .detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .detail-label {
+        font-weight: 600;
+        color: var(--light-text);
+        font-size: 0.9rem;
+    }
+    
+    .detail-value {
+        font-weight: 500;
+        color: var(--text-color);
+    }
+    
+    .payment-summary {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .summary-item:last-child {
+        border-bottom: none;
+    }
+    
+    .summary-item.total {
+        border-top: 2px solid var(--primary-color);
+        margin-top: 5px;
+        padding-top: 12px;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+    
+    .summary-label {
+        color: var(--text-color);
+        font-weight: 500;
+    }
+    
+    .summary-value {
+        color: var(--text-color);
+        font-weight: 600;
+    }
+    
+    .product-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+    
+    .product-name {
+        font-weight: 600;
+        color: var(--text-color);
+    }
+    
+    .product-batch {
+        font-size: 0.8rem;
+        color: var(--light-text);
+    }
+    
+    .quick-actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    
+    .action-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 25px;
+        background: var(--primary-light);
+        border-radius: 15px;
+        text-decoration: none;
+        color: var(--text-color);
+        transition: var(--transition);
+        border: 1px solid transparent;
+        cursor: pointer;
+    }
+    
+    .action-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-hover);
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+    
+    .action-card .material-icons {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        color: var(--primary-color);
+    }
+    
+    .action-card h4 {
+        margin: 0 0 10px 0;
+        font-weight: 600;
+    }
+    
+    .action-card p {
+        margin: 0;
+        color: var(--light-text);
+        font-size: 0.9rem;
+    }
+    
+    .void-badge {
+        background: var(--danger-color);
+        color: white;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-danger {
+        background: var(--danger-color);
+        color: white;
+        border: none;
+        padding: 10px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+    .btn-danger:hover {
+        background: #dc2626;
+        transform: translateY(-2px);
+    }
+
+    .text-danger {
+        color: var(--danger-color);
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Print styles */
+    @media print {
+        .header-actions, .quick-actions-grid {
+            display: none;
+        }
+        
+        .chart-card, .table-container {
+            box-shadow: none;
+            border: 1px solid #ccc;
+        }
+    }
+</style>
+
+<script>
+    function showVoidModal() {
+        document.getElementById('voidModal').style.display = 'flex';
+    }
+
+    function closeVoidModal() {
+        document.getElementById('voidModal').style.display = 'none';
+        document.getElementById('voidReason').value = '';
+    }
+
+    document.getElementById('voidForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const reason = document.getElementById('voidReason').value;
+        
+        fetch(`/sale/{{ sale.id }}/void/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: `reason=${encodeURIComponent(reason)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                if (data.requires_approval) {
+                    alert('Your void request has been submitted for admin approval.');
+                }
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            alert('Error voiding sale: ' + error);
+        });
+        
+        closeVoidModal();
+    });
+
+    function emailReceipt(saleId) {
+        fetch(`/sale/${saleId}/email-receipt/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+        })
+        .catch(error => {
+            alert('Error sending email: ' + error);
+        });
+    }
+</script>
+{% endblock %}

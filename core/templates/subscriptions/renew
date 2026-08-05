@@ -1,0 +1,1343 @@
+{% load static subscription_tags %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Renew Subscription - Pharmacy Management System</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #00663a;
+            --primary-light: #e6f7f3;
+            --primary-gradient: linear-gradient(135deg, #00663a, #008f4a);
+            --secondary-color: #1a2533;
+            --accent-color: #00c896;
+            --border-color: #e0e0e0;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --light-text: #666666;
+            --header-bg: #ffffff;
+            --shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 12px 25px rgba(0, 102, 58, 0.15);
+            --btn-hover: #e9ecef;
+            --input-focus: #f0f9f7;
+            --overlay: rgba(255, 255, 255, 0.7);
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
+            --card-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --step-active: #00663a;
+            --step-inactive: #d1d5db;
+            --step-completed: #10b981;
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #00c896;
+            --primary-light: #1c3832;
+            --primary-gradient: linear-gradient(135deg, #00c896, #00663a);
+            --secondary-color: #00c896;
+            --accent-color: #00c896;
+            --border-color: #3a3a3a;
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --light-text: #b0b0b0;
+            --header-bg: #1a1a1a;
+            --shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 12px 25px rgba(0, 200, 150, 0.2);
+            --btn-hover: #333333;
+            --input-focus: #1c3832;
+            --overlay: rgba(0, 0, 0, 0.6);
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
+            --step-active: #00c896;
+            --step-inactive: #4b5563;
+            --step-completed: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: var(--transition);
+        }
+
+        @font-face {
+            font-family: 'Troy';
+            src: url('{% static "troy.woff2" %}') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Troy', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            border-radius: 50px;
+            padding: 5px;
+            box-shadow: var(--shadow);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-toggle button {
+            border: none;
+            background: transparent;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--light-text);
+        }
+
+        .theme-toggle button.active {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+        }
+
+        .material-icons {
+            font-size: 20px;
+        }
+
+        .renew-subscription-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 20px;
+            position: relative;
+        }
+
+        .payment-card {
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            padding: 30px;
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+
+        .payment-header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .payment-header img {
+            height: 60px;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.1));
+        }
+
+        .payment-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 8px;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .payment-header p {
+            color: var(--light-text);
+            font-weight: 300;
+            font-size: 1rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            gap: 20px;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            transition: var(--transition);
+            border: 2px solid var(--step-inactive);
+            color: var(--step-inactive);
+        }
+
+        .step.active .step-circle {
+            background: var(--step-active);
+            border-color: var(--step-active);
+            color: white;
+        }
+
+        .step.completed .step-circle {
+            background: var(--step-completed);
+            border-color: var(--step-completed);
+            color: white;
+        }
+
+        .step-title {
+            font-weight: 500;
+            color: var(--light-text);
+        }
+
+        .step.active .step-title {
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        .step.completed .step-title {
+            color: var(--step-completed);
+            font-weight: 600;
+        }
+
+        .step-divider {
+            width: 40px;
+            height: 2px;
+            background: var(--step-inactive);
+            border-radius: 1px;
+        }
+
+        .step-content {
+            min-height: 400px;
+        }
+
+        .step-panel {
+            display: none;
+        }
+
+        .step-panel.active {
+            display: block;
+        }
+
+        /* Plan Selection Styles */
+        .plan-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .plan-option input[type="radio"] {
+            display: none;
+        }
+
+        .plan-card {
+            border: 2px solid var(--border-color);
+            border-radius: var(--card-radius);
+            padding: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--card-bg);
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .plan-option input[type="radio"]:checked + .plan-card {
+            border-color: var(--primary-color);
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .plan-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .plan-badge {
+            position: absolute;
+            top: -8px;
+            right: 15px;
+            background: var(--primary-color);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .plan-info {
+            flex: 1;
+        }
+
+        .plan-info h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 5px;
+        }
+
+        .plan-info p {
+            color: var(--light-text);
+            font-size: 0.85rem;
+        }
+
+        .plan-price {
+            text-align: right;
+        }
+
+        .price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: block;
+        }
+
+        .period {
+            color: var(--light-text);
+            font-size: 0.8rem;
+        }
+
+        .plan-savings {
+            color: var(--success-color);
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 3px;
+        }
+
+        /* Order Summary */
+        .order-summary {
+            background: var(--primary-light);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border-color);
+        }
+
+        .summary-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        .summary-total {
+            font-size: 1.1rem;
+            font-weight: 700;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+            margin-top: 10px;
+        }
+
+        /* Payment Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--text-color);
+            margin-bottom: 6px;
+            display: block;
+            font-size: 0.9rem;
+        }
+
+        .form-control, .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-color);
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .form-control:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: var(--input-focus);
+            box-shadow: 0 0 0 3px rgba(0, 102, 58, 0.1);
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .input-group-text {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-right: none;
+            border-radius: 8px 0 0 8px;
+            padding: 12px;
+            color: var(--light-text);
+            font-size: 0.9rem;
+        }
+
+        .input-group .form-control {
+            border-radius: 0 8px 8px 0;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .invalid-feedback {
+            color: var(--danger-color);
+            font-size: 0.8rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .is-invalid .invalid-feedback {
+            display: block;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 3px 10px rgba(0, 102, 58, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 102, 58, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--btn-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .step-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            gap: 15px;
+        }
+
+        .step-actions .btn {
+            flex: 1;
+        }
+
+        /* Payment Info */
+        .payment-info {
+            background: var(--primary-light);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-top: 20px;
+        }
+
+        .info-title {
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .info-steps {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .info-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 6px;
+            color: var(--light-text);
+            font-size: 0.8rem;
+        }
+
+        .step-number {
+            background: var(--primary-light);
+            color: var(--primary-color);
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+            flex-shrink: 0;
+            border: 1px solid var(--primary-color);
+        }
+
+        /* Gateway Logos */
+        .gateway-logos {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .gateway-logo img {
+            height: 25px;
+        }
+
+        .gateway-logo[style] {
+            background-color: black !important;
+            padding: 3px !important;
+            border-radius: 3px !important;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--overlay);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: var(--card-radius);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            animation: scaleIn 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .modal-body {
+            padding: 1rem 0;
+        }
+
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--primary-light);
+            border-radius: 50%;
+            border-top: 3px solid var(--primary-color);
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-checkmark, .error-x {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 1rem;
+            position: relative;
+        }
+
+        .check-icon, .x-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            box-sizing: content-box;
+        }
+
+        .check-icon {
+            border: 3px solid var(--success-color);
+        }
+
+        .x-icon {
+            border: 3px solid var(--danger-color);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .payment-card {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            .payment-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .step {
+                flex-direction: column;
+                text-align: center;
+                gap: 5px;
+            }
+
+            .step-divider {
+                display: none;
+            }
+
+            .step-actions {
+                flex-direction: column;
+            }
+
+            .plan-card {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+
+            .plan-price {
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .renew-subscription-container {
+                padding: 20px 10px;
+            }
+
+            .payment-header h1 {
+                font-size: 1.3rem;
+            }
+
+            .plan-card {
+                padding: 15px;
+            }
+
+            .step-indicator {
+                gap: 10px;
+            }
+
+            .step-circle {
+                width: 35px;
+                height: 35px;
+                font-size: 12px;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes scaleIn {
+            from { transform: translate(-50%, -50%) scale(0.9); opacity: 0; }
+            to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-toggle">
+        <button id="light-mode" class="active"><span class="material-icons">light_mode</span></button>
+        <button id="dark-mode"><span class="material-icons">dark_mode</span></button>
+    </div>
+
+    <div class="renew-subscription-container">
+        <div class="payment-card">
+            <div class="payment-header">
+                <img src="https://esltd.co.uk/wp-content/uploads/2016/07/IMS.png" alt="moyotechmw IMS Logo">
+                <h1>Renew Subscription</h1>
+                <p>Complete your subscription renewal in just 2 easy steps</p>
+            </div>
+
+            <!-- Step Indicator -->
+            <div class="step-indicator">
+                <div class="step active" id="step1-indicator">
+                    <div class="step-circle">1</div>
+                    <div class="step-title">Choose Plan</div>
+                </div>
+                <div class="step-divider"></div>
+                <div class="step" id="step2-indicator">
+                    <div class="step-circle">2</div>
+                    <div class="step-title">Payment Details</div>
+                </div>
+            </div>
+
+            <!-- Alert Container -->
+            {% if messages %}
+            <div class="alert-container" style="margin-bottom: 20px;">
+                {% for message in messages %}
+                    <div class="alert {{ message.tags }}" style="padding: 12px; border-radius: 8px; color: white; display: flex; align-items: center; margin-bottom: 10px;">
+                        <span class="material-icons" style="margin-right: 8px; font-size: 18px;">
+                            {% if message.tags == 'success' %}check_circle{% endif %}
+                            {% if message.tags == 'warning' %}warning{% endif %}
+                            {% if message.tags == 'error' %}error{% endif %}
+                            {% if message.tags == 'info' %}info{% endif %}
+                        </span>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="step-content">
+                <!-- Step 1: Plan Selection -->
+                <div class="step-panel active" id="step1-panel">
+                    <h3 style="margin-bottom: 20px; color: var(--text-color); font-weight: 600; font-size: 1.2rem;">Select Your Subscription Plan</h3>
+                    
+                    <div class="plan-grid">
+                        {% for plan, plan_name in tenant.PLANS %}
+                        <div class="plan-option">
+                            <input type="radio" name="subscription_plan" value="{{ plan }}" id="plan_{{ plan }}">
+                            <label for="plan_{{ plan }}" class="plan-card{% if plan == 'quarterly' %} featured{% endif %}">
+                                {% if plan == 'quarterly' %}
+                                    <div class="plan-badge">Most Popular</div>
+                                {% endif %}
+                                <div class="plan-info">
+                                    <h3>{{ plan_name }}</h3>
+                                    <p>
+                                        {% if plan == 'monthly' %}Best for small pharmacies{% endif %}
+                                        {% if plan == 'quarterly' %}Best for growing businesses{% endif %}
+                                        {% if plan == 'annual' %}Best for established pharmacies{% endif %}
+                                    </p>
+                                    {% if plan == 'quarterly' %}
+                                        <div class="plan-savings">Save 11% compared to monthly</div>
+                                    {% elif plan == 'annual' %}
+                                        <div class="plan-savings">Save 17% compared to monthly</div>
+                                    {% endif %}
+                                </div>
+                                <div class="plan-price">
+                                    <span class="price">MWK {{ plan_prices|lookup:plan }}</span>
+                                    <span class="period">/{{ plan }}</span>
+                                </div>
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="order-summary" style="display: none;" id="order-summary">
+                        <h3 class="summary-title">
+                            <span class="material-icons">receipt</span>
+                            Order Summary
+                        </h3>
+                        <div class="summary-item">
+                            <span>Tenant:</span>
+                            <span>{{ tenant.name }}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span>Selected Plan:</span>
+                            <span id="selected-plan">None selected</span>
+                        </div>
+                        <div class="summary-item summary-total">
+                            <span>Total Amount:</span>
+                            <span id="total-amount">MWK 0.00</span>
+                        </div>
+                    </div>
+
+                    <div class="step-actions">
+                        <button type="button" class="btn btn-secondary" disabled>
+                            <span class="material-icons">arrow_back</span>
+                            Previous
+                        </button>
+                        <button type="button" class="btn btn-primary" id="next-to-payment" disabled>
+                            Next
+                            <span class="material-icons">arrow_forward</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Payment Details -->
+                <div class="step-panel" id="step2-panel">
+                    <h3 style="margin-bottom: 20px; color: var(--text-color); font-weight: 600; font-size: 1.2rem;">Payment Information</h3>
+                    
+                    <form id="paymentForm" method="POST" action="{% url 'renew_subscription' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="subscription_plan" id="hidden-plan" value="">
+                        <input type="hidden" name="amount" id="amount" value="0">
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">First Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><span class="material-icons">person</span></span>
+                                    <input type="text" class="form-control" name="first_name" id="firstName" placeholder="Enter first name" required>
+                                    <div id="firstNameValidation" class="invalid-feedback">Please enter your first name.</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Last Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><span class="material-icons">person</span></span>
+                                    <input type="text" class="form-control" name="last_name" id="lastName" placeholder="Enter last name" required>
+                                    <div id="lastNameValidation" class="invalid-feedback">Please enter your last name.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><span class="material-icons">email</span></span>
+                                <input type="email" class="form-control" name="email" id="email" placeholder="Enter email address" required>
+                                <div id="emailValidation" class="invalid-feedback">Please enter a valid email address.</div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Mobile Money Provider</label>
+                            <div class="gateway-logos">
+                                {% for operator in mobile_operators %}
+                                    <div class="gateway-logo" {% if 'tnm' in operator.name|lower %}style="background-color: black; padding: 4px; border-radius: 4px;"{% endif %}>
+                                        <img src="{% if 'airtel' in operator.name|lower %}{% static 'icons/airtel_money.png' %}{% else %}{% static 'icons/tnm_mpamba.svg' %}{% endif %}" alt="{{ operator.name }}">
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-text"><span class="material-icons">account_balance_wallet</span></span>
+                                <select class="form-select" name="operator_ref_id" id="operatorSelect" required>
+                                    <option value="">Select Provider</option>
+                                    {% for operator in mobile_operators %}
+                                        <option value="{{ operator.ref_id }}" data-name="{{ operator.name|lower }}">{{ operator.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div id="operatorValidation" class="invalid-feedback">Please select a mobile money provider.</div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Mobile Number</label>
+                            <div class="input-group">
+                                <span class="input-group-text">+265</span>
+                                <input type="tel" class="form-control" name="mobile" id="mobileNumber" placeholder="Enter 9 digits" required>
+                                <div id="mobileValidation" class="invalid-feedback">Invalid number format</div>
+                            </div>
+                        </div>
+
+                        <div class="payment-info">
+                            <h4 class="info-title">
+                                <span class="material-icons">info</span>
+                                Payment Instructions
+                            </h4>
+                            <ul class="info-steps">
+                                <li class="info-step">
+                                    <span class="step-number">1</span>
+                                    <span>Click "Pay Now" to initiate payment</span>
+                                </li>
+                                <li class="info-step">
+                                    <span class="step-number">2</span>
+                                    <span>Check your phone for payment prompt</span>
+                                </li>
+                                <li class="info-step">
+                                    <span class="step-number">3</span>
+                                    <span>Enter your PIN to complete payment</span>
+                                </li>
+                                <li class="info-step">
+                                    <span class="step-number">4</span>
+                                    <span>Wait for confirmation - do not close this page</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="step-actions">
+                            <button type="button" class="btn btn-secondary" id="back-to-plan">
+                                <span class="material-icons">arrow_back</span>
+                                Previous
+                            </button>
+                            <button type="submit" class="btn btn-primary" id="confirmPaymentBtn">
+                                <span class="material-icons">lock</span>
+                                Pay <span id="payAmount">MWK 0.00</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Status Modal -->
+    <div class="modal" id="paymentStatusModal">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div id="paymentPending">
+                    <div class="loader"></div>
+                    <h3>Processing Payment</h3>
+                    <p>Please check your phone for payment prompt and confirm the transaction...</p>
+                </div>
+                <div id="paymentSuccess" style="display: none;">
+                    <div class="success-checkmark">
+                        <div class="check-icon"></div>
+                    </div>
+                    <h3>Payment Successful!</h3>
+                    <p>Your subscription has been renewed successfully.</p>
+                    <div style="margin-top: 20px;">
+                        <button type="button" class="btn btn-primary" onclick="window.location.href='{% url 'dashboard' %}'">
+                            <span class="material-icons">home</span>
+                            Go to Dashboard
+                        </button>
+                    </div>
+                </div>
+                <div id="paymentError" style="display: none;">
+                    <div class="error-x">
+                        <div class="x-icon">
+                            <span style="position: absolute; width: 4px; height: 30px; background: var(--danger-color); top: 15px; left: 28px; transform: rotate(45deg);"></span>
+                            <span style="position: absolute; width: 4px; height: 30px; background: var(--danger-color); top: 15px; left: 28px; transform: rotate(-45deg);"></span>
+                        </div>
+                    </div>
+                    <h3>Payment Failed</h3>
+                    <p id="errorMessage">Something went wrong with your payment. Please try again.</p>
+                    <div style="margin-top: 20px;">
+                        <button type="button" class="btn btn-primary" id="retryPayment">
+                            <span class="material-icons">refresh</span>
+                            Try Again
+                        </button>
+                    </div>
+                </div>
+                <div id="paymentCancelled" style="display: none;">
+                    <div class="error-x">
+                        <div class="x-icon">
+                            <span style="position: absolute; width: 4px; height: 30px; background: var(--danger-color); top: 15px; left: 28px; transform: rotate(45deg);"></span>
+                            <span style="position: absolute; width: 4px; height: 30px; background: var(--danger-color); top: 15px; left: 28px; transform: rotate(-45deg);"></span>
+                        </div>
+                    </div>
+                    <h3>Payment Cancelled</h3>
+                    <p id="cancelMessage">You cancelled the payment. Please try again.</p>
+                    <div style="margin-top: 20px;">
+                        <button type="button" class="btn btn-primary" id="tryAgainPayment">
+                            <span class="material-icons">refresh</span>
+                            Try Again
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme toggle functionality
+        const lightModeBtn = document.getElementById('light-mode');
+        const darkModeBtn = document.getElementById('dark-mode');
+        const htmlElement = document.documentElement;
+
+        // Check for saved theme preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            applyDarkMode();
+        } else if (savedTheme === 'light') {
+            applyLightMode();
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            applyDarkMode();
+        }
+
+        function applyLightMode() {
+            htmlElement.setAttribute('data-theme', 'light');
+            lightModeBtn.classList.add('active');
+            darkModeBtn.classList.remove('active');
+            localStorage.setItem('theme', 'light');
+        }
+
+        function applyDarkMode() {
+            htmlElement.setAttribute('data-theme', 'dark');
+            darkModeBtn.classList.add('active');
+            lightModeBtn.classList.remove('active');
+            localStorage.setItem('theme', 'dark');
+        }
+
+        lightModeBtn.addEventListener('click', applyLightMode);
+        darkModeBtn.addEventListener('click', applyDarkMode);
+
+        // Step navigation and form data
+        const step1Panel = document.getElementById('step1-panel');
+        const step2Panel = document.getElementById('step2-panel');
+        const step1Indicator = document.getElementById('step1-indicator');
+        const step2Indicator = document.getElementById('step2-indicator');
+        const nextToPaymentBtn = document.getElementById('next-to-payment');
+        const backToPlanBtn = document.getElementById('back-to-plan');
+        const orderSummary = document.getElementById('order-summary');
+
+        // Form elements
+        const planPrices = {
+            'monthly': 50,
+            'quarterly': 40000,
+            'annual': 500
+        };
+
+        const planNames = {
+            'monthly': 'Monthly Plan',
+            'quarterly': 'Quarterly Plan',
+            'annual': 'Annual Plan'
+        };
+
+        const operatorSelect = document.getElementById('operatorSelect');
+        const mobileNumber = document.getElementById('mobileNumber');
+        const firstName = document.getElementById('firstName');
+        const lastName = document.getElementById('lastName');
+        const email = document.getElementById('email');
+        const amountInput = document.getElementById('amount');
+        const hiddenPlanInput = document.getElementById('hidden-plan');
+        const paymentForm = document.getElementById('paymentForm');
+        const confirmPaymentBtn = document.getElementById('confirmPaymentBtn');
+        const payAmount = document.getElementById('payAmount');
+        const statusModal = document.getElementById('paymentStatusModal');
+
+        let currentStep = 1;
+        let selectedPlan = null;
+        let currentTransactionId = null;
+        let pollAttempts = 0;
+        const maxPollAttempts = 60;
+        const initialPollInterval = 3000;
+
+        // Step navigation functions
+        function showStep(stepNumber) {
+            currentStep = stepNumber;
+            
+            if (stepNumber === 1) {
+                step1Panel.classList.add('active');
+                step2Panel.classList.remove('active');
+                step1Indicator.classList.add('active');
+                step2Indicator.classList.remove('active');
+                step1Indicator.classList.remove('completed');
+            } else if (stepNumber === 2) {
+                step1Panel.classList.remove('active');
+                step2Panel.classList.add('active');
+                step1Indicator.classList.remove('active');
+                step1Indicator.classList.add('completed');
+                step2Indicator.classList.add('active');
+            }
+        }
+
+        function goToStep2() {
+            if (!selectedPlan) return;
+            
+            // Update hidden form fields
+            hiddenPlanInput.value = selectedPlan;
+            amountInput.value = planPrices[selectedPlan];
+            payAmount.textContent = `MWK ${planPrices[selectedPlan].toLocaleString()}`;
+            
+            showStep(2);
+        }
+
+        function goToStep1() {
+            showStep(1);
+        }
+
+        // Plan selection handling
+        function updateSummary() {
+            const selectedPlanRadio = document.querySelector('input[name="subscription_plan"]:checked');
+            const planDisplay = document.getElementById('selected-plan');
+            const totalDisplay = document.getElementById('total-amount');
+
+            if (selectedPlanRadio) {
+                selectedPlan = selectedPlanRadio.value;
+                const price = planPrices[selectedPlan];
+                
+                planDisplay.textContent = planNames[selectedPlan];
+                totalDisplay.textContent = `MWK ${price.toLocaleString()}`;
+                
+                orderSummary.style.display = 'block';
+                nextToPaymentBtn.disabled = false;
+            } else {
+                selectedPlan = null;
+                orderSummary.style.display = 'none';
+                nextToPaymentBtn.disabled = true;
+            }
+        }
+
+        // Form validation
+        function normalizeMobileNumber(number) {
+            let normalized = number.trim().replace(/[\s-]/g, '');
+            if (normalized.startsWith('+265')) normalized = normalized.substring(4);
+            else if (normalized.startsWith('0')) normalized = normalized.substring(1);
+            return normalized;
+        }
+
+        function validateForm() {
+            let isValid = true;
+
+            // First name validation
+            if (!firstName.value.trim()) {
+                firstName.classList.add('is-invalid');
+                document.getElementById('firstNameValidation').style.display = 'block';
+                isValid = false;
+            } else {
+                firstName.classList.remove('is-invalid');
+                document.getElementById('firstNameValidation').style.display = 'none';
+            }
+
+            // Last name validation
+            if (!lastName.value.trim()) {
+                lastName.classList.add('is-invalid');
+                document.getElementById('lastNameValidation').style.display = 'block';
+                isValid = false;
+            } else {
+                lastName.classList.remove('is-invalid');
+                document.getElementById('lastNameValidation').style.display = 'none';
+            }
+
+            // Email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!email.value.trim() || !emailRegex.test(email.value.trim())) {
+                email.classList.add('is-invalid');
+                document.getElementById('emailValidation').style.display = 'block';
+                isValid = false;
+            } else {
+                email.classList.remove('is-invalid');
+                document.getElementById('emailValidation').style.display = 'none';
+            }
+
+            // Operator validation
+            if (!operatorSelect.value) {
+                operatorSelect.classList.add('is-invalid');
+                document.getElementById('operatorValidation').style.display = 'block';
+                isValid = false;
+            } else {
+                operatorSelect.classList.remove('is-invalid');
+                document.getElementById('operatorValidation').style.display = 'none';
+            }
+
+            // Mobile number validation
+            const rawNumber = mobileNumber.value;
+            const number = normalizeMobileNumber(rawNumber);
+            const mobileValidation = document.getElementById('mobileValidation');
+            let validationMessage = '';
+
+            if (number) {
+                const isNineDigits = /^\d{9}$/.test(number);
+                if (!isNineDigits) {
+                    validationMessage = 'Enter a valid mobile number of nine (9) digits';
+                } else {
+                    const operatorName = operatorSelect.options[operatorSelect.selectedIndex]?.dataset.name || '';
+                    if (operatorName.includes('tnm') && !number.startsWith('8')) {
+                        validationMessage = 'TNM number must start with 8';
+                    } else if (operatorName.includes('airtel') && !number.startsWith('9')) {
+                        validationMessage = 'Airtel number must start with 9';
+                    } else {
+                        mobileNumber.classList.remove('is-invalid');
+                        mobileValidation.style.display = 'none';
+                        return isValid;
+                    }
+                }
+            } else {
+                validationMessage = 'Mobile number is required';
+            }
+
+            mobileNumber.classList.add('is-invalid');
+            mobileValidation.textContent = validationMessage;
+            mobileValidation.style.display = 'block';
+            isValid = false;
+            return isValid;
+        }
+
+        // Modal functions
+        function showModalState(state, message = '') {
+            ['paymentPending', 'paymentSuccess', 'paymentError', 'paymentCancelled'].forEach(id => {
+                document.getElementById(id).style.display = id === state ? 'block' : 'none';
+            });
+            if (message && state === 'paymentError') {
+                document.getElementById('errorMessage').textContent = message;
+            } else if (message && state === 'paymentCancelled') {
+                document.getElementById('cancelMessage').textContent = message;
+            }
+            statusModal.style.display = 'block';
+        }
+
+        function hideModal() {
+            statusModal.style.display = 'none';
+        }
+
+        // Payment processing
+        async function pollPaymentStatus(transactionId) {
+            if (pollAttempts >= maxPollAttempts) {
+                showModalState('paymentError', 'Payment verification timed out. Please try again or contact support.');
+                confirmPaymentBtn.disabled = false;
+                return;
+            }
+
+            pollAttempts++;
+            try {
+                const response = await fetch(`{% url 'check_subscription_payment_status' 'PLACEHOLDER' %}`.replace('PLACEHOLDER', transactionId));
+                if (!response.ok) {
+                    if (pollAttempts < maxPollAttempts) {
+                        setTimeout(() => pollPaymentStatus(transactionId), initialPollInterval * Math.pow(1.5, pollAttempts));
+                    } else {
+                        showModalState('paymentError', 'Unable to verify payment status. Please try again or contact support.');
+                        confirmPaymentBtn.disabled = false;
+                    }
+                    return;
+                }
+
+                const data = await response.json();
+                if (data.status === 'success') {
+                    showModalState('paymentSuccess');
+                    confirmPaymentBtn.disabled = false;
+                } else if (data.status === 'failed') {
+                    showModalState('paymentError', data.message || 'Transaction failed');
+                    confirmPaymentBtn.disabled = false;
+                } else if (data.status === 'cancelled') {
+                    showModalState('paymentCancelled', data.message || 'You cancelled the payment');
+                    confirmPaymentBtn.disabled = false;
+                } else {
+                    setTimeout(() => pollPaymentStatus(transactionId), initialPollInterval * Math.pow(1.5, pollAttempts));
+                }
+            } catch (error) {
+                if (pollAttempts < maxPollAttempts) {
+                    setTimeout(() => pollPaymentStatus(transactionId), initialPollInterval * Math.pow(1.5, pollAttempts));
+                } else {
+                    showModalState('paymentError', 'Failed to check payment status. Please try again or contact support.');
+                    confirmPaymentBtn.disabled = false;
+                }
+            }
+        }
+
+        // Event listeners
+        document.querySelectorAll('input[name="subscription_plan"]').forEach(radio => {
+            radio.addEventListener('change', updateSummary);
+        });
+
+        nextToPaymentBtn.addEventListener('click', goToStep2);
+        backToPlanBtn.addEventListener('click', goToStep1);
+
+        // Form validation event listeners
+        operatorSelect.addEventListener('change', validateForm);
+        mobileNumber.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            if (this.value.length > 9) {
+                this.value = this.value.slice(0, 9);
+            }
+            validateForm();
+        });
+        firstName.addEventListener('input', validateForm);
+        lastName.addEventListener('input', validateForm);
+        email.addEventListener('input', validateForm);
+
+        // Form submission
+        paymentForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            if (!validateForm()) return;
+
+            const formData = new FormData(this);
+            const mobile = normalizeMobileNumber(formData.get('mobile'));
+            formData.set('mobile', mobile);
+
+            try {
+                showModalState('paymentPending');
+                confirmPaymentBtn.disabled = true;
+
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                    }
+                });
+
+                const data = await response.json();
+                if (data.status === 'success' && data.transaction_id) {
+                    currentTransactionId = data.transaction_id;
+                    pollAttempts = 0;
+                    pollPaymentStatus(data.transaction_id);
+                } else {
+                    let errorMsg = data.message || 'Payment initiation failed';
+                    if (typeof errorMsg === 'string') {
+                        try {
+                            errorMsg = JSON.parse(errorMsg);
+                        } catch (e) {
+                            // Not JSON, use as is
+                        }
+                    }
+                    const message = typeof errorMsg === 'object'
+                        ? Object.values(errorMsg).map(field => Array.isArray(field) ? field[0]?.message || field : field).join(', ')
+                        : errorMsg;
+                    showModalState('paymentError', message || 'Payment service is temporarily unavailable. Please try again later.');
+                    confirmPaymentBtn.disabled = false;
+                }
+            } catch (error) {
+                showModalState('paymentError', 'Failed to initiate payment. Please try again later.');
+                confirmPaymentBtn.disabled = false;
+            }
+        });
+
+        // Modal event listeners
+        document.getElementById('retryPayment').addEventListener('click', hideModal);
+        document.getElementById('tryAgainPayment').addEventListener('click', hideModal);
+
+        window.addEventListener('click', function(e) {
+            if (e.target === statusModal) {
+                hideModal();
+            }
+        });
+
+        // Initialize
+        updateSummary();
+    </script>
+</body>
+</html>

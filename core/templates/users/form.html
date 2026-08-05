@@ -1,0 +1,562 @@
+{% extends 'base.html' %}
+{% block title %}{{ form.instance.pk|yesno:"Edit User,Add User" }}{% endblock %}
+{% block content %}
+<div class="dashboard-header">
+    <div class="dashboard-title">
+        <h1>{{ form.instance.pk|yesno:"Edit User,Add New User" }}</h1>
+        <p class="dashboard-subtitle">{{ form.instance.pk|yesno:"Update user information,Create a new system user" }}</p>
+    </div>
+    
+    <div class="header-actions">
+        <a href="{% url 'user_list' %}" class="btn-secondary">
+            <span class="material-icons">arrow_back</span>
+            Back to Users
+        </a>
+    </div>
+</div>
+
+<div class="form-container">
+    <div class="form-card">
+        <form method="post" id="userForm">
+            {% csrf_token %}
+            
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {{ message.tags }}">
+                        <span class="material-icons">{{ message.tags|yesno:"check_circle,error" }}</span>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            {% if form.errors %}
+                <div class="alert error">
+                    <span class="material-icons">error</span>
+                    Please correct the errors below.
+                </div>
+            {% endif %}
+            
+            <div class="form-section">
+                <h3 class="form-section-title">Basic Information</h3>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="{{ form.username.id_for_label }}">Username</label>
+                        <div class="input-with-icon">
+                            <span class="material-icons">person</span>
+                            {{ form.username }}
+                            <span class="validation-icon" id="username-validation"></span>
+                        </div>
+                        <div class="validation-message" id="username-message">
+                            {% if form.username.errors %}
+                                <div class="error-text">{{ form.username.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.email.id_for_label }}">Email Address</label>
+                        <div class="input-with-icon">
+                            <span class="material-icons">email</span>
+                            {{ form.email }}
+                            <span class="validation-icon" id="email-validation"></span>
+                        </div>
+                        <div class="validation-message" id="email-message">
+                            {% if form.email.errors %}
+                                <div class="error-text">{{ form.email.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- {% if not form.instance.pk %}
+            <div class="form-section">
+                <h3 class="form-section-title">Security</h3>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="{{ form.password1.id_for_label }}">Password</label>
+                        <div class="input-with-icon password-field">
+                            <span class="material-icons">lock</span>
+                            {{ form.password1 }}
+                            <button type="button" class="password-toggle">
+                                <span class="material-icons">visibility</span>
+                            </button>
+                        </div>
+                        {% if form.password1.errors %}
+                            <div class="error-text">{{ form.password1.errors.0 }}</div>
+                        {% endif %}
+                        <div class="help-text">Minimum 8 characters with letters and numbers.</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+                        <div class="input-with-icon password-field">
+                            <span class="material-icons">lock</span>
+                            {{ form.password2 }}
+                            <button type="button" class="password-toggle">
+                                <span class="material-icons">visibility</span>
+                            </button>
+                        </div>
+                        {% if form.password2.errors %}
+                            <div class="error-text">{{ form.password2.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+             -->
+            <div class="form-section">
+                <h3 class="form-section-title">Role & Permissions</h3>
+                
+                <div class="form-group">
+                    <label for="{{ form.role.id_for_label }}">User Role</label>
+                    <div class="role-options">
+                        {% for value, label in form.role.field.choices %}
+                        <label class="role-option" for="role_{{ forloop.counter }}">
+                            <input type="radio" name="{{ form.role.name }}" value="{{ value }}" id="role_{{ forloop.counter }}" 
+                                   {% if form.role.value == value or form.initial.role == value %}checked{% endif %}>
+                            <div class="role-card">
+                                <div class="role-icon">
+                                    {% if value == 'owner' %}
+                                        <span class="material-icons">star</span>
+                                    {% elif value == 'admin' %}
+                                        <span class="material-icons">admin_panel_settings</span>
+                                    {% elif value == 'seller' %}
+                                        <span class="material-icons">point_of_sale</span>
+                                    {% elif value == 'inventory_manager' %}
+                                        <span class="material-icons">inventory</span>
+                                    {% endif %}
+                                </div>
+                                <div class="role-info">
+                                    <div class="role-name">{{ label }}</div>
+                                    <div class="role-description">
+                                        {% if value == 'owner' %}
+                                            Full system access and ownership privileges
+                                        {% elif value == 'admin' %}
+                                            Administrative access with user management
+                                        {% elif value == 'seller' %}
+                                            Sales and prescription processing access
+                                        {% elif value == 'inventory_manager' %}
+                                            Inventory management and stock control
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    {% if form.role.errors %}
+                        <div class="error-text">{{ form.role.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn-secondary" onclick="window.history.back()">Cancel</button>
+                <button type="submit" class="btn-primary">
+                    <span class="material-icons">save</span>
+                    {{ form.instance.pk|yesno:"Update User,Create User" }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    :root {
+        --primary-color: #00663a;
+        --primary-light: #e6f7f3;
+        --secondary-color: #1a2533;
+        --border-color: #e0e0e0;
+        --bg-color: #f8f9fa;
+        --card-bg: #ffffff;
+        --text-color: #333333;
+        --light-text: #666666;
+        --danger-color: #dc3545;
+        --success-color: #28a745;
+        --shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        --shadow-hover: 0 12px 30px rgba(0, 0, 0, 0.1);
+        --input-focus: #f0f9f7;
+        --transition: all 0.3s ease;
+    }
+
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .form-card {
+        background: var(--card-bg);
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border-color);
+    }
+    
+    .form-section {
+        margin-bottom: 30px;
+        padding-bottom: 25px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .form-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    
+    .form-section-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--text-color);
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .form-section-title::before {
+        content: '';
+        width: 4px;
+        height: 20px;
+        background: var(--primary-color);
+        border-radius: 2px;
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--light-text);
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+    
+    .input-with-icon {
+        position: relative;
+    }
+    
+    .input-with-icon .material-icons {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--light-text);
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 14px 14px 14px 40px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background: var(--card-bg);
+        color: var(--text-color);
+        font-size: 1rem;
+        font-family: 'Inter', sans-serif;
+        transition: var(--transition);
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        background-color: var(--input-focus);
+        box-shadow: 0 0 0 3px rgba(0, 102, 58, 0.1);
+    }
+    
+    .form-control.valid {
+        border-color: var(--success-color);
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2328a745'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z'/%3E%3C/svg%3E") no-repeat right 10px center/20px;
+    }
+    
+    .form-control.invalid {
+        border-color: var(--danger-color);
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23dc3545'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z'/%3E%3C/svg%3E") no-repeat right 10px center/20px;
+    }
+    
+    .password-field .form-control {
+        padding-right: 45px;
+    }
+    
+    .password-toggle {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: transparent;
+        border: none;
+        color: var(--light-text);
+        cursor: pointer;
+        padding: 14px;
+    }
+    
+    .error-text {
+        color: var(--danger-color);
+        font-size: 0.85rem;
+        margin-top: 5px;
+    }
+    
+    .help-text {
+        color: var(--light-text);
+        font-size: 0.85rem;
+        margin-top: 5px;
+    }
+    
+    .validation-message {
+        min-height: 20px;
+    }
+    
+    .validation-icon {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 20px;
+        height: 20px;
+    }
+    
+    .role-options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+        margin-top: 10px;
+    }
+    
+    .role-option input[type="radio"] {
+        display: none;
+    }
+    
+    .role-card {
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        padding: 20px;
+        cursor: pointer;
+        transition: var(--transition);
+        background: var(--card-bg);
+    }
+    
+    .role-option input[type="radio"]:checked + .role-card {
+        border-color: var(--primary-color);
+        background: var(--primary-light);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-hover);
+    }
+    
+    .role-card:hover {
+        border-color: var(--primary-color);
+        transform: translateY(-2px);
+    }
+    
+    .role-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        background: var(--primary-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-color);
+        margin-bottom: 15px;
+        font-size: 1.5rem;
+    }
+    
+    .role-name {
+        font-weight: 600;
+        color: var(--text-color);
+        margin-bottom: 5px;
+    }
+    
+    .role-description {
+        color: var(--light-text);
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: flex-end;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .btn-primary {
+        padding: 14px 24px;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: var(--transition);
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-hover);
+    }
+    
+    .btn-secondary {
+        padding: 14px 24px;
+        background: var(--card-bg);
+        color: var(--primary-color);
+        border: 2px solid var(--primary-color);
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        transition: var(--transition);
+    }
+    
+    .btn-secondary:hover {
+        background: var(--primary-light);
+        transform: translateY(-2px);
+    }
+    
+    .alert {
+        padding: 16px;
+        margin-bottom: 24px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: var(--shadow);
+    }
+    
+    .alert.success {
+        background-color: var(--success-color);
+        border-left: 4px solid #218838;
+    }
+    
+    .alert.error {
+        background-color: var(--danger-color);
+        border-left: 4px solid #b02a37;
+    }
+    
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .role-options {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .form-card {
+            padding: 20px;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Password visibility toggle (only for create user)
+        {% if not form.instance.pk %}
+        document.querySelectorAll('.password-toggle').forEach(button => {
+            button.addEventListener('click', function() {
+                const input = this.previousElementSibling;
+                const icon = this.querySelector('.material-icons');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.textContent = 'visibility_off';
+                } else {
+                    input.type = 'password';
+                    icon.textContent = 'visibility';
+                }
+            });
+        });
+        {% endif %}
+
+        // Real-time validation
+        const usernameInput = document.getElementById('{{ form.username.id_for_label }}');
+        const emailInput = document.getElementById('{{ form.email.id_for_label }}');
+        const usernameMessage = document.getElementById('username-message');
+        const emailMessage = document.getElementById('email-message');
+        const usernameValidationIcon = document.getElementById('username-validation');
+        const emailValidationIcon = document.getElementById('email-validation');
+
+        async function validateField(field, type, messageContainer, validationIcon) {
+            const value = field.value.trim();
+            if (!value) {
+                field.classList.remove('valid', 'invalid');
+                validationIcon.style.background = 'none';
+                messageContainer.innerHTML = '';
+                return;
+            }
+
+            try {
+                const response = await fetch('/validate-field/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({
+                        type: type,
+                        value: value,
+                        user_id: '{{ form.instance.pk|default:"0" }}'
+                    })
+                });
+                const data = await response.json();
+                if (data.valid) {
+                    field.classList.remove('invalid');
+                    field.classList.add('valid');
+                    validationIcon.style.background = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2328a745'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z'/%3E%3C/svg%3E") no-repeat center/20px`;
+                    messageContainer.innerHTML = '<div class="help-text">Looks good!</div>';
+                } else {
+                    field.classList.remove('valid');
+                    field.classList.add('invalid');
+                    validationIcon.style.background = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23dc3545'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z'/%3E%3C/svg%3E") no-repeat center/20px`;
+                    messageContainer.innerHTML = `<div class="error-text">${data.message}</div>`;
+                }
+            } catch (error) {
+                field.classList.remove('valid');
+                field.classList.add('invalid');
+                validationIcon.style.background = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23dc3545'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z'/%3E%3C/svg%3E") no-repeat center/20px`;
+                messageContainer.innerHTML = '<div class="error-text">Error validating field. Please try again.</div>';
+            }
+        }
+
+        usernameInput.addEventListener('input', debounce(() => validateField(usernameInput, 'username', usernameMessage, usernameValidationIcon), 500));
+        emailInput.addEventListener('input', debounce(() => validateField(emailInput, 'email', emailMessage, emailValidationIcon), 500));
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+    });
+</script>
+{% endblock %}
