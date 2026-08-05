@@ -1,7 +1,10 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.conf import settings
 from django.http import JsonResponse, HttpResponseForbidden
 from django.db.models import Q, Sum, Count
 from datetime import date
+from pathlib import Path
+import base64
 from .models import *
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm
@@ -152,6 +155,12 @@ def check_username(request):
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 def login_view(request):
+    loginpic_path = Path(settings.BASE_DIR) / "static" / "loginpic.png"
+    loginpic_data_uri = None
+    if loginpic_path.exists():
+        loginpic_data = base64.b64encode(loginpic_path.read_bytes()).decode("ascii")
+        loginpic_data_uri = f"data:image/png;base64,{loginpic_data}"
+
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
@@ -203,7 +212,9 @@ def login_view(request):
         except User.DoesNotExist:
             messages.error(request, 'Invalid email or password.')
     
-    return render(request, 'auth/login.html')
+    return render(request, 'auth/login.html', {
+        'loginpic_data_uri': loginpic_data_uri,
+    })
 
 def verify_account(request, user_id):
     user = get_object_or_404(User, id=user_id)

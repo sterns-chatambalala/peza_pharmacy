@@ -1,53 +1,30 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - MoyoTech IMS</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* Enhanced CSS variables */
         :root {
-            --primary-color: #00663a;
-            --primary-light: #e6f7f3;
-            --primary-gradient: linear-gradient(135deg, #00663a, #00663a);
-            --secondary-color: #1a2533;
-            --border-color: #e0e0e0;
-            --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
-            --text-color: #333333;
-            --light-text: #666666;
-            --header-bg: #ffffff;
-            --shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-            --btn-hover: #e9ecef;
-            --input-focus: #f0f9f7;
-            --overlay: rgba(255, 255, 255, 0.7);
-        }
-
-        [data-theme="dark"] {
-            --primary-color: #00663a;
-            --primary-light: #1c3832;
-            --primary-gradient: linear-gradient(135deg, #00663a, #00663a);
-            --secondary-color: #00663a;
-            --border-color: #3a3a3a;
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --text-color: #e0e0e0;
-            --light-text: #b0b0b0;
-            --header-bg: #1a1a1a;
-            --shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            --btn-hover: #333333;
-            --input-focus: #1c3832;
-            --overlay: rgba(0, 0, 0, 0.6);
+            --accent-teal: #14b8a6;
+            --accent-blue: #2563eb;
+            --btn-gradient: linear-gradient(135deg, #14b8a6 0%, #2563eb 100%);
+            --heading-color: #0f172a;
+            --text-color: #1f2937;
+            --light-text: #6b7280;
+            --border-color: #e6e9ee;
+            --bg-color: #ffffff;
+            --panel-bg: #f8fafc;
+            --radius-lg: 20px;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s;
         }
 
         @font-face {
@@ -57,135 +34,153 @@
             font-style: normal;
         }
 
+        html, body {
+            height: 100%;
+        }
+
         body {
-            background-color: var(--bg-color);
+            font-family: 'Poppins', 'Troy', sans-serif;
             color: var(--text-color);
-            font-family: 'Troy', sans-serif;
+            background-color: var(--bg-color);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .page {
+            display: flex;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+        }
+
+        /* ---------------- LEFT VISUAL PANEL ---------------- */
+        .visual-panel {
+            flex: 0 0 44%;
             position: relative;
-            overflow-x: hidden;
-        }
-
-        .theme-toggle {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: var(--card-bg);
-            border-radius: 50px;
-            padding: 5px;
-            box-shadow: var(--shadow);
-            z-index: 100;
-            display: flex;
-            align-items: center;
-        }
-
-        .theme-toggle button {
-            border: none;
-            background: transparent;
-            padding: 8px;
-            cursor: pointer;
-            border-radius: 50%;
+            min-height: 100vh;
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--light-text);
+            padding: 32px;
+            background: linear-gradient(135deg, #f0fdfa 0%, #eff6ff 100%);
         }
 
-        .theme-toggle button.active {
-            background-color: var(--primary-light);
-            color: var(--primary-color);
+        .visual-frame {
+            width: 100%;
+            height: 100%;
+            max-width: 680px;
+            max-height: 920px;
+            border-radius: 28px;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 24px 70px rgba(15, 23, 42, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.9);
         }
 
-        .material-icons {
-            font-size: 20px;
+        .visual-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
         }
 
-        .login-container {
+        /* curved cut where the white panel meets the photo, like the reference */
+        .visual-panel::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -1px;
+            width: 64px;
+            height: 64px;
+            background: var(--bg-color);
+            border-bottom-left-radius: 64px;
+        }
+
+        /* ---------------- RIGHT FORM PANEL ---------------- */
+        .form-panel {
             flex: 1;
             display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: center;
-            padding: 40px 20px;
+            align-items: center;
+            padding: 56px 24px;
             position: relative;
+            background: var(--bg-color);
         }
 
-        .login-card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            box-shadow: var(--shadow);
-            padding: 40px;
-            width: 100%;
-            max-width: 420px;
-            position: relative;
-            overflow: hidden;
+        .lang-selector {
+            position: absolute;
+            top: 36px;
+            right: 40px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 14px;
             border: 1px solid var(--border-color);
-        }
-
-        .login-card::before {
-            content: '';
-            position: absolute;
-            top: -100px;
-            left: -100px;
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            opacity: 0.05;
-            z-index: 0;
-        }
-
-        .login-card::after {
-            content: '';
-            position: absolute;
-            bottom: -100px;
-            right: -100px;
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            opacity: 0.05;
-            z-index: 0;
-        }
-
-        .login-header {
-            text-align: center;
-            margin-bottom: 35px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .login-header img {
-            height: 70px;
-            margin-bottom: 20px;
-            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.1));
-        }
-
-        .login-header h1 {
-            font-size: 2rem;
-            font-weight: 600;
+            border-radius: 10px;
             color: var(--text-color);
-            margin-bottom: 10px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            background: var(--bg-color);
+            cursor: pointer;
         }
 
-        .login-header p {
+        .lang-selector .material-icons {
+            font-size: 17px;
             color: var(--light-text);
-            font-weight: 300;
         }
+
+        .lang-selector .material-icons:last-child {
+            font-size: 16px;
+        }
+
+        .form-wrap {
+            width: 100%;
+            max-width: 400px;
+            transform: scale(0.75);
+            transform-origin: center;
+        }
+
+        .form-header {
+            margin-bottom: 30px;
+        }
+
+        .form-header h1 {
+            font-size: 2.15rem;
+            font-weight: 700;
+            color: var(--heading-color);
+            margin-bottom: 6px;
+            letter-spacing: -0.5px;
+        }
+
+        .form-header p {
+            color: var(--light-text);
+            font-size: 0.97rem;
+        }
+
+        .alert {
+            padding: 13px 16px;
+            margin-bottom: 18px;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: 500;
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert.error { background-color: #dc3545; }
+        .alert.success { background-color: #198754; }
 
         .form-group {
-            margin-bottom: 24px;
-            position: relative;
-            z-index: 1;
+            margin-bottom: 18px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
-            color: var(--light-text);
-            font-weight: 500;
-            font-size: 0.9rem;
+            margin-bottom: 7px;
+            font-weight: 600;
+            font-size: 0.87rem;
+            color: var(--heading-color);
         }
 
         .input-with-icon {
@@ -194,240 +189,139 @@
 
         .input-with-icon .material-icons {
             position: absolute;
-            left: 12px;
+            left: 15px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--light-text);
+            color: #9aa3b2;
+            font-size: 19px;
+            pointer-events: none;
         }
 
         .form-control {
             width: 100%;
-            padding: 14px 14px 14px 40px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            background: var(--card-bg);
+            padding: 13px 16px 13px 44px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--bg-color);
             color: var(--text-color);
-            font-size: 1rem;
-            font-family: 'Poppins', sans-serif;
+            font-size: 0.93rem;
+            font-family: inherit;
         }
 
         .password-field .form-control {
-            padding-right: 45px;
+            padding-right: 44px;
         }
-        
+
         .form-control:focus {
             outline: none;
-            border-color: var(--primary-color);
-            background-color: var(--input-focus);
-            box-shadow: 0 0 0 3px rgba(48, 179, 146, 0.1);
+            border-color: var(--accent-teal);
+            box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.1);
         }
-        
+
         .form-control::placeholder {
-            color: var(--light-text);
-            opacity: 0.7;
+            color: #9ca3af;
         }
-        
-        .password-field {
-            position: relative;
-        }
-        
+
         .password-toggle {
             position: absolute;
-            right: 8px;
+            right: 13px;
             top: 50%;
             transform: translateY(-50%);
             background: transparent;
             border: none;
-            color: var(--light-text);
+            color: #9aa3b2;
             cursor: pointer;
             display: flex;
             align-items: center;
-            justify-content: center;
-            padding: 14px;
-            z-index: 2;
+        }
+
+        .password-toggle .material-icons {
+            position: static;
+            transform: none;
         }
 
         .password-toggle:hover {
-            color: var(--primary-color);
+            color: var(--accent-blue);
+        }
+
+        .form-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.87rem;
+            color: var(--text-color);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .remember-me input {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--accent-teal);
+            cursor: pointer;
+        }
+
+        .forgot-link {
+            font-size: 0.87rem;
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .forgot-link:hover {
+            text-decoration: underline;
         }
 
         .btn-login {
             width: 100%;
-            padding: 14px;
-            background: var(--primary-gradient);
-            color: white;
+            padding: 15px;
+            background: var(--btn-gradient);
+            color: #fff;
             border: none;
-            border-radius: 8px;
-            font-size: 1rem;
+            border-radius: 10px;
+            font-size: 0.98rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 10px rgba(48, 179, 146, 0.2);
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.22);
+            transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
         }
 
         .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(48, 179, 146, 0.3);
+            filter: brightness(1.04);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 22px rgba(37, 99, 235, 0.28);
         }
 
         .btn-login:active {
             transform: translateY(0);
         }
 
-        .login-footer {
-            text-align: center;
-            margin-top: 25px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .login-footer a {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .login-footer a:hover {
-            text-decoration: underline;
-            opacity: 0.8;
-        }
-
-        footer {
-            background: var(--header-bg);
-            border-top: 1px solid var(--border-color);
-            padding: 20px 0;
-            text-align: center;
-            color: var(--light-text);
-            font-size: 0.85rem;
-            position: relative;
-        }
-
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            padding: 0 20px;
-        }
-
-        .footer-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .footer-logo img {
-            height: 30px;
-        }
-
-        .footer-logo span {
-            font-weight: 600;
-            font-size: 1rem;
-            color: var(--text-color);
-        }
-
-        .footer-nav {
-            display: flex;
-            gap: 20px;
-        }
-
-        .footer-nav a {
-            color: var(--light-text);
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .footer-nav a:hover {
-            color: var(--primary-color);
-        }
-
-        .footer-copyright {
-            width: 100%;
-            margin-top: 15px;
-            font-size: 0.8rem;
-            opacity: 0.8;
-        }
-
-        .alert {
-            padding: 16px;
-            margin-bottom: 24px;
-            border-radius: 8px;
-            color: white;
-            text-align: left;
-            font-weight: 500;
-            position: relative;
-            z-index: 1;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            animation: alertFadeIn 0.5s ease forwards;
-        }
-
-        @keyframes alertFadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .alert.error {
-            background-color: #dc3545;
-            border-left: 4px solid #b02a37;
-        }
-        
-        .alert::before {
-            content: "";
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            margin-right: 12px;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z'/%3E%3C/svg%3E");
-            background-size: contain;
-        }
-
-        @media (max-width: 768px) {
-            .login-card {
-                padding: 30px 20px;
-            }
-            
-            .footer-content {
-                flex-direction: column;
-                gap: 15px;
-            }
-            
-            .footer-nav {
-                gap: 15px;
-            }
-        }
-
-        // Add this in the existing <style> tag
-        .auth-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+        .btn-login .material-icons {
+            font-size: 19px;
         }
 
         .divider {
             position: relative;
             text-align: center;
-            margin: 5px 0;
+            margin: 26px 0 20px;
         }
 
         .divider span {
-            background: var(--card-bg);
+            background: var(--bg-color);
             color: var(--light-text);
-            padding: 0 15px;
-            font-size: 0.9rem;
+            padding: 0 14px;
+            font-size: 0.83rem;
             position: relative;
             z-index: 1;
         }
@@ -442,145 +336,248 @@
             background: var(--border-color);
         }
 
-        .btn-register {
+        .social-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 22px;
+        }
+
+        .btn-social {
+            flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            width: 100%;
-            padding: 14px;
-            background: var(--card-bg);
-            color: var(--primary-color);
-            border: 2px solid var(--primary-color);
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
+            gap: 7px;
+            padding: 11px 6px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-size: 0.85rem;
+            font-weight: 500;
             text-decoration: none;
+            cursor: pointer;
+            transition: border-color 0.15s ease, background 0.15s ease;
         }
 
-        .btn-register:hover {
-            background: var(--primary-light);
-            transform: translateY(-2px);
+        .btn-social:hover {
+            background: var(--panel-bg);
+            border-color: #d3d9e2;
         }
 
-        .btn-register .material-icons {
-            font-size: 20px;
+        .btn-social svg {
+            width: 17px;
+            height: 17px;
+            flex-shrink: 0;
+        }
+
+        .security-note {
+            display: flex;
+            gap: 13px;
+            align-items: flex-start;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 26px;
+        }
+
+        .security-note .icon-circle {
+            flex-shrink: 0;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--accent-teal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+        }
+
+        .security-note .icon-circle .material-icons {
+            font-size: 17px;
+        }
+
+        .security-note h4 {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--heading-color);
+            margin-bottom: 3px;
+        }
+
+        .security-note p {
+            font-size: 0.81rem;
+            color: var(--light-text);
+            line-height: 1.4;
+        }
+
+        .contact-sales {
+            text-align: center;
+            font-size: 0.88rem;
+            color: var(--light-text);
+            margin-bottom: 28px;
+        }
+
+        .contact-sales a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .contact-sales a:hover {
+            text-decoration: underline;
+        }
+
+        .form-footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            font-size: 0.78rem;
+            color: #9ca3af;
+            border-top: 1px solid var(--border-color);
+            padding-top: 18px;
+        }
+
+        .form-footer .material-icons {
+            font-size: 15px;
+        }
+
+        @media (max-width: 991px) {
+            .visual-panel {
+                display: none;
+            }
+
+            .form-panel {
+                padding-top: 90px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .social-row {
+                flex-direction: column;
+            }
+            .lang-selector {
+                top: 18px;
+                right: 18px;
+            }
+            .form-header h1 {
+                font-size: 1.8rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="theme-toggle">
-        <button id="light-mode" class="active"><span class="material-icons">light_mode</span></button>
-        <button id="dark-mode"><span class="material-icons">dark_mode</span></button>
-    </div>
-
-    <div class="login-container">
-        <div class="login-card">
-            <div class="login-header">
-                <img src="{% static 'logo.png' %}" alt="Logo">
-                <h2>Welcome Authenticate To System</h2>
-                <p>integrated Management System</p>
+    <div class="page">
+        <!-- LEFT VISUAL PANEL: place loginpic.png in your static folder -->
+        <div class="visual-panel">
+            <div class="visual-frame">
+                <img src="{% static 'loginpic.png' %}" alt="MoyoTech Pharmacy">
             </div>
-            
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert {{ message.tags }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
+        </div>
 
-            <form method="post">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <div class="input-with-icon">
-                        <span class="material-icons">email</span>
-                        <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email address" required>
-                    </div>
+        <!-- RIGHT FORM PANEL -->
+        <div class="form-panel">
+            <div class="lang-selector">
+                <span class="material-icons">language</span>
+                <span>English</span>
+                <span class="material-icons">expand_more</span>
+            </div>
+
+            <div class="form-wrap">
+                <div class="form-header">
+                    <h1>Welcome Back!</h1>
+                    <p>Sign in to continue to your MoyoTech account</p>
                 </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <div class="input-with-icon password-field">
-                        <span class="material-icons">lock</span>
-                        <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
-                        <button type="button" class="password-toggle" id="togglePassword">
-                            <span class="material-icons">visibility_off</span>
-                        </button>
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert {{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <div class="input-with-icon">
+                            <span class="material-icons">mail_outline</span>
+                            <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email address" required>
+                        </div>
                     </div>
-                </div>
-                <div class="auth-buttons">
-                    <button type="submit" class="btn-login">Login</button>
-                    <div class="divider">
-                        <span>or</span>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="input-with-icon password-field">
+                            <span class="material-icons">lock_outline</span>
+                            <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+                            <button type="button" class="password-toggle" id="togglePassword">
+                                <span class="material-icons">visibility_off</span>
+                            </button>
+                        </div>
                     </div>
-                    <a href="{% url 'register' %}" class="btn-register">
-                        <!-- <span class="material-icons">person_add</span> -->
-                        Register
+
+                    <div class="form-row">
+                        <label class="remember-me">
+                            <input type="checkbox" name="remember_me">
+                            Remember me
+                        </label>
+                        <a href="{% url 'forgot_password' %}" class="forgot-link">Forgot Password?</a>
+                    </div>
+
+                    <button type="submit" class="btn-login">
+                        Sign In
+                        <span class="material-icons">arrow_forward</span>
+                    </button>
+                </form>
+
+                <div class="divider"><span>or continue with</span></div>
+
+                <div class="social-row">
+                    <a href="#" class="btn-social">
+                        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                        Google
+                    </a>
+                    <a href="#" class="btn-social">
+                        <svg viewBox="0 0 24 24"><rect x="2" y="2" width="9" height="9" fill="#F25022"/><rect x="13" y="2" width="9" height="9" fill="#7FBA00"/><rect x="2" y="13" width="9" height="9" fill="#00A4EF"/><rect x="13" y="13" width="9" height="9" fill="#FFB900"/></svg>
+                        Microsoft
+                    </a>
+                    <a href="#" class="btn-social">
+                        <svg viewBox="0 0 24 24"><path fill="#000" d="M16.36 1.43c0 1.14-.46 2.2-1.19 2.98-.79.85-2.09 1.5-3.17 1.42-.13-1.09.42-2.24 1.13-2.98.79-.84 2.16-1.47 3.23-1.42zM20.7 17.2c-.5 1.15-.73 1.66-1.36 2.68-.88 1.42-2.12 3.19-3.66 3.2-1.37.02-1.72-.9-3.58-.89-1.86.01-2.25.9-3.62.89-1.54-.01-2.71-1.62-3.59-3.03C2.14 16.98 1.5 12.85 3.1 10c.94-1.68 2.62-2.75 4.44-2.77 1.42-.02 2.76.96 3.63.96.86 0 2.49-1.19 4.2-1.02.71.03 2.72.29 4.01 2.17-.1.06-2.39 1.4-2.37 4.17.03 3.3 2.9 4.4 2.93 4.42-.03.08-.46 1.58-1.24 3.27z"/></svg>
+                        Apple
                     </a>
                 </div>
-            </form>
-            
-            
-            <div class="login-footer">
-                <a href="{% url 'forgot_password' %}">Forgot Password?</a>
+
+                <div class="security-note">
+                    <div class="icon-circle"><span class="material-icons">verified_user</span></div>
+                    <div>
+                        <h4>Your security is our priority</h4>
+                        <p>MoyoTech uses advanced encryption to keep your data safe and secure.</p>
+                    </div>
+                </div>
+
+                <div class="contact-sales">
+                    Don't have an account? <a href="{% url 'register' %}">Contact Sales</a>
+                </div>
+
+                <div class="form-footer">
+                    <span class="material-icons">lock</span>
+                    <span>&copy; 2025 MoyoTech. All rights reserved.</span>
+                </div>
             </div>
         </div>
     </div>
-    
- 
+
     <script>
-        // Theme toggle functionality
-        const lightModeBtn = document.getElementById('light-mode');
-        const darkModeBtn = document.getElementById('dark-mode');
-        const htmlElement = document.documentElement;
-        
-        // Check for saved theme preference or use prefer-color-scheme
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
-            applyDarkMode();
-        } else if (savedTheme === 'light') {
-            applyLightMode();
-        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            applyDarkMode();
-        }
-        
-        // Apply theme functions
-        function applyLightMode() {
-            htmlElement.setAttribute('data-theme', 'light');
-            lightModeBtn.classList.add('active');
-            darkModeBtn.classList.remove('active');
-            localStorage.setItem('theme', 'light');
-        }
-        
-        function applyDarkMode() {
-            htmlElement.setAttribute('data-theme', 'dark');
-            darkModeBtn.classList.add('active');
-            lightModeBtn.classList.remove('active');
-            localStorage.setItem('theme', 'dark');
-        }
-        
-        // Password visibility toggle
         const togglePassword = document.getElementById('togglePassword');
         const passwordField = document.getElementById('password');
-        
-        togglePassword.addEventListener('click', function() {
+
+        togglePassword.addEventListener('click', function () {
             const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordField.setAttribute('type', type);
-            
-            // Change the icon based on password visibility
-            const visibilityIcon = this.querySelector('.material-icons');
-            if (type === 'password') {
-                visibilityIcon.textContent = 'visibility_off';
-            } else {
-                visibilityIcon.textContent = 'visibility';
-            }
+            const icon = this.querySelector('.material-icons');
+            icon.textContent = type === 'password' ? 'visibility_off' : 'visibility';
         });
-        
-        // Event listeners for theme toggle
-        lightModeBtn.addEventListener('click', applyLightMode);
-        darkModeBtn.addEventListener('click', applyDarkMode);
     </script>
-
 </body>
 </html>

@@ -129,13 +129,15 @@ STATIC_URL = '/static/'
 
 MEDIA_URL = '/media/'
 
-if DEBUG:
+# Where YOUR source static files live (project-root "static" folder)
+STATICFILES_DIRS = [BASE_DIR / 'static']
 
-    STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+# Where `collectstatic` copies files to, and what WhiteNoise serves in production.
+# Kept separate from STATICFILES_DIRS so collectstatic never touches your source files.
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-else:
-
-    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+# Serve files from STATICFILES_DIRS during development and local runs even when DEBUG is off.
+WHITENOISE_USE_FINDERS = True
 
 
 # Default primary key field type

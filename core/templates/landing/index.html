@@ -59,7 +59,7 @@
 
         /* Zoom out page slightly for wider view */
         html {
-            zoom: 0.7;
+            zoom: 0.77;
         }
 
         @font-face {
@@ -524,22 +524,30 @@
             margin-bottom: 1.25rem;
         }
 
-        .dash-logo-mark {
-            width: 38px;
-            height: 38px;
-            display: inline-flex;
+        .dash-logo-box {
+            width: 24px;
+            height: 24px;
+            display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            border-radius: 0.85rem;
-            background: linear-gradient(135deg, var(--mc-teal), var(--mc-blue));
-            color: white;
-            font-size: 0.9rem;
-            font-weight: 800;
-            letter-spacing: 0.04em;
-            box-shadow: 0 10px 20px rgba(15, 184, 172, 0.2);
+            border-radius: 0.45rem;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 4px 10px rgba(15, 184, 172, 0.12);
+            margin: 0.05rem 0 0.3rem;
         }
-        .dash-sidebar .dash-logo span { color: var(--mc-teal); }
+
+        .dash-logo-mark {
+            width: 16px;
+            height: 16px;
+            display: block;
+            object-fit: contain;
+            border-radius: 0;
+            background: transparent;
+            padding: 0;
+            box-shadow: none;
+            margin: 0;
+        }
 
         .dash-nav-item {
             display: flex;
@@ -813,7 +821,7 @@
 
         .page-section {
             background: var(--mc-bg);
-            padding: 2.75rem 5%;
+            padding: 2.75rem 3.5%;
         }
 
         .panel {
@@ -822,7 +830,7 @@
             border: 1px solid var(--mc-border);
             box-shadow: 0 30px 60px -35px rgba(11, 23, 48, 0.18);
             padding: 3rem 3.25rem;
-            max-width: 1280px;
+            max-width: 1560px;
             margin: 0 auto;
         }
 
@@ -1895,11 +1903,10 @@
             </div>
         </div>
         <div class="hero-image">
-            <div class="dash-mock">
+                <div class="dash-mock">
                 <div class="dash-sidebar">
-                    <div class="dash-logo">
-                        <span class="dash-logo-mark">MC</span>
-                        <span>Medi<span>Core</span></span>
+                    <div class="dash-logo-box">
+                        <img src="{% static 'logo.png' %}" alt="MediCore logo" class="dash-logo-mark" loading="eager">
                     </div>
                     <div class="dash-nav-item active"><i class="fas fa-th-large"></i> Dashboard</div>
                     <div class="dash-nav-item"><i class="fas fa-boxes"></i> Inventory</div>
