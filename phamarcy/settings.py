@@ -169,9 +169,9 @@ EMAIL_HOST = 'host44.registrar-servers.com'
 EMAIL_PORT=465
 EMAIL_USE_SSL=True
 EMAIL_USE_TLS=False
-EMAIL_HOST_USER = 'hello@moyotechmw.com'
+EMAIL_HOST_USER = 'hello@medicore.com'
 EMAIL_HOST_PASSWORD = '!c-$V^L34SYz'
-DEFAULT_FROM_EMAIL = 'MoyoTech IMS <hello@moyotechmw.com>'
+DEFAULT_FROM_EMAIL = 'Medicore <hello@medicore.com>'
 BASE_URL = 'http://127.0.0.1:8003/'
 
 SITE_URL = 'http://localhost:8000'
@@ -180,7 +180,7 @@ PAYCHANGU_API_KEY = os.getenv('PAYCHANGU_API_KEY', 'sec-live-iuhs6TdCPfdukvrfwl9
 
 ADMIN_PAYMENT_EMAIL = os.getenv('ADMIN_PAYMENT_EMAIL', 'wavet3ch041@gmail.com')
 
-ADMIN_EMAIL = 'admin@moyotechmw.com'
+ADMIN_EMAIL = 'admin@medicore.com'
 
 # Authentication settings
 LOGIN_URL = 'login'
