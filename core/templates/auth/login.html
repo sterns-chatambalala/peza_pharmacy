@@ -56,42 +56,30 @@
             position: relative;
             min-height: 100vh;
             overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 32px;
-            background: linear-gradient(135deg, #f0fdfa 0%, #eff6ff 100%);
+            background: #f0fdfa;
+            border-radius: 24px;
         }
 
         .visual-frame {
             width: 100%;
             height: 100%;
-            max-width: 680px;
-            max-height: 920px;
-            border-radius: 28px;
             overflow: hidden;
-            background: #fff;
-            box-shadow: 0 24px 70px rgba(15, 23, 42, 0.18);
-            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 24px;
+            background: transparent;
+            box-shadow: none;
+            border: 0;
         }
 
         .visual-frame img {
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: cover;
             display: block;
         }
 
         /* curved cut where the white panel meets the photo, like the reference */
         .visual-panel::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: -1px;
-            width: 64px;
-            height: 64px;
-            background: var(--bg-color);
-            border-bottom-left-radius: 64px;
+            content: none;
         }
 
         /* ---------------- RIGHT FORM PANEL ---------------- */
