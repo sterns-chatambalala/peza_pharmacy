@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Set your GitHub username and personal access token via environment variables
+# Set your GitHub username and personal access token via environment variables.
 # Do not store credentials directly in source control.
-USERNAME="Bernard411"
-PASSWORD="${GITHUB_TOKEN:-replace-with-your-token}"
+USERNAME="${GITHUB_USERNAME}"
+PASSWORD="${GITHUB_TOKEN}"
 
 # Change directory to your website directory on PythonAnywhere
 cd /path/to/your/website/directory
