@@ -1,370 +1,303 @@
 {% extends "base.html" %}
-{% load static %}
-
 {% block title %}Point of Sale{% endblock %}
-{% block eyebrow %}Pharmacy{% endblock %}
-{% block page_title %}Point of Sale{% endblock %}
 
-{% block topbar_actions %}
-<a href="{% url 'sales_history' %}" class="btn btn-outline btn-sm"><i class="fas fa-clock-rotate-left"></i> Sales History</a>
-{% endblock %}
-
-{% block extra_css %}
-.pos-layout { display: grid; grid-template-columns: 1.6fr 1fr; gap: 1.25rem; align-items: start; }
-.pos-toolbar { display: flex; gap: 0.75rem; margin-bottom: 1.1rem; }
-.pos-toolbar .search-box { position: relative; flex: 1; }
-.pos-toolbar .search-box i { position: absolute; left: 0.9rem; top: 50%; transform: translateY(-50%); color: var(--mc-slate); font-size: 0.85rem; }
-.pos-toolbar input { width: 100%; padding: 0.75rem 0.9rem 0.75rem 2.3rem; border: 1.5px solid var(--mc-border); border-radius: 0.75rem; font-size: 0.9rem; }
-.pos-toolbar input:focus { outline: none; border-color: var(--mc-teal); }
-.pos-toolbar .btn { flex-shrink: 0; }
-
-.product-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.9rem; max-height: 68vh; overflow-y: auto; padding-right: 0.25rem; }
-.product-card {
-    background: #fff; border: 1.5px solid var(--mc-border); border-radius: 0.9rem; padding: 1rem;
-    cursor: pointer; transition: border-color 0.15s ease, transform 0.1s ease;
-}
-.product-card:hover { border-color: var(--mc-teal); transform: translateY(-1px); }
-.product-card.out-of-range { opacity: 0.45; pointer-events: none; }
-.product-card .p-icon { width: 42px; height: 42px; border-radius: 0.7rem; background: var(--mc-teal-tint); color: var(--mc-teal-dark); display: flex; align-items: center; justify-content: center; margin-bottom: 0.7rem; font-size: 1rem; }
-.product-card .p-name { font-weight: 700; font-size: 0.87rem; color: var(--mc-navy); line-height: 1.3; margin-bottom: 0.2rem; }
-.product-card .p-cat { font-size: 0.7rem; color: var(--mc-slate); margin-bottom: 0.6rem; }
-.product-card .p-foot { display: flex; justify-content: space-between; align-items: center; }
-.product-card .p-price { font-weight: 800; color: var(--mc-teal-dark); font-size: 0.88rem; }
-.product-card .p-stock { font-size: 0.68rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 1rem; }
-.product-card .p-stock.ok { background: var(--mc-green-tint); color: var(--mc-green); }
-.product-card .p-stock.low { background: var(--mc-amber-tint); color: var(--mc-amber); }
-
-.cart-card { position: sticky; top: calc(var(--topbar-h) + 1rem); display: flex; flex-direction: column; max-height: calc(100vh - var(--topbar-h) - 2rem); }
-.cart-head { padding: 1.25rem 1.4rem 1rem; border-bottom: 1px solid var(--mc-border); display: flex; justify-content: space-between; align-items: center; }
-.cart-head h3 { font-size: 1.02rem; font-weight: 800; }
-.cart-items { flex: 1; overflow-y: auto; padding: 0.5rem 1.1rem; min-height: 120px; }
-.cart-row { display: flex; align-items: center; gap: 0.7rem; padding: 0.75rem 0.2rem; border-bottom: 1px dashed var(--mc-border); }
-.cart-row:last-child { border-bottom: none; }
-.cart-row .c-info { flex: 1; min-width: 0; }
-.cart-row .c-name { font-size: 0.85rem; font-weight: 700; color: var(--mc-navy); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.cart-row .c-price { font-size: 0.72rem; color: var(--mc-slate); }
-.qty-stepper { display: flex; align-items: center; gap: 0.4rem; }
-.qty-stepper button { width: 24px; height: 24px; border-radius: 0.4rem; border: 1px solid var(--mc-border); background: #fff; cursor: pointer; font-size: 0.75rem; color: var(--mc-navy); }
-.qty-stepper span { min-width: 20px; text-align: center; font-size: 0.83rem; font-weight: 700; }
-.cart-row .c-remove { background: none; border: none; color: var(--mc-red); cursor: pointer; font-size: 0.85rem; padding: 0.3rem; }
-.cart-empty { text-align: center; padding: 2.5rem 1rem; color: var(--mc-slate); }
-.cart-empty i { font-size: 1.8rem; color: #c9d3e0; margin-bottom: 0.6rem; }
-.cart-foot { padding: 1.1rem 1.4rem 1.4rem; border-top: 1px solid var(--mc-border); }
-.cart-summary-row { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--mc-slate); margin-bottom: 0.5rem; }
-.cart-summary-row.total { font-size: 1.05rem; font-weight: 800; color: var(--mc-navy); margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid var(--mc-border); }
-.discount-row { display: flex; align-items: center; gap: 0.5rem; margin: 0.6rem 0; }
-.discount-row input { width: 70px; padding: 0.4rem 0.5rem; border: 1.5px solid var(--mc-border); border-radius: 0.5rem; font-size: 0.82rem; }
-
-.modal-backdrop { position: fixed; inset: 0; background: rgba(11,23,48,0.55); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 1rem; }
-.modal-backdrop.open { display: flex; }
-.modal-box { background: #fff; border-radius: 1.1rem; width: 100%; max-width: 480px; padding: 1.75rem; max-height: 90vh; overflow-y: auto; }
-.modal-box h3 { font-size: 1.05rem; font-weight: 800; margin-bottom: 0.3rem; }
-.modal-box .sub { font-size: 0.83rem; color: var(--mc-slate); margin-bottom: 1.3rem; }
-.receipt-success { text-align: center; padding: 1rem 0; }
-.receipt-success .check-circle { width: 60px; height: 60px; border-radius: 50%; background: var(--mc-green-tint); color: var(--mc-green); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; margin: 0 auto 1rem; }
-
-@media (max-width: 1100px) {
-    .pos-layout { grid-template-columns: 1fr; }
-    .product-grid { grid-template-columns: repeat(2, 1fr); max-height: none; }
-    .cart-card { position: static; }
-}
-@media (max-width: 560px) { .product-grid { grid-template-columns: 1fr 1fr; } }
+{% block extra_style %}
+  .pos-scroll::-webkit-scrollbar{ width:6px; }
+  .drug-card{ transition: all .12s ease; }
+  .drug-card:hover{ transform: translateY(-2px); border-color: rgba(34,197,94,0.35); }
+  .drug-card.out-of-stock{ opacity:.45; pointer-events:none; }
+  .cart-row-enter{ animation: cartIn .18s ease; }
+  @keyframes cartIn{ from{ opacity:0; transform:translateX(8px);} to{ opacity:1; transform:translateX(0);} }
+  .pay-option.active{ border-color:#22c55e; background:rgba(34,197,94,0.12); color:#fff; }
 {% endblock %}
 
 {% block content %}
+<div class="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-4 h-[calc(100%-0px)]">
 
-<div class="pos-layout">
-    <div class="card card-pad">
-        <div class="pos-toolbar">
-            <div class="search-box">
-                <i class="fas fa-magnifying-glass"></i>
-                <input type="text" id="productSearch" placeholder="Search products by name...">
-            </div>
-            <button class="btn btn-outline" id="barcodeBtn" type="button"><i class="fas fa-barcode"></i> Scan</button>
-        </div>
-
-        <div class="product-grid" id="productGrid">
-            {% for drug in drugs %}
-            <div class="product-card"
-                 data-id="{{ drug.id }}"
-                 data-name="{{ drug.name|escapejs }}"
-                 data-price="{{ drug.price }}"
-                 data-stock="{{ drug.quantity }}"
-                 data-search="{{ drug.name|lower }}">
-                <div class="p-icon"><i class="fas fa-pills"></i></div>
-                <div class="p-name">{{ drug.name }}</div>
-                <div class="p-cat">{{ drug.category }} &middot; Batch {{ drug.batch_no }}</div>
-                <div class="p-foot">
-                    <span class="p-price">MWK {{ drug.price|floatformat:0 }}</span>
-                    <span class="p-stock {% if drug.is_low_stock %}low{% else %}ok{% endif %}">{{ drug.quantity }} left</span>
-                </div>
-            </div>
-            {% empty %}
-            <div class="empty-state" style="grid-column: 1/-1;">
-                <i class="fas fa-boxes-stacked"></i>
-                <h3>No products available</h3>
-                <p>Add drugs to your inventory to start selling at the POS.</p>
-                <a href="{% url 'drug_create' %}" class="btn btn-primary btn-sm" style="margin-top:1rem;">Add Drug</a>
-            </div>
-            {% endfor %}
-        </div>
+  <!-- ============ DRUG GRID ============ -->
+  <div class="card rounded-xl p-4 flex flex-col min-h-[600px]">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="flex-1 flex items-center gap-2 bg-base-800 border border-white/5 rounded-lg px-3 py-2.5">
+        <i data-lucide="search" class="w-4 h-4 text-slate-500"></i>
+        <input id="pos-search" type="text" placeholder="Search by name, generic name or scan barcode..." class="flex-1 bg-transparent outline-none text-sm text-slate-200" autocomplete="off" autofocus />
+      </div>
+      <select id="pos-category" class="bg-base-800 border border-white/5 rounded-lg px-3 py-2.5 text-sm text-slate-300 outline-none">
+        <option value="">All categories</option>
+      </select>
     </div>
 
-    <div class="card cart-card">
-        <div class="cart-head">
-            <h3><i class="fas fa-cart-shopping"></i> Current Sale</h3>
-            <button type="button" id="clearCartBtn" class="btn btn-outline btn-sm">Clear</button>
+    <div id="drug-grid" class="flex-1 overflow-y-auto pos-scroll pr-1 grid grid-cols-2 sm:grid-cols-3 2xl:grid-cols-4 gap-3 content-start">
+      {% for drug in drugs %}
+      <button type="button"
+        class="drug-card {% if drug.quantity <= 0 %}out-of-stock{% endif %} card rounded-lg p-3 text-left"
+        data-id="{{ drug.id }}"
+        data-name="{{ drug.name }}"
+        data-price="{{ drug.price }}"
+        data-stock="{{ drug.quantity }}"
+        data-category="{{ drug.category|default:'' }}"
+        data-search="{{ drug.name|lower }} {{ drug.generic_name|default:''|lower }} {{ drug.barcode|default:'' }}"
+        onclick="addToCart(this)">
+        <div class="w-9 h-9 rounded-lg bg-blue-500/15 text-blue-400 flex items-center justify-center mb-2">
+          <i data-lucide="pill" class="w-4 h-4"></i>
         </div>
-
-        <div class="cart-items" id="cartItems">
-            <div class="cart-empty" id="cartEmptyState">
-                <i class="fas fa-cart-shopping"></i>
-                <p>Tap a product to add it to the sale.</p>
-            </div>
+        <div class="text-sm font-semibold text-white truncate">{{ drug.name }}</div>
+        <div class="text-[11px] text-slate-500 truncate mb-2">{{ drug.generic_name|default:drug.strength|default:"" }}</div>
+        <div class="flex items-center justify-between">
+          <span class="text-sm font-bold text-emerald-400">MWK {{ drug.price|floatformat:0 }}</span>
+          <span class="text-[10px] px-2 py-0.5 rounded-full font-medium {% if drug.quantity <= 0 %}bg-red-500/20 text-red-400{% elif drug.quantity <= drug.reorder_level %}bg-amber-500/20 text-amber-400{% else %}bg-white/5 text-slate-400{% endif %}">
+            {% if drug.quantity <= 0 %}Out of stock{% else %}{{ drug.quantity }} left{% endif %}
+          </span>
         </div>
-
-        <div class="cart-foot">
-            <div class="discount-row">
-                <label for="discountInput" style="font-size:0.82rem; color: var(--mc-slate); font-weight:600;">Discount %</label>
-                <input type="number" id="discountInput" min="0" max="100" step="0.5" value="0">
-            </div>
-            <div class="cart-summary-row"><span>Subtotal</span><span id="subtotalDisplay">MWK 0</span></div>
-            <div class="cart-summary-row"><span>Discount</span><span id="discountDisplay">- MWK 0</span></div>
-            <div class="cart-summary-row total"><span>Total</span><span id="totalDisplay">MWK 0</span></div>
-            <button type="button" id="checkoutBtn" class="btn btn-primary" style="width:100%; margin-top:1.1rem;" disabled>
-                <i class="fas fa-lock"></i> Checkout
-            </button>
-        </div>
+      </button>
+      {% empty %}
+      <div class="col-span-full text-center py-16 text-slate-500 text-sm">
+        <i data-lucide="package-x" class="w-8 h-8 mx-auto mb-2 text-slate-600"></i>
+        No drugs in stock. <a href="{% url 'drug_create' %}" class="text-emerald-400 hover:underline">Add one</a>.
+      </div>
+      {% endfor %}
     </div>
+  </div>
+
+  <!-- ============ CART ============ -->
+  <div class="card rounded-xl p-4 flex flex-col h-fit xl:h-[calc(100vh-160px)] sticky top-0">
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-2 font-semibold text-white text-sm">
+        <i data-lucide="shopping-cart" class="w-4 h-4 text-emerald-400"></i> Current Sale
+      </div>
+      <button type="button" onclick="clearCart()" class="text-xs text-slate-500 hover:text-red-400">Clear</button>
+    </div>
+
+    <div id="cart-items" class="flex-1 overflow-y-auto pos-scroll space-y-2 mb-3 min-h-[120px]">
+      <div id="cart-empty" class="text-center py-10 text-slate-500 text-xs">
+        <i data-lucide="shopping-basket" class="w-7 h-7 mx-auto mb-2 text-slate-600"></i>
+        Cart is empty — click a drug to add it.
+      </div>
+    </div>
+
+    <!-- Customer details (optional) -->
+    <details class="mb-3 group">
+      <summary class="text-xs text-slate-400 cursor-pointer flex items-center gap-1.5 select-none">
+        <i data-lucide="user" class="w-3.5 h-3.5"></i> Customer details <span class="text-slate-600">(optional)</span>
+      </summary>
+      <div class="mt-2 grid grid-cols-2 gap-2">
+        <input id="customer_name" type="text" placeholder="Name" class="col-span-2 bg-base-800 border border-white/5 rounded-lg px-3 py-2 text-xs text-slate-200 outline-none" />
+        <input id="customer_phone" type="text" placeholder="Phone" class="bg-base-800 border border-white/5 rounded-lg px-3 py-2 text-xs text-slate-200 outline-none" />
+        <input id="customer_email" type="email" placeholder="Email" class="bg-base-800 border border-white/5 rounded-lg px-3 py-2 text-xs text-slate-200 outline-none" />
+        <input id="customer_address" type="text" placeholder="Address" class="col-span-2 bg-base-800 border border-white/5 rounded-lg px-3 py-2 text-xs text-slate-200 outline-none" />
+      </div>
+    </details>
+
+    <!-- Discount -->
+    <div class="flex items-center justify-between mb-3 text-xs">
+      <span class="text-slate-400 flex items-center gap-1.5"><i data-lucide="percent" class="w-3.5 h-3.5"></i> Discount</span>
+      <div class="flex items-center gap-1">
+        <input id="discount_percentage" type="number" min="0" max="100" value="0" oninput="renderCart()" class="w-16 bg-base-800 border border-white/5 rounded-lg px-2 py-1.5 text-xs text-right text-slate-200 outline-none" />
+        <span class="text-slate-500">%</span>
+      </div>
+    </div>
+
+    <!-- Payment method -->
+    <div class="mb-3">
+      <div class="text-xs text-slate-400 mb-1.5">Payment method</div>
+      <div class="grid grid-cols-4 gap-1.5" id="payment-methods">
+        <button type="button" data-method="CASH" onclick="selectPayment(this)" class="pay-option active border border-white/10 rounded-lg py-2 text-[11px] text-slate-300 flex flex-col items-center gap-1"><i data-lucide="banknote" class="w-3.5 h-3.5"></i>Cash</button>
+        <button type="button" data-method="CARD" onclick="selectPayment(this)" class="pay-option border border-white/10 rounded-lg py-2 text-[11px] text-slate-300 flex flex-col items-center gap-1"><i data-lucide="credit-card" class="w-3.5 h-3.5"></i>Card</button>
+        <button type="button" data-method="MOBILE_MONEY" onclick="selectPayment(this)" class="pay-option border border-white/10 rounded-lg py-2 text-[11px] text-slate-300 flex flex-col items-center gap-1"><i data-lucide="smartphone" class="w-3.5 h-3.5"></i>Mobile</button>
+        <button type="button" data-method="INSURANCE" onclick="selectPayment(this)" class="pay-option border border-white/10 rounded-lg py-2 text-[11px] text-slate-300 flex flex-col items-center gap-1"><i data-lucide="shield-plus" class="w-3.5 h-3.5"></i>Insurance</button>
+      </div>
+    </div>
+
+    <!-- Totals -->
+    <div class="border-t border-white/5 pt-3 space-y-1.5 text-sm mb-3">
+      <div class="flex items-center justify-between text-slate-400"><span>Subtotal</span><span id="sum-subtotal">MWK 0</span></div>
+      <div class="flex items-center justify-between text-slate-400"><span>Discount</span><span id="sum-discount" class="text-red-400">- MWK 0</span></div>
+      <div class="flex items-center justify-between text-white font-bold text-base pt-1.5 border-t border-white/5"><span>Total</span><span id="sum-total">MWK 0</span></div>
+    </div>
+
+    <button id="checkout-btn" type="button" onclick="checkout()" disabled class="w-full py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:bg-base-700 disabled:text-slate-500 disabled:cursor-not-allowed text-base-950 font-bold text-sm flex items-center justify-center gap-2 transition">
+      <i data-lucide="check-circle" class="w-4 h-4"></i> Complete Sale
+    </button>
+  </div>
 </div>
 
-<!-- Checkout Modal -->
-<div class="modal-backdrop" id="checkoutModal">
-    <div class="modal-box">
-        <h3>Complete Sale</h3>
-        <p class="sub">Add customer details and choose a payment method.</p>
-        <form id="checkoutForm">
-            {% csrf_token %}
-            <div class="form-grid">
-                <div class="form-field full">
-                    <label>Customer Name (optional)</label>
-                    <input type="text" id="customerName" placeholder="Walk-in customer">
-                </div>
-                <div class="form-field">
-                    <label>Phone</label>
-                    <input type="tel" id="customerPhone" placeholder="+265...">
-                </div>
-                <div class="form-field">
-                    <label>Email (for receipt)</label>
-                    <input type="email" id="customerEmail" placeholder="name@email.com">
-                </div>
-                <div class="form-field full">
-                    <label>Payment Method</label>
-                    <select id="paymentMethod">
-                        <option value="CASH">Cash</option>
-                        <option value="CARD">Card</option>
-                        <option value="MOBILE_MONEY">Mobile Money</option>
-                        <option value="BANK_TRANSFER">Bank Transfer</option>
-                    </select>
-                </div>
-            </div>
-            <div class="cart-summary-row total" style="margin-top:1.2rem;"><span>Total Due</span><span id="modalTotal">MWK 0</span></div>
-            <div style="display:flex; gap:0.7rem; margin-top:1.3rem;">
-                <button type="button" class="btn btn-outline" style="flex:1;" onclick="closeModal('checkoutModal')">Cancel</button>
-                <button type="submit" class="btn btn-primary" style="flex:1;" id="confirmSaleBtn"><i class="fas fa-check"></i> Confirm Sale</button>
-            </div>
-        </form>
+<!-- ============ SUCCESS MODAL ============ -->
+<div id="success-modal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+  <div class="card rounded-xl p-6 w-full max-w-sm text-center">
+    <div class="w-14 h-14 rounded-full bg-emerald-500/15 text-emerald-400 flex items-center justify-center mx-auto mb-3">
+      <i data-lucide="check" class="w-7 h-7"></i>
     </div>
-</div>
-
-<!-- Success Modal -->
-<div class="modal-backdrop" id="successModal">
-    <div class="modal-box">
-        <div class="receipt-success">
-            <div class="check-circle"><i class="fas fa-check"></i></div>
-            <h3 id="successSaleId">Sale Complete</h3>
-            <p class="sub" id="successTotal"></p>
-            <div style="display:flex; gap:0.7rem; margin-top:1rem;">
-                <button type="button" class="btn btn-outline" style="flex:1;" onclick="closeModal('successModal')">New Sale</button>
-                <a href="{% url 'sales_history' %}" class="btn btn-primary" style="flex:1;">View Sales</a>
-            </div>
-        </div>
+    <div class="text-lg font-bold text-white mb-1">Sale Complete</div>
+    <div class="text-xs text-slate-500 mb-4">Receipt <span id="modal-sale-id" class="text-slate-300 font-mono"></span></div>
+    <div class="card rounded-lg p-3 text-sm space-y-1.5 mb-5 text-left">
+      <div class="flex justify-between text-slate-400"><span>Subtotal</span><span id="modal-subtotal">—</span></div>
+      <div class="flex justify-between text-slate-400"><span>Discount</span><span id="modal-discount">—</span></div>
+      <div class="flex justify-between text-white font-bold border-t border-white/5 pt-1.5"><span>Total Paid</span><span id="modal-total">—</span></div>
     </div>
+    <div class="flex gap-2">
+      <a href="{% url 'sales_history' %}" class="flex-1 py-2.5 rounded-lg border border-white/10 text-slate-300 text-sm hover:bg-white/5">View Sales</a>
+      <button type="button" onclick="closeModalAndReset()" class="flex-1 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-base-950 font-semibold text-sm">New Sale</button>
+    </div>
+  </div>
 </div>
-
 {% endblock %}
 
-{% block extra_js %}
-const cart = {};
-const productGrid = document.getElementById('productGrid');
-const cartItems = document.getElementById('cartItems');
-const cartEmptyState = document.getElementById('cartEmptyState');
-const checkoutBtn = document.getElementById('checkoutBtn');
-const discountInput = document.getElementById('discountInput');
+{% block extra_scripts %}
+<script>
+lucide.createIcons();
 
-function getCsrfToken() {
-    return document.querySelector('#checkoutForm [name=csrfmiddlewaretoken]').value;
+let cart = {}; // { drugId: { name, price, stock, qty } }
+let selectedPayment = 'CASH';
+const csrfToken = "{{ csrf_token }}";
+
+/* populate category filter */
+(function initCategories(){
+  const sel = document.getElementById('pos-category');
+  const cats = new Set();
+  document.querySelectorAll('.drug-card').forEach(c => { if (c.dataset.category) cats.add(c.dataset.category); });
+  [...cats].sort().forEach(cat => {
+    const opt = document.createElement('option');
+    opt.value = cat; opt.textContent = cat;
+    sel.appendChild(opt);
+  });
+})();
+
+function filterGrid(){
+  const q = document.getElementById('pos-search').value.trim().toLowerCase();
+  const cat = document.getElementById('pos-category').value;
+  document.querySelectorAll('.drug-card').forEach(card => {
+    const matchesQ = !q || card.dataset.search.includes(q);
+    const matchesCat = !cat || card.dataset.category === cat;
+    card.style.display = (matchesQ && matchesCat) ? '' : 'none';
+  });
+}
+document.getElementById('pos-search').addEventListener('input', filterGrid);
+document.getElementById('pos-category').addEventListener('change', filterGrid);
+
+function addToCart(el){
+  const id = el.dataset.id;
+  const stock = parseInt(el.dataset.stock);
+  if (stock <= 0) return;
+  if (!cart[id]) {
+    cart[id] = { name: el.dataset.name, price: parseFloat(el.dataset.price), stock, qty: 0 };
+  }
+  if (cart[id].qty < stock) cart[id].qty += 1;
+  renderCart();
 }
 
-function addToCart(card) {
-    const id = card.dataset.id;
-    const stock = parseInt(card.dataset.stock, 10);
-    if (!cart[id]) {
-        cart[id] = { id, name: card.dataset.name, price: parseFloat(card.dataset.price), qty: 0, stock };
-    }
-    if (cart[id].qty < stock) {
-        cart[id].qty += 1;
-    }
-    renderCart();
+function changeQty(id, delta){
+  if (!cart[id]) return;
+  cart[id].qty += delta;
+  if (cart[id].qty <= 0) delete cart[id];
+  else if (cart[id].qty > cart[id].stock) cart[id].qty = cart[id].stock;
+  renderCart();
 }
 
-function changeQty(id, delta) {
-    if (!cart[id]) return;
-    cart[id].qty += delta;
-    if (cart[id].qty <= 0) delete cart[id];
-    renderCart();
+function removeItem(id){ delete cart[id]; renderCart(); }
+function clearCart(){ cart = {}; renderCart(); }
+
+function selectPayment(btn){
+  document.querySelectorAll('.pay-option').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedPayment = btn.dataset.method;
 }
 
-function removeFromCart(id) {
-    delete cart[id];
-    renderCart();
+function renderCart(){
+  const container = document.getElementById('cart-items');
+  const empty = document.getElementById('cart-empty');
+  const ids = Object.keys(cart);
+  container.querySelectorAll('.cart-line').forEach(n => n.remove());
+
+  if (!ids.length){
+    empty.style.display = '';
+  } else {
+    empty.style.display = 'none';
+    ids.forEach(id => {
+      const item = cart[id];
+      const row = document.createElement('div');
+      row.className = 'cart-line cart-row-enter card rounded-lg p-2.5';
+      row.innerHTML = `
+        <div class="flex items-center justify-between gap-2">
+          <div class="min-w-0 flex-1">
+            <div class="text-xs font-medium text-white truncate">${item.name}</div>
+            <div class="text-[11px] text-slate-500">MWK ${item.price.toLocaleString()} each</div>
+          </div>
+          <button onclick="removeItem('${id}')" class="text-slate-600 hover:text-red-400"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+        </div>
+        <div class="flex items-center justify-between mt-2">
+          <div class="flex items-center gap-1.5">
+            <button onclick="changeQty('${id}',-1)" class="w-6 h-6 rounded bg-base-800 border border-white/5 text-slate-300 text-xs flex items-center justify-center hover:bg-white/10">−</button>
+            <span class="text-xs text-white w-6 text-center">${item.qty}</span>
+            <button onclick="changeQty('${id}',1)" class="w-6 h-6 rounded bg-base-800 border border-white/5 text-slate-300 text-xs flex items-center justify-center hover:bg-white/10">+</button>
+          </div>
+          <span class="text-xs font-semibold text-emerald-400">MWK ${(item.qty * item.price).toLocaleString()}</span>
+        </div>`;
+      container.appendChild(row);
+    });
+    lucide.createIcons();
+  }
+
+  const subtotal = ids.reduce((sum, id) => sum + cart[id].qty * cart[id].price, 0);
+  const discountPct = parseFloat(document.getElementById('discount_percentage').value) || 0;
+  const discount = subtotal * (discountPct / 100);
+  const total = subtotal - discount;
+
+  document.getElementById('sum-subtotal').textContent = `MWK ${subtotal.toLocaleString()}`;
+  document.getElementById('sum-discount').textContent = `- MWK ${discount.toLocaleString(undefined,{maximumFractionDigits:0})}`;
+  document.getElementById('sum-total').textContent = `MWK ${total.toLocaleString(undefined,{maximumFractionDigits:0})}`;
+  document.getElementById('checkout-btn').disabled = ids.length === 0;
 }
 
-function calcTotals() {
-    let subtotal = 0;
-    Object.values(cart).forEach(item => { subtotal += item.qty * item.price; });
-    const discountPct = parseFloat(discountInput.value) || 0;
-    const discountAmt = subtotal * (discountPct / 100);
-    const total = subtotal - discountAmt;
-    return { subtotal, discountAmt, total };
-}
+async function checkout(){
+  const ids = Object.keys(cart);
+  if (!ids.length) return;
 
-function fmt(n) {
-    return 'MWK ' + n.toLocaleString(undefined, { maximumFractionDigits: 0 });
-}
+  const btn = document.getElementById('checkout-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Processing...';
+  lucide.createIcons();
 
-function renderCart() {
-    const items = Object.values(cart);
-    cartItems.innerHTML = '';
-    if (items.length === 0) {
-        cartItems.appendChild(cartEmptyState);
-        checkoutBtn.disabled = true;
+  const formData = new FormData();
+  formData.append('customer_name', document.getElementById('customer_name').value);
+  formData.append('customer_phone', document.getElementById('customer_phone').value);
+  formData.append('customer_email', document.getElementById('customer_email').value);
+  formData.append('customer_address', document.getElementById('customer_address').value);
+  formData.append('payment_method', selectedPayment);
+  formData.append('discount_percentage', document.getElementById('discount_percentage').value || '0');
+  ids.forEach(id => {
+    formData.append('items[]', id);
+    formData.append('quantities[]', cart[id].qty);
+  });
+
+  try {
+    const res = await fetch("{% url 'process_sale' %}", {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrfToken },
+      body: formData,
+      credentials: 'same-origin'
+    });
+    const data = await res.json();
+    if (data.success){
+      document.getElementById('modal-sale-id').textContent = data.sale_id;
+      document.getElementById('modal-subtotal').textContent = `MWK ${Number(data.subtotal).toLocaleString(undefined,{maximumFractionDigits:0})}`;
+      document.getElementById('modal-discount').textContent = `- MWK ${Number(data.discount_amount).toLocaleString(undefined,{maximumFractionDigits:0})}`;
+      document.getElementById('modal-total').textContent = `MWK ${Number(data.total).toLocaleString(undefined,{maximumFractionDigits:0})}`;
+      document.getElementById('modal-view-sale').href = `/sales/${data.sale_id}/`;
+      document.getElementById('success-modal').classList.remove('hidden');
     } else {
-        items.forEach(item => {
-            const row = document.createElement('div');
-            row.className = 'cart-row';
-            row.innerHTML = `
-                <div class="c-info">
-                    <div class="c-name">${item.name}</div>
-                    <div class="c-price">MWK ${item.price.toLocaleString()} each</div>
-                </div>
-                <div class="qty-stepper">
-                    <button type="button" onclick="changeQty('${item.id}', -1)">−</button>
-                    <span>${item.qty}</span>
-                    <button type="button" onclick="changeQty('${item.id}', 1)">+</button>
-                </div>
-                <button type="button" class="c-remove" onclick="removeFromCart('${item.id}')"><i class="fas fa-trash"></i></button>
-            `;
-            cartItems.appendChild(row);
-        });
-        checkoutBtn.disabled = false;
+      alert(data.message || 'Could not process sale.');
     }
-
-    const { subtotal, discountAmt, total } = calcTotals();
-    document.getElementById('subtotalDisplay').textContent = fmt(subtotal);
-    document.getElementById('discountDisplay').textContent = '- ' + fmt(discountAmt);
-    document.getElementById('totalDisplay').textContent = fmt(total);
-    document.getElementById('modalTotal').textContent = fmt(total);
+  } catch (err){
+    alert('Network error — please try again.');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i data-lucide="check-circle" class="w-4 h-4"></i> Complete Sale';
+    lucide.createIcons();
+  }
 }
 
-productGrid.addEventListener('click', (e) => {
-    const card = e.target.closest('.product-card');
-    if (card && card.dataset.id) addToCart(card);
-});
-
-document.getElementById('clearCartBtn').addEventListener('click', () => {
-    Object.keys(cart).forEach(k => delete cart[k]);
-    renderCart();
-});
-
-discountInput.addEventListener('input', renderCart);
-
-document.getElementById('productSearch').addEventListener('input', (e) => {
-    const q = e.target.value.toLowerCase();
-    document.querySelectorAll('.product-card').forEach(card => {
-        card.style.display = card.dataset.search && card.dataset.search.includes(q) ? '' : 'none';
-    });
-});
-
-checkoutBtn.addEventListener('click', () => {
-    if (Object.keys(cart).length === 0) return;
-    document.getElementById('checkoutModal').classList.add('open');
-});
-
-function closeModal(id) {
-    document.getElementById(id).classList.remove('open');
+function closeModalAndReset(){
+  document.getElementById('success-modal').classList.add('hidden');
+  window.location.reload();
 }
-
-document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const confirmBtn = document.getElementById('confirmSaleBtn');
-    confirmBtn.disabled = true;
-    confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-
-    const formData = new FormData();
-    formData.append('customer_name', document.getElementById('customerName').value);
-    formData.append('customer_phone', document.getElementById('customerPhone').value);
-    formData.append('customer_email', document.getElementById('customerEmail').value);
-    formData.append('payment_method', document.getElementById('paymentMethod').value);
-    formData.append('discount_percentage', discountInput.value || '0');
-    Object.values(cart).forEach(item => {
-        formData.append('items[]', item.id);
-        formData.append('quantities[]', item.qty);
-    });
-
-    try {
-        const res = await fetch("{% url 'process_sale' %}", {
-            method: 'POST',
-            headers: { 'X-CSRFToken': getCsrfToken() },
-            body: formData
-        });
-        const data = await res.json();
-        if (data.success) {
-            closeModal('checkoutModal');
-            document.getElementById('successSaleId').textContent = 'Sale #' + data.sale_id + ' Complete';
-            document.getElementById('successTotal').textContent = fmt(data.total) + ' · ' + data.payment_method.replace('_', ' ');
-            document.getElementById('successModal').classList.add('open');
-            Object.keys(cart).forEach(k => delete cart[k]);
-            discountInput.value = 0;
-            renderCart();
-            document.getElementById('checkoutForm').reset();
-        } else {
-            alert(data.message || 'Could not process the sale.');
-        }
-    } catch (err) {
-        alert('Something went wrong. Please try again.');
-    } finally {
-        confirmBtn.disabled = false;
-        confirmBtn.innerHTML = '<i class="fas fa-check"></i> Confirm Sale';
-    }
-});
-
-document.getElementById('barcodeBtn').addEventListener('click', async () => {
-    const code = prompt('Enter or scan barcode:');
-    if (!code) return;
-    try {
-        const res = await fetch(`{% url 'barcode_lookup' %}?barcode=${encodeURIComponent(code)}`);
-        const data = await res.json();
-        if (data.success) {
-            const card = document.querySelector(`.product-card[data-id="${data.drug.id}"]`);
-            if (card) addToCart(card);
-        } else {
-            alert(data.message || 'Drug not found for this barcode.');
-        }
-    } catch (err) {
-        alert('Barcode lookup failed.');
-    }
-});
-
-renderCart();
+</script>
 {% endblock %}
