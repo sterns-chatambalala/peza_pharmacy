@@ -1,501 +1,98 @@
-{% extends 'base.html' %}
-{% block title %}User Management{% endblock %}
+{% extends "base.html" %}
+{% block title %}Users &amp; Roles{% endblock %}
+
 {% block content %}
-<div class="dashboard-header">
-    <div class="dashboard-title">
-        <h1>User Management</h1>
-        <p class="dashboard-subtitle">Manage system users and their permissions</p>
+<div class="space-y-4">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-bold text-white">Users &amp; Roles</h1>
+      <p class="text-sm text-slate-400">Manage team members and permissions</p>
     </div>
-    
-    <div class="header-actions">
-        <a href="{% url 'user_create' %}" class="btn-primary">
-            <span class="material-icons">person_add</span>
-            Add User
-        </a>
-    </div>
-</div>
+    <a href="{% url 'user_create' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium rounded-lg transition">
+      <i data-lucide="user-plus" class="w-4 h-4"></i> Add User
+    </a>
+  </div>
 
-<!-- KPI Cards -->
-<div class="kpi-grid">
-    <div class="kpi-card">
-        <div class="kpi-icon" style="background: var(--info-color);">
-            <span class="material-icons">people</span>
-        </div>
-        <div class="kpi-title">Total Users</div>
-        <div class="kpi-value">{{ users|length }}</div>
-        <div class="kpi-change positive">
-            <span class="material-icons">group</span>
-            <span>System users</span>
-        </div>
+  <!-- Stats -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="card rounded-xl p-4">
+      <div class="text-xs text-slate-400">Total Users</div>
+      <div class="text-2xl font-bold text-white">{{ users|length }}</div>
     </div>
-    
-    <div class="kpi-card">
-        <div class="kpi-icon" style="background: var(--success-color);">
-            <span class="material-icons">admin_panel_settings</span>
-        </div>
-        <div class="kpi-title">Admins</div>
-        <div class="kpi-value">{{ admin_count }}</div>
-        <div class="kpi-change">
-            <span class="material-icons">security</span>
-            <span>Administrators</span>
-        </div>
+    <div class="card rounded-xl p-4">
+      <div class="text-xs text-slate-400">Admins</div>
+      <div class="text-2xl font-bold text-blue-400">{{ admin_count }}</div>
     </div>
-    
-    <div class="kpi-card">
-        <div class="kpi-icon" style="background: var(--warning-color);">
-            <span class="material-icons">point_of_sale</span>
-        </div>
-        <div class="kpi-title">Sellers</div>
-        <div class="kpi-value">{{ seller_count }}</div>
-        <div class="kpi-change">
-            <span class="material-icons">shopping_cart</span>
-            <span>Sales staff</span>
-        </div>
+    <div class="card rounded-xl p-4">
+      <div class="text-xs text-slate-400">Sellers</div>
+      <div class="text-2xl font-bold text-emerald-400">{{ seller_count }}</div>
     </div>
-    
-    <div class="kpi-card">
-        <div class="kpi-icon" style="background: var(--primary-color);">
-            <span class="material-icons">inventory</span>
-        </div>
-        <div class="kpi-title">Managers</div>
-        <div class="kpi-value">{{ manager_count }}</div>
-        <div class="kpi-change">
-            <span class="material-icons">manage_accounts</span>
-            <span>Inventory managers</span>
-        </div>
+    <div class="card rounded-xl p-4">
+      <div class="text-xs text-slate-400">Managers</div>
+      <div class="text-2xl font-bold text-amber-400">{{ manager_count }}</div>
     </div>
-</div>
+  </div>
 
-<div class="table-container">
-    <div class="table-header">
-        <div class="table-title">System Users ({{ users|length }})</div>
-        <div class="table-actions">
-            <input type="text" id="userSearch" class="search-input" placeholder="Search users...">
-            <select id="roleFilter" class="search-input">
-                <option value="">All Roles</option>
-                <option value="owner">Owner</option>
-                <option value="admin">Admin</option>
-                <option value="seller">Seller</option>
-                <option value="inventory_manager">Inventory Manager</option>
-            </select>
-        </div>
-    </div>
-
-    <table class="data-table">
+  <div class="card rounded-xl overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
         <thead>
-            <tr>
-                <th>User</th>
-                <th>Contact Information</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Joined</th>
-                <th>Actions</th>
-            </tr>
+          <tr class="border-b border-white/5 text-slate-400">
+            <th class="text-left px-4 py-3 font-medium">User</th>
+            <th class="text-left px-4 py-3 font-medium">Email</th>
+            <th class="text-left px-4 py-3 font-medium">Role</th>
+            <th class="text-left px-4 py-3 font-medium">Joined</th>
+            <th class="text-right px-4 py-3 font-medium">Actions</th>
+          </tr>
         </thead>
-        <tbody id="userTableBody">
-            {% for user_membership in users %}
-            <tr data-role="{{ user_membership.role }}">
-                <td>
-                    <div class="user-info">
-                        <div class="user-avatar-small">
-                            {{ user_membership.user.username|first|upper }}
-                        </div>
-                        <div class="user-details">
-                            <div class="user-name">{{ user_membership.user.username }}</div>
-                            <div class="user-email">{{ user_membership.user.email }}</div>
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <div class="contact-info">
-                        <div class="contact-email">{{ user_membership.user.email }}</div>
-                        <div class="contact-date">Last login: {{ user_membership.user.last_login|date:"M d, Y"|default:"Never" }}</div>
-                    </div>
-                </td>
-                <td>
-                    <span class="role-badge role-{{ user_membership.role }}">
-                        {{ user_membership.role|title }}
-                    </span>
-                </td>
-                <td>
-                    <span class="status-badge {% if user_membership.user.is_active %}high{% else %}low{% endif %}">
-                        {% if user_membership.user.is_active %}Active{% else %}Inactive{% endif %}
-                    </span>
-                </td>
-                <td>
-                    <div class="date-info">
-                        <div class="main-date">{{ user_membership.joined_at|date:"M d, Y" }}</div>
-                        <div class="relative-date">{{ user_membership.joined_at|timesince }} ago</div>
-                    </div>
-                </td>
-                <td>
-                    <div class="action-buttons">
-                        <a href="{% url 'user_update' user_membership.id %}" class="btn-icon" title="Edit User">
-                            <span class="material-icons">edit</span>
-                        </a>
-                        {% if user_membership.role != 'owner' %}
-                        <a href="{% url 'user_delete' user_membership.id %}" class="btn-icon" title="Delete User">
-                            <span class="material-icons">delete</span>
-                        </a>
-                        {% endif %}
-                        <!-- <button class="btn-icon" title="User Actions" onclick="showUserActions({{ user_membership.id }})">
-                            <span class="material-icons">more_vert</span>
-                        </button> -->
-                    </div>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="6" style="text-align: center; padding: 40px; color: var(--light-text);">
-                    <div style="font-size: 3rem; margin-bottom: 15px;">👥</div>
-                    <h3>No users found</h3>
-                    <p>Start by adding your first team member</p>
-                    <a href="{% url 'user_create' %}" class="btn-primary" style="margin-top: 15px;">
-                        <span class="material-icons">person_add</span>
-                        Add First User
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-
-<!-- User Actions Modal -->
-<!-- <div id="userActionsModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>User Actions</h3>
-            <button class="modal-close" onclick="closeUserModal()">
-                <span class="material-icons">close</span>
-            </button>
-        </div>
-        <div class="modal-body">
-            <div class="action-list">
-                <a href="#" class="action-item" onclick="resetPassword()">
-                    <span class="material-icons">lock_reset</span>
-                    Reset Password
-                </a>
-                <a href="#" class="action-item" onclick="toggleActiveStatus()">
-                    <span class="material-icons">toggle_on</span>
-                    Toggle Active Status
-                </a>
-                <a href="#" class="action-item" onclick="sendWelcomeEmail()">
-                    <span class="material-icons">email</span>
-                    Send Welcome Email
-                </a>
-                <a href="#" class="action-item" onclick="viewActivity()">
-                    <span class="material-icons">analytics</span>
-                    View Activity
-                </a>
-            </div>
-        </div>
-    </div>
-</div> -->
-
-<!-- Delete Confirmation Modal -->
-<!-- <div id="deleteModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>Confirm Deletion</h3>
-            <button class="modal-close" onclick="closeDeleteModal()">
-                <span class="material-icons">close</span>
-            </button>
-        </div>
-        <div class="modal-body">
-            <p>Are you sure you want to delete this user? This action cannot be undone.</p>
-            <div class="user-to-delete">
-                <div class="user-avatar-small" id="deleteUserAvatar"></div>
-                <div class="user-details">
-                    <div class="user-name" id="deleteUserName"></div>
-                    <div class="user-role" id="deleteUserRole"></div>
+        <tbody>
+          {% for membership in users %}
+          <tr class="border-b border-white/5 hover:bg-white/5 transition">
+            <td class="px-4 py-3">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-semibold text-sm">
+                  {{ membership.user.username|slice:":1"|upper }}
                 </div>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <form id="deleteForm" method="post" action="">
-                {% csrf_token %}
-                <button type="button" class="btn-secondary" onclick="closeDeleteModal()">Cancel</button>
-                <button type="submit" class="btn-danger">Delete User</button>
-            </form>
-        </div>
+                <div>
+                  <div class="text-white font-medium">{{ membership.user.username }}</div>
+                  <div class="text-xs text-slate-500">{{ membership.user.get_full_name|default:"No full name" }}</div>
+                </div>
+              </div>
+            </td>
+            <td class="px-4 py-3 text-slate-300">{{ membership.user.email }}</td>
+            <td class="px-4 py-3">
+              <span class="px-2 py-1 rounded-full text-xs font-medium
+                {% if membership.role == 'owner' %}bg-purple-500/20 text-purple-400
+                {% elif membership.role == 'admin' %}bg-blue-500/20 text-blue-400
+                {% elif membership.role == 'seller' %}bg-emerald-500/20 text-emerald-400
+                {% elif membership.role == 'inventory_manager' %}bg-amber-500/20 text-amber-400
+                {% else %}bg-slate-500/20 text-slate-400{% endif %}">
+                {{ membership.get_role_display|default:membership.role }}
+              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-300">{{ membership.joined_at|date:"Y-m-d" }}</td>
+            <td class="px-4 py-3 text-right">
+              <div class="flex items-center justify-end gap-1">
+                <a href="{% url 'user_update' membership.id %}" class="p-1.5 rounded hover:bg-white/10 text-slate-400 hover:text-white transition" title="Edit">
+                  <i data-lucide="edit" class="w-4 h-4"></i>
+                </a>
+                {% if membership.role != 'owner' %}
+                <button onclick="if(confirm('Delete this user?')) document.getElementById('delete-{{ membership.id }}').submit()" class="p-1.5 rounded hover:bg-white/10 text-red-400 hover:text-red-300 transition" title="Delete">
+                  <i data-lucide="trash" class="w-4 h-4"></i>
+                </button>
+                <form id="delete-{{ membership.id }}" method="post" action="{% url 'user_delete' membership.id %}" class="hidden">{% csrf_token %}</form>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="text-center py-8 text-slate-500">No users found. <a href="{% url 'user_create' %}" class="text-emerald-400 hover:underline">Add your first user</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-</div> -->
-
-<style>
-    .user-info {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-    
-    .user-avatar-small {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: var(--primary-gradient);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: 700;
-        font-size: 1rem;
-    }
-    
-    .user-details {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-    }
-    
-    .user-name {
-        font-weight: 600;
-        color: var(--text-color);
-        font-size: 0.95rem;
-    }
-    
-    .user-email, .contact-email, .contact-date {
-        font-size: 0.8rem;
-        color: var(--light-text);
-    }
-    
-    .role-badge {
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .role-owner {
-        background: rgba(139, 69, 19, 0.1);
-        color: #8b4513;
-        border: 1px solid rgba(139, 69, 19, 0.3);
-    }
-    
-    .role-admin {
-        background: rgba(59, 130, 246, 0.1);
-        color: #3b82f6;
-        border: 1px solid rgba(59, 130, 246, 0.3);
-    }
-    
-    .role-seller {
-        background: rgba(16, 185, 129, 0.1);
-        color: #10b981;
-        border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-    
-    .role-inventory_manager {
-        background: rgba(245, 158, 11, 0.1);
-        color: #f59e0b;
-        border: 1px solid rgba(245, 158, 11, 0.3);
-    }
-    
-    .contact-info {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
-    
-    .date-info {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
-    
-    .main-date {
-        font-weight: 500;
-        color: var(--text-color);
-        font-size: 0.9rem;
-    }
-    
-    .relative-date {
-        font-size: 0.75rem;
-        color: var(--light-text);
-    }
-    
-    .action-buttons {
-        display: flex;
-        gap: 6px;
-        flex-wrap: wrap;
-    }
-    
-    .btn-icon {
-        background: none;
-        border: none;
-        color: var(--text-color);
-        cursor: pointer;
-        padding: 6px;
-        border-radius: 6px;
-        transition: var(--transition);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-    }
-    
-    .btn-icon:hover {
-        background: var(--primary-light);
-        color: var(--primary-color);
-        transform: translateY(-1px);
-    }
-    
-    .modal-footer {
-        padding: 20px;
-        border-top: 1px solid var(--border-color);
-        display: flex;
-        gap: 12px;
-        justify-content: flex-end;
-    }
-    
-    .btn-danger {
-        background: var(--danger-color);
-        color: white;
-        border: none;
-        padding: 12px 20px;
-        border-radius: 12px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: var(--transition);
-    }
-    
-    .btn-danger:hover {
-        background: #dc2626;
-        transform: translateY(-2px);
-    }
-    
-    .user-to-delete {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 15px;
-        background: var(--bg-color);
-        border-radius: 12px;
-        margin: 15px 0;
-    }
-    
-    @media (max-width: 768px) {
-        .table-actions {
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .search-input, select {
-            width: 100%;
-        }
-        
-        .action-buttons {
-            flex-direction: column;
-        }
-        
-        .user-info {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 8px;
-        }
-        
-        .modal-footer {
-            flex-direction: column;
-        }
-    }
-</style>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Calculate role counts
-        const adminCount = document.querySelectorAll('[data-role="admin"]').length;
-        const sellerCount = document.querySelectorAll('[data-role="seller"]').length;
-        const managerCount = document.querySelectorAll('[data-role="inventory_manager"]').length;
-        
-        // Update KPI cards
-        document.querySelector('.kpi-card:nth-child(2) .kpi-value').textContent = adminCount;
-        document.querySelector('.kpi-card:nth-child(3) .kpi-value').textContent = sellerCount;
-        document.querySelector('.kpi-card:nth-child(4) .kpi-value').textContent = managerCount;
-
-        // Search and filter functionality
-        const searchInput = document.getElementById('userSearch');
-        const roleFilter = document.getElementById('roleFilter');
-        const tableBody = document.getElementById('userTableBody');
-        const rows = Array.from(tableBody.querySelectorAll('tr'));
-        
-        function filterUsers() {
-            const searchTerm = searchInput.value.toLowerCase();
-            const roleValue = roleFilter.value;
-            
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                const rowRole = row.getAttribute('data-role');
-                
-                const matchesSearch = text.includes(searchTerm);
-                const matchesRole = roleValue === '' || rowRole === roleValue;
-                
-                row.style.display = matchesSearch && matchesRole ? '' : 'none';
-            });
-        }
-        
-        searchInput.addEventListener('input', filterUsers);
-        roleFilter.addEventListener('change', filterUsers);
-    });
-
-    function confirmDelete(membershipId) {
-        const row = document.querySelector(`tr[data-role]`);
-        const userName = row.querySelector('.user-name').textContent;
-        const userRole = row.querySelector('.role-badge').textContent;
-        const userAvatar = row.querySelector('.user-avatar-small').textContent;
-        
-        document.getElementById('deleteUserName').textContent = userName;
-        document.getElementById('deleteUserRole').textContent = userRole;
-        document.getElementById('deleteUserAvatar').textContent = userAvatar;
-        document.getElementById('deleteForm').action = `/users/${membershipId}/delete/`;
-        
-        document.getElementById('deleteModal').style.display = 'flex';
-    }
-
-    function closeDeleteModal() {
-        document.getElementById('deleteModal').style.display = 'none';
-    }
-
-    function showUserActions(userId) {
-        document.getElementById('userActionsModal').setAttribute('data-user-id', userId);
-        document.getElementById('userActionsModal').style.display = 'flex';
-    }
-
-    function closeUserModal() {
-        document.getElementById('userActionsModal').style.display = 'none';
-    }
-
-    function resetPassword() {
-        const userId = document.getElementById('userActionsModal').getAttribute('data-user-id');
-        alert(`Reset password for user #${userId}`);
-        closeUserModal();
-    }
-
-    function toggleActiveStatus() {
-        const userId = document.getElementById('userActionsModal').getAttribute('data-user-id');
-        alert(`Toggle active status for user #${userId}`);
-        closeUserModal();
-    }
-
-    function sendWelcomeEmail() {
-        const userId = document.getElementById('userActionsModal').getAttribute('data-user-id');
-        alert(`Send welcome email to user #${userId}`);
-        closeUserModal();
-    }
-
-    function viewActivity() {
-        const userId = document.getElementById('userActionsModal').getAttribute('data-user-id');
-        alert(`View activity for user #${userId}`);
-        closeUserModal();
-    }
-
-    // Close modals when clicking outside
-    window.addEventListener('click', function(event) {
-        const deleteModal = document.getElementById('deleteModal');
-        const userModal = document.getElementById('userActionsModal');
-        
-        if (event.target === deleteModal) closeDeleteModal();
-        if (event.target === userModal) closeUserModal();
-    });
-</script>
+  </div>
+</div>
 {% endblock %}

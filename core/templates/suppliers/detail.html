@@ -1,419 +1,127 @@
-{% extends 'base.html' %}
-{% block title %}{{ supplier.name }} - Supplier Details{% endblock %}
+{% extends "base.html" %}
+{% block title %}{{ supplier.name }}{% endblock %}
+
 {% block content %}
-<div class="dashboard-header">
-    <div class="dashboard-title">
-        <h1>{{ supplier.name }}</h1>
-        <p class="dashboard-subtitle">Supplier Details & Information</p>
-    </div>
-    
-    <div class="header-actions">
-        <a href="{% url 'supplier_update' supplier.id %}" class="btn-primary">
-            <span class="material-icons">edit</span>
-            Edit Supplier
-        </a><br>
-        <a href="{% url 'supplier_list' %}" class="btn-secondary">
-            <span class="material-icons">arrow_back</span>
-            Back to List
+<div class="space-y-4">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <div class="flex items-center gap-2">
+        <a href="{% url 'supplier_list' %}" class="text-slate-400 hover:text-white transition">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i>
         </a>
+        <h1 class="text-2xl font-bold text-white">{{ supplier.name }}</h1>
+      </div>
     </div>
-</div>
+    <div class="flex flex-wrap gap-2">
+      <a href="{% url 'supplier_update' supplier.id %}" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition">
+        <i data-lucide="edit" class="w-4 h-4"></i> Edit
+      </a>
+      <a href="{% url 'purchase_order_create' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium rounded-lg transition">
+        <i data-lucide="clipboard-list" class="w-4 h-4"></i> New PO
+      </a>
+    </div>
+  </div>
 
-<div class="charts-grid">
-    <!-- Supplier Information -->
-    <div class="chart-card">
-        <div class="chart-header">
-            <h3 class="chart-title">Supplier Information</h3>
-        </div>
-        
-        <div class="detail-grid">
-            <div class="detail-item">
-                <span class="detail-label">Company Name:</span>
-                <span class="detail-value">{{ supplier.name }}</span>
-            </div>
-            
-            <div class="detail-item">
-                <span class="detail-label">Contact Person:</span>
-                <span class="detail-value">{{ supplier.contact_person|default:"Not specified" }}</span>
-            </div>
-            
-            <div class="detail-item">
-                <span class="detail-label">Phone:</span>
-                <span class="detail-value">{{ supplier.phone }}</span>
-            </div>
-            
-            <div class="detail-item">
-                <span class="detail-label">Email:</span>
-                <span class="detail-value">
-                    {% if supplier.email %}
-                    <a href="mailto:{{ supplier.email }}" class="email-link">{{ supplier.email }}</a>
-                    {% else %}
-                    Not provided
-                    {% endif %}
-                </span>
-            </div>
-            
-            <div class="detail-item full-width">
-                <span class="detail-label">Address:</span>
-                <span class="detail-value">{{ supplier.address|default:"Not provided" }}</span>
-            </div>
-            
-            <div class="detail-item">
-                <span class="detail-label">Created By:</span>
-                <span class="detail-value">{{ supplier.created_by.username }} on {{ supplier.created_at|date:"M d, Y" }}</span>
-            </div>
-        </div>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="card rounded-xl p-4 md:col-span-2">
+      <h2 class="text-sm font-semibold text-white mb-3">Contact Information</h2>
+      <div class="grid grid-cols-2 gap-4 text-sm">
+        <div><span class="text-slate-400">Name</span><div class="text-white">{{ supplier.name }}</div></div>
+        <div><span class="text-slate-400">Contact Person</span><div class="text-white">{{ supplier.contact_person|default:"-" }}</div></div>
+        <div><span class="text-slate-400">Phone</span><div class="text-white">{{ supplier.phone }}</div></div>
+        <div><span class="text-slate-400">Email</span><div class="text-white">{{ supplier.email|default:"-" }}</div></div>
+        <div class="col-span-2"><span class="text-slate-400">Address</span><div class="text-white">{{ supplier.address|default:"-" }}</div></div>
+      </div>
     </div>
 
-    <!-- Statistics Card -->
-    <div class="chart-card">
-        <div class="chart-header">
-            <h3 class="chart-title">Statistics</h3>
-        </div>
-        
-        <div class="stats-grid">
-            <div class="stat-item">
-                <div class="stat-icon">
-                    <span class="material-icons">medication</span>
-                </div>
-                <div class="stat-content">
-                    <div class="stat-value">{{ supplier.supplied_drugs.count }}</div>
-                    <div class="stat-label">Supplied Drugs</div>
-                </div>
-            </div>
-            
-            <div class="stat-item">
-                <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
-                    <span class="material-icons">inventory</span>
-                </div>
-                <div class="stat-content">
-                    <div class="stat-value">{{ active_drugs_count }}</div>
-                    <div class="stat-label">Active Drugs</div>
-                </div>
-            </div>
-            
-            <div class="stat-item">
-                <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
-                    <span class="material-icons">low_priority</span>
-                </div>
-                <div class="stat-content">
-                    <div class="stat-value">{{ low_stock_count }}</div>
-                    <div class="stat-label">Low Stock</div>
-                </div>
-            </div>
-        </div>
+    <div class="card rounded-xl p-4">
+      <h2 class="text-sm font-semibold text-white mb-3">Summary</h2>
+      <div class="space-y-3 text-sm">
+        <div class="flex justify-between"><span class="text-slate-400">Supplied Drugs</span><span class="text-white">{{ supplier.supplied_drugs.count }}</span></div>
+        <div class="flex justify-between"><span class="text-slate-400">Purchase Orders</span><span class="text-white">{{ supplier.purchase_orders.count }}</span></div>
+        <div class="flex justify-between"><span class="text-slate-400">Created</span><span class="text-white">{{ supplier.created_at|date:"Y-m-d" }}</span></div>
+      </div>
     </div>
-</div>
+  </div>
 
-<!-- Supplied Drugs -->
-<div class="table-container">
-    <div class="table-header">
-        <h3 class="table-title">Supplied Drugs ({{ supplier.supplied_drugs.count }})</h3>
-        <div class="table-actions">
-            <a href="{% url 'drug_create' %}?supplier={{ supplier.id }}" class="btn-primary">
-                <span class="material-icons">add</span>
-                Add New Drug
-            </a>
-        </div>
-    </div>
-    
-    {% if supplier.supplied_drugs.all %}
-    <table class="data-table">
+  <!-- Supplied Drugs -->
+  <div class="card rounded-xl p-4">
+    <h2 class="text-sm font-semibold text-white mb-3">Supplied Drugs</h2>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
         <thead>
-            <tr>
-                <th>Drug Name</th>
-                <th>Category</th>
-                <th>Price</th>
-                <th>Stock</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
+          <tr class="border-b border-white/5 text-slate-400">
+            <th class="text-left px-4 py-2 font-medium">Drug Name</th>
+            <th class="text-left px-4 py-2 font-medium">Category</th>
+            <th class="text-center px-4 py-2 font-medium">Price (MWK)</th>
+            <th class="text-center px-4 py-2 font-medium">Stock</th>
+            <th class="text-right px-4 py-2 font-medium">Action</th>
+          </tr>
         </thead>
         <tbody>
-            {% for drug in supplier.supplied_drugs.all %}
-            <tr>
-                <td>
-                    <div class="drug-info">
-                        <div class="drug-name">{{ drug.name }}</div>
-                        <div class="drug-batch">Batch: {{ drug.batch_no }}</div>
-                    </div>
-                </td>
-                <td>{{ drug.category }}</td>
-                <td>MK{{ drug.price }}</td>
-                <td>{{ drug.quantity }} units</td>
-                <td>
-                    {% if drug.is_expired %}
-                    <span class="status-badge expired">Expired</span>
-                    {% elif drug.is_low_stock %}
-                    <span class="status-badge low">Low Stock</span>
-                    {% else %}
-                    <span class="status-badge high">In Stock</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <a href="{% url 'drug_detail' drug.id %}" class="btn-icon" title="View">
-                        <span class="material-icons">visibility</span>
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
+          {% for drug in supplier.supplied_drugs.all %}
+          <tr class="border-b border-white/5">
+            <td class="px-4 py-2 text-white">{{ drug.name }}</td>
+            <td class="px-4 py-2 text-slate-300">{{ drug.category }}</td>
+            <td class="px-4 py-2 text-center text-slate-300">{{ drug.price|floatformat:2 }}</td>
+            <td class="px-4 py-2 text-center">
+              <span class="px-2 py-1 rounded-full text-xs font-medium
+                {% if drug.quantity < 10 %}bg-amber-500/20 text-amber-400
+                {% else %}bg-emerald-500/20 text-emerald-400{% endif %}">
+                {{ drug.quantity }}
+              </span>
+            </td>
+            <td class="px-4 py-2 text-right">
+              <a href="{% url 'drug_detail' drug.id %}" class="text-emerald-400 hover:underline text-xs">View</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="text-center py-4 text-slate-500">No drugs supplied by this supplier.</td></tr>
+          {% endfor %}
         </tbody>
-    </table>
-    {% else %}
-    <div class="empty-state">
-        <span class="material-icons">medication</span>
-        <h4>No Drugs Associated</h4>
-        <p>This supplier doesn't have any drugs associated yet</p>
-        <a href="{% url 'drug_create' %}?supplier={{ supplier.id }}" class="btn-primary">
-            <span class="material-icons">add</span>
-            Add First Drug
-        </a>
+      </table>
     </div>
-    {% endif %}
+  </div>
+
+  <!-- Purchase Orders -->
+  <div class="card rounded-xl p-4">
+    <h2 class="text-sm font-semibold text-white mb-3">Purchase Orders</h2>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-white/5 text-slate-400">
+            <th class="text-left px-4 py-2 font-medium">PO Number</th>
+            <th class="text-left px-4 py-2 font-medium">Date</th>
+            <th class="text-left px-4 py-2 font-medium">Status</th>
+            <th class="text-right px-4 py-2 font-medium">Total</th>
+            <th class="text-right px-4 py-2 font-medium">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for po in supplier.purchase_orders.all|slice:":10" %}
+          <tr class="border-b border-white/5">
+            <td class="px-4 py-2 text-white">{{ po.po_number }}</td>
+            <td class="px-4 py-2 text-slate-300">{{ po.created_at|date:"Y-m-d" }}</td>
+            <td class="px-4 py-2">
+              <span class="px-2 py-1 rounded-full text-xs font-medium
+                {% if po.status == 'received' %}bg-emerald-500/20 text-emerald-400
+                {% elif po.status == 'cancelled' %}bg-red-500/20 text-red-400
+                {% elif po.status == 'ordered' %}bg-blue-500/20 text-blue-400
+                {% else %}bg-amber-500/20 text-amber-400{% endif %}">
+                {{ po.get_status_display }}
+              </span>
+            </td>
+            <td class="px-4 py-2 text-right text-slate-300">{{ po.total_cost|floatformat:2 }}</td>
+            <td class="px-4 py-2 text-right">
+              <a href="{% url 'purchase_order_detail' po.id %}" class="text-emerald-400 hover:underline text-xs">View</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="text-center py-4 text-slate-500">No purchase orders for this supplier.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
-
-<br>
-<!-- Quick Actions -->
-<!-- <div class="table-container">
-    <div class="table-header">
-        <h3 class="table-title">Quick Actions</h3>
-    </div>
-    
-    <div class="quick-actions-grid">
-        <a href="{% url 'supplier_update' supplier.id %}" class="action-card">
-            <span class="material-icons">edit</span>
-            <h4>Edit Supplier</h4>
-            <p>Update supplier information</p>
-        </a>
-        
-        <a href="{% url 'drug_create' %}?supplier={{ supplier.id }}" class="action-card">
-            <span class="material-icons">add_circle</span>
-            <h4>Add Drug</h4>
-            <p>Add new drug from this supplier</p>
-        </a>
-        
-        <a href="{% url 'supplier_list' %}" class="action-card">
-            <span class="material-icons">list</span>
-            <h4>View All</h4>
-            <p>Browse all suppliers</p>
-        </a>
-        
-        <a href="mailto:{{ supplier.email|default:'#' }}" class="action-card" {% if not supplier.email %}onclick="return false;" style="opacity: 0.6;"{% endif %}>
-            <span class="material-icons">email</span>
-            <h4>Send Email</h4>
-            <p>Contact this supplier</p>
-        </a>
-    </div>
-</div> -->
-
-<style>
-    /* Header Actions */
-    .header-actions {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-    }
-
-    .header-actions .btn-primary,
-    .header-actions .btn-secondary {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        white-space: nowrap;
-    }
-
-    .action-text {
-        display: inline;
-    }
-
-    .detail-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
-    }
-    
-    .detail-item {
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-        padding: 12px 0;
-        border-bottom: 1px solid var(--border-color);
-    }
-    
-    .detail-item:last-child {
-        border-bottom: none;
-    }
-    
-    .detail-item.full-width {
-        grid-column: 1 / -1;
-    }
-    
-    .detail-label {
-        font-weight: 600;
-        color: var(--light-text);
-        font-size: 0.9rem;
-    }
-    
-    .detail-value {
-        font-weight: 500;
-        color: var(--text-color);
-    }
-    
-    .email-link {
-        color: var(--primary-color);
-        text-decoration: none;
-    }
-    
-    .email-link:hover {
-        text-decoration: underline;
-    }
-    
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 15px;
-        margin-top: 10px;
-    }
-    
-    .stat-item {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        padding: 15px;
-        background: var(--primary-light);
-        border-radius: 12px;
-    }
-    
-    .stat-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(0, 102, 58, 0.1);
-        color: var(--primary-color);
-    }
-    
-    .stat-content {
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .stat-value {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--text-color);
-    }
-    
-    .stat-label {
-        font-size: 0.8rem;
-        color: var(--light-text);
-    }
-    
-    .drug-info {
-        display: flex;
-        flex-direction: column;
-        gap: 3px;
-    }
-    
-    .drug-name {
-        font-weight: 600;
-        color: var(--text-color);
-    }
-    
-    .drug-batch {
-        font-size: 0.8rem;
-        color: var(--light-text);
-    }
-    
-    .empty-state {
-        text-align: center;
-        padding: 40px 20px;
-        color: var(--light-text);
-    }
-    
-    .empty-state .material-icons {
-        font-size: 3rem;
-        margin-bottom: 15px;
-        opacity: 0.5;
-    }
-    
-    .empty-state h4 {
-        margin: 0 0 10px 0;
-        color: var(--text-color);
-    }
-    
-    .empty-state p {
-        margin: 0 0 20px 0;
-    }
-    
-    .quick-actions-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
-    }
-    
-    .action-card {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        padding: 25px;
-        background: var(--primary-light);
-        border-radius: 15px;
-        text-decoration: none;
-        color: var(--text-color);
-        transition: var(--transition);
-        border: 1px solid transparent;
-    }
-    
-    .action-card:hover {
-        transform: translateY(-3px);
-        box-shadow: var(--shadow-hover);
-        border-color: var(--primary-color);
-        color: var(--primary-color);
-    }
-    
-    .action-card .material-icons {
-        font-size: 2.5rem;
-        margin-bottom: 15px;
-        color: var(--primary-color);
-    }
-    
-    .action-card h4 {
-        margin: 0 0 10px 0;
-        font-weight: 600;
-    }
-    
-    .action-card p {
-        margin: 0;
-        color: var(--light-text);
-        font-size: 0.9rem;
-    }
-    
-    @media (max-width: 768px) {
-        .header-actions {
-            flex-direction: column;
-            width: 100%;
-        }
-        
-        .btn-primary, .btn-secondary {
-            width: 100%;
-            justify-content: center;
-        }
-        
-        .detail-grid {
-            grid-template-columns: 1fr;
-        }
-        
-        .stats-grid {
-            grid-template-columns: 1fr;
-        }
-        
-        .quick-actions-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
 {% endblock %}

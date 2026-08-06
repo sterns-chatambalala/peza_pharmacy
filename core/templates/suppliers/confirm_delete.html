@@ -1,283 +1,30 @@
-{% extends 'base.html' %}
-{% block title %}Delete Supplier - {{ supplier.name }}{% endblock %}
+{% extends "base.html" %}
+{% block title %}Delete Supplier{% endblock %}
+
 {% block content %}
-<!-- <div class="dashboard-header">
-    <div class="dashboard-title">
-        <h1>Delete Supplier</h1>
-        <p class="dashboard-subtitle">Confirm deletion of supplier account</p>
-    </div>
-    
-    <a href="{% url 'supplier_detail' supplier.id %}" class="btn-secondary">
-        <span class="material-icons">arrow_back</span>
-        Back to Supplier
-    </a>
-</div> -->
-
-
-    <div class="delete-confirmation">
-        {% if supplier.supplied_drugs.count > 0 %}
-        <div class="warning-alert">
-            <span class="material-icons">info</span>
-            <div>
-                <strong>Warning: This supplier has {{ supplier.supplied_drugs.count }} associated drug(s).</strong>
-                <p>Deleting this supplier will remove these associations but will not delete the drugs themselves.</p>
-            </div>
-        </div>
-        {% endif %}
-        
-        <div class="confirmation-icon danger">
-            <span class="material-icons">warning</span>
-        </div>
-        
-        <h3>Are you sure you want to delete this supplier?</h3>
-        
-        <div class="supplier-details">
-            <div class="detail-card">
-                <div class="detail-header">
-                    <h4>{{ supplier.name }}</h4>
-                    <span class="status-badge {% if supplier.supplied_drugs.count > 0 %}medium{% else %}low{% endif %}">
-                        {{ supplier.supplied_drugs.count }} drug(s)
-                    </span>
-                </div>
-                
-                <div class="detail-content">
-                    <div class="detail-row">
-                        <span class="detail-label">Contact:</span>
-                        <span class="detail-value">{{ supplier.contact_person|default:"Not specified" }}</span>
-                    </div>
-                    
-                    <div class="detail-row">
-                        <span class="detail-label">Phone:</span>
-                        <span class="detail-value">{{ supplier.phone }}</span>
-                    </div>
-                    
-                    {% if supplier.email %}
-                    <div class="detail-row">
-                        <span class="detail-label">Email:</span>
-                        <span class="detail-value">{{ supplier.email }}</span>
-                    </div>
-                    {% endif %}
-                    
-                    {% if supplier.address %}
-                    <div class="detail-row">
-                        <span class="detail-label">Address:</span>
-                        <span class="detail-value">{{ supplier.address|truncatewords:10 }}</span>
-                    </div>
-                    {% endif %}
-                    
-                    <div class="detail-row">
-                        <span class="detail-label">Created:</span>
-                        <span class="detail-value">{{ supplier.created_at|date:"M d, Y" }}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="confirmation-actions">
-            <form method="post" class="delete-form">
-                {% csrf_token %}
-                <button type="submit" class="btn-danger">
-                    <span class="material-icons">delete_forever</span>
-                    Yes, Delete Supplier
-                </button>
-            </form>
-            
-            <a href="{% url 'supplier_detail' supplier.id %}" class="btn-secondary">
-                <span class="material-icons">cancel</span>
-                Cancel
-            </a>
-        </div>
+<div class="max-w-md mx-auto mt-8">
+  <div class="card rounded-xl p-6">
+    <div class="text-center">
+      <div class="w-16 h-16 rounded-full bg-red-500/15 text-red-400 flex items-center justify-center mx-auto mb-4">
+        <i data-lucide="alert-triangle" class="w-8 h-8"></i>
+      </div>
+      <h2 class="text-xl font-bold text-white">Delete Supplier</h2>
+      <p class="text-sm text-slate-400 mt-2">
+        Are you sure you want to delete <strong>{{ supplier.name }}</strong>?
+        This action cannot be undone.
+      </p>
+      <p class="text-xs text-slate-500 mt-1">
+        This will also remove all associated data.
+      </p>
     </div>
 
-<style>
-    .delete-confirmation {
-        text-align: center;
-        padding: 30px;
-    }
-    
-    .confirmation-icon {
-        font-size: 4rem;
-        margin-bottom: 20px;
-    }
-    
-    .confirmation-icon.danger {
-        color: var(--danger-color);
-    }
-    
-    .delete-confirmation h3 {
-        margin-bottom: 30px;
-        color: var(--text-color);
-        font-weight: 600;
-    }
-    
-    .supplier-details {
-        margin-bottom: 30px;
-    }
-    
-    .detail-card {
-        background: var(--card-bg);
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
-        padding: 20px;
-        max-width: 500px;
-        margin: 0 auto;
-    }
-    
-    .detail-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-        padding-bottom: 15px;
-        border-bottom: 1px solid var(--border-color);
-    }
-    
-    .detail-header h4 {
-        margin: 0;
-        color: var(--text-color);
-        font-weight: 600;
-    }
-    
-    .detail-content {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-    
-    .detail-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    
-    .detail-label {
-        font-weight: 600;
-        color: var(--light-text);
-        font-size: 0.9rem;
-    }
-    
-    .detail-value {
-        color: var(--text-color);
-        text-align: right;
-    }
-    
-    .warning-alert {
-        display: flex;
-        align-items: flex-start;
-        gap: 15px;
-        background: rgba(245, 158, 11, 0.1);
-        border: 1px solid rgba(245, 158, 11, 0.3);
-        border-radius: 12px;
-        padding: 20px;
-        margin: 25px 0;
-        text-align: left;
-    }
-    
-    .warning-alert .material-icons {
-        color: var(--warning-color);
-        font-size: 1.5rem;
-        margin-top: 2px;
-    }
-    
-    .warning-alert strong {
-        color: var(--warning-color);
-        display: block;
-        margin-bottom: 5px;
-    }
-    
-    .warning-alert p {
-        margin: 0;
-        color: var(--light-text);
-        font-size: 0.9rem;
-    }
-    
-    .confirmation-actions {
-        display: flex;
-        gap: 15px;
-        justify-content: center;
-        margin-top: 30px;
-    }
-    
-    .delete-form {
-        margin: 0;
-    }
-    
-    .btn-danger {
-        background: linear-gradient(135deg, #ef4444, #dc2626);
-        color: white;
-        border: none;
-        padding: 12px 24px;
-        border-radius: 12px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: var(--transition);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        text-decoration: none;
-    }
-    
-    .btn-danger:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
-    }
-    
-    @media (max-width: 768px) {
-        .delete-confirmation {
-            padding: 20px;
-        }
-        
-        .detail-header {
-            flex-direction: column;
-            gap: 10px;
-            text-align: center;
-        }
-        
-        .detail-row {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 5px;
-        }
-        
-        .detail-value {
-            text-align: left;
-        }
-        
-        .warning-alert {
-            flex-direction: column;
-            text-align: center;
-        }
-        
-        .confirmation-actions {
-            flex-direction: column;
-        }
-        
-        .btn-danger, .btn-secondary {
-            width: 100%;
-            justify-content: center;
-        }
-    }
-</style>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Add confirmation for delete button
-        const deleteForm = document.querySelector('.delete-form');
-        const deleteButton = deleteForm.querySelector('button');
-        
-        deleteButton.addEventListener('click', function(e) {
-            if (!confirm('Are you absolutely sure you want to delete this supplier? This action cannot be undone.')) {
-                e.preventDefault();
-            }
-        });
-        
-        // Prevent accidental form submission
-        deleteForm.addEventListener('submit', function(e) {
-            const supplierName = '{{ supplier.name }}';
-            if (!confirm(`Final confirmation: Delete supplier "${supplierName}"?`)) {
-                e.preventDefault();
-            }
-        });
-    });
-</script>
+    <form method="post" class="flex gap-3 mt-6">
+      {% csrf_token %}
+      <button type="submit" class="flex-1 px-6 py-2 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition">
+        <i data-lucide="trash" class="w-4 h-4 inline mr-2"></i> Delete
+      </button>
+      <a href="{% url 'supplier_detail' supplier.id %}" class="flex-1 px-6 py-2 bg-base-700 hover:bg-base-600 text-slate-300 font-medium rounded-lg transition text-center">Cancel</a>
+    </form>
+  </div>
+</div>
 {% endblock %}

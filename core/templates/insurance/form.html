@@ -1,218 +1,58 @@
-{% extends 'base.html' %}
-{% block title %}{% if claim %}Edit{% else %}Create{% endif %} Insurance Claim{% endblock %}
+{% extends "base.html" %}
+{% block title %}{{ claim|yesno:"Edit Claim,New Claim" }}{% endblock %}
+
 {% block content %}
-<div class="dashboard-header">
-    <div class="dashboard-title">
-        <h1>{% if claim %}Edit{% else %}Create New{% endif %} Insurance Claim</h1>
-        <p class="dashboard-subtitle">{% if claim %}Update claim details{% else %}Submit a new insurance claim{% endif %}</p>
+<div class="max-w-2xl mx-auto">
+  <div class="card rounded-xl p-6">
+    <div class="flex items-center gap-3 mb-6">
+      <a href="{% url 'insurance_claim_list' %}" class="text-slate-400 hover:text-white transition">
+        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+      </a>
+      <h1 class="text-xl font-bold text-white">{{ claim|yesno:"Edit Claim,New Insurance Claim" }}</h1>
     </div>
-    
-    <a href="{% if claim %}{% url 'insurance_claim_detail' claim.id %}{% else %}{% url 'insurance_claim_list' %}{% endif %}" class="btn-secondary">
-        <span class="material-icons">arrow_back</span>
-        {% if claim %}Back to Claim{% else %}Back to List{% endif %}
-    </a>
-</div>
 
-<div class="table-container">
-    <form method="post" class="insurance-form">
-        {% csrf_token %}
-        
-        <div class="form-section">
-            <h3 class="section-title">Claim Information</h3>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="claim_id">Claim ID *</label>
-                    <input type="text" id="claim_id" name="claim_id" value="{{ claim.claim_id|default:'' }}" required 
-                           class="form-input" placeholder="Enter claim ID">
-                </div>
-                
-                <div class="form-group">
-                    <label for="patient_name">Patient Name *</label>
-                    <input type="text" id="patient_name" name="patient_name" value="{{ claim.patient_name|default:'' }}" required 
-                           class="form-input" placeholder="Enter patient full name">
-                </div>
-                
-                <div class="form-group">
-                    <label for="insurance_provider">Insurance Provider *</label>
-                    <input type="text" id="insurance_provider" name="insurance_provider" value="{{ claim.insurance_provider|default:'' }}" required 
-                           class="form-input" placeholder="Enter insurance company name">
-                </div>
-                
-                <div class="form-group">
-                    <label for="patient_id">Patient ID</label>
-                    <input type="text" id="patient_id" name="patient_id" value="{{ claim.patient_id|default:'' }}" 
-                           class="form-input" placeholder="Enter patient ID (optional)">
-                </div>
-                
-                <div class="form-group">
-                    <label for="claim_amount">Claim Amount (MK) *</label>
-                    <input type="number" id="claim_amount" name="claim_amount" value="{{ claim.claim_amount|default:'' }}" step="0.01" min="0" required 
-                           class="form-input" placeholder="Enter amount">
-                </div>
-                
-                <div class="form-group">
-                    <label for="status">Status *</label>
-                    <select id="status" name="status" required class="form-input">
-                        <option value="pending" {% if claim.status == 'pending' %}selected{% endif %}>Pending</option>
-                        <option value="approved" {% if claim.status == 'approved' %}selected{% endif %}>Approved</option>
-                        <option value="rejected" {% if claim.status == 'rejected' %}selected{% endif %}>Rejected</option>
-                        <option value="processed" {% if claim.status == 'processed' %}selected{% endif %}>Processed</option>
-                    </select>
-                </div>
-            </div>
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Claim ID *</label>
+          <input type="text" name="claim_id" value="{{ claim.claim_id|default:'' }}" required class="w-full bg-base-800 border border-white/5 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/50">
         </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Patient Name *</label>
+          <input type="text" name="patient_name" value="{{ claim.patient_name|default:'' }}" required class="w-full bg-base-800 border border-white/5 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/50">
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Patient ID</label>
+          <input type="text" name="patient_id" value="{{ claim.patient_id|default:'' }}" class="w-full bg-base-800 border border-white/5 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/50">
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Insurance Provider *</label>
+          <input type="text" name="insurance_provider" value="{{ claim.insurance_provider|default:'' }}" required class="w-full bg-base-800 border border-white/5 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/50">
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Claim Amount (MWK) *</label>
+          <input type="number" step="0.01" name="claim_amount" value="{{ claim.claim_amount|default:'0' }}" required class="w-full bg-base-800 border border-white/5 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/50">
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Status</label>
+          <select name="status" class="w-full bg-base-800 border border-white/5 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/50">
+            <option value="pending" {% if claim.status == 'pending' %}selected{% endif %}>Pending</option>
+            <option value="approved" {% if claim.status == 'approved' %}selected{% endif %}>Approved</option>
+            <option value="rejected" {% if claim.status == 'rejected' %}selected{% endif %}>Rejected</option>
+            <option value="processed" {% if claim.status == 'processed' %}selected{% endif %}>Processed</option>
+          </select>
+        </div>
+      </div>
 
-        {% if claim %}
-        <div class="form-section">
-            <h3 class="section-title">Processing Information</h3>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="date_processed">Date Processed</label>
-                    <input type="date" id="date_processed" name="date_processed" value="{{ claim.date_processed|date:'Y-m-d'|default:'' }}" 
-                           class="form-input">
-                </div>
-            </div>
-        </div>
-        {% endif %}
-
-        <div class="form-actions">
-            <button type="submit" class="btn-primary">
-                <span class="material-icons">{% if claim %}save{% else %}add{% endif %}</span>
-                {% if claim %}Update Claim{% else %}Create Claim{% endif %}
-            </button>
-            
-            <a href="{% if claim %}{% url 'insurance_claim_detail' claim.id %}{% else %}{% url 'insurance_claim_list' %}{% endif %}" class="btn-secondary">
-                <span class="material-icons">cancel</span>
-                Cancel
-            </a>
-        </div>
+      <div class="flex gap-3 pt-4 border-t border-white/5">
+        <button type="submit" class="px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg transition">
+          <i data-lucide="save" class="w-4 h-4 inline mr-2"></i> {{ claim|yesno:"Update,Create" }}
+        </button>
+        <a href="{% url 'insurance_claim_list' %}" class="px-6 py-2 bg-base-700 hover:bg-base-600 text-slate-300 font-medium rounded-lg transition">Cancel</a>
+      </div>
     </form>
+  </div>
 </div>
-
-<style>
-    .insurance-form {
-        padding: 0;
-    }
-    
-    .form-section {
-        margin-bottom: 30px;
-        padding-bottom: 25px;
-        border-bottom: 1px solid var(--border-color);
-    }
-    
-    .form-section:last-child {
-        border-bottom: none;
-        margin-bottom: 0;
-    }
-    
-    .section-title {
-        font-size: 1.2rem;
-        font-weight: 600;
-        margin-bottom: 20px;
-        color: var(--text-color);
-    }
-    
-    .form-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 20px;
-    }
-    
-    .form-group {
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .form-group label {
-        font-weight: 600;
-        margin-bottom: 8px;
-        color: var(--text-color);
-        font-size: 0.95rem;
-    }
-    
-    .form-input {
-        padding: 12px 15px;
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
-        background: var(--card-bg);
-        color: var(--text-color);
-        font-size: 1rem;
-        transition: var(--transition);
-        font-family: inherit;
-    }
-    
-    .form-input:focus {
-        outline: none;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 3px rgba(0, 102, 58, 0.1);
-    }
-    
-    .form-input::placeholder {
-        color: var(--light-text);
-    }
-    
-    select.form-input {
-        padding: 12px 15px;
-    }
-    
-    .form-actions {
-        display: flex;
-        gap: 15px;
-        justify-content: flex-end;
-        padding-top: 25px;
-        margin-top: 30px;
-        border-top: 1px solid var(--border-color);
-    }
-    
-    @media (max-width: 768px) {
-        .form-grid {
-            grid-template-columns: 1fr;
-        }
-        
-        .form-actions {
-            flex-direction: column;
-        }
-        
-        .btn-primary, .btn-secondary {
-            width: 100%;
-            justify-content: center;
-        }
-    }
-</style>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const statusSelect = document.getElementById('status');
-        const dateProcessedField = document.getElementById('date_processed');
-        
-        // Auto-set date processed when status changes to processed
-        if (statusSelect && dateProcessedField) {
-            statusSelect.addEventListener('change', function() {
-                if (this.value === 'processed' && !dateProcessedField.value) {
-                    const today = new Date().toISOString().split('T')[0];
-                    dateProcessedField.value = today;
-                }
-            });
-        }
-        
-        // Form validation
-        const form = document.querySelector('.insurance-form');
-        form.addEventListener('submit', function(e) {
-            const claimAmount = parseFloat(document.getElementById('claim_amount').value);
-            
-            if (claimAmount <= 0) {
-                e.preventDefault();
-                alert('Claim amount must be greater than zero.');
-                return false;
-            }
-            
-            if (claimAmount > 1000000) { // Example validation
-                if (!confirm('Claim amount seems unusually high. Are you sure this is correct?')) {
-                    e.preventDefault();
-                    return false;
-                }
-            }
-        });
-    });
-</script>
 {% endblock %}

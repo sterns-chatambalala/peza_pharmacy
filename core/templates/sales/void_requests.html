@@ -1,162 +1,79 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% block title %}Void Requests{% endblock %}
+
 {% block content %}
-<div class="dashboard-header">
-    <div class="dashboard-title">
-        <h1>Void Requests</h1>
-        <p class="dashboard-subtitle">Manage pending void requests</p>
-    </div>
-</div>
+<div class="space-y-4">
+  <div>
+    <h1 class="text-2xl font-bold text-white">Void Requests</h1>
+    <p class="text-sm text-slate-400">Pending void requests awaiting approval</p>
+  </div>
 
-<div class="table-container">
-    <div class="table-header">
-        <div class="table-title">Pending Void Requests ({{ page_obj.paginator.count }})</div>
-    </div>
-
-    <table class="data-table">
+  <div class="card rounded-xl overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
         <thead>
-            <tr>
-                <th>Request ID</th>
-                <th>Sale ID</th>
-                <th>Requested By</th>
-                <th>Date Requested</th>
-                <th>Reason</th>
-                <th>Actions</th>
-            </tr>
+          <tr class="border-b border-white/5 text-slate-400">
+            <th class="text-left px-4 py-3 font-medium">Sale</th>
+            <th class="text-left px-4 py-3 font-medium">Requested By</th>
+            <th class="text-left px-4 py-3 font-medium">Reason</th>
+            <th class="text-left px-4 py-3 font-medium">Requested At</th>
+            <th class="text-right px-4 py-3 font-medium">Actions</th>
+          </tr>
         </thead>
         <tbody>
-            {% for request in page_obj %}
-            <tr>
-                <td>#{{ request.id }}</td>
-                <td><a href="{% url 'sale_detail' request.sale.id %}">#{{ request.sale.sale_id }}</a></td>
-                <td>{{ request.requested_by.username }}</td>
-                <td>{{ request.requested_at|date:"M d, Y H:i" }}</td>
-                <td>{{ request.reason|truncatewords:20 }}</td>
-                <td>
-                    <div class="action-buttons">
-                        <button class="btn-icon approve-request" data-id="{{ request.id }}" title="Approve">
-                            <span class="material-icons">check</span>
-                        </button>
-                        <button class="btn-icon reject-request" data-id="{{ request.id }}" title="Reject">
-                            <span class="material-icons">close</span>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="6" style="text-align: center; padding: 40px; color: var(--light-text);">
-                    <div style="font-size: 3rem; margin-bottom: 15px;">📋</div>
-                    <h3>No pending void requests</h3>
-                </td>
-            </tr>
-            {% endfor %}
+          {% for req in page_obj %}
+          <tr class="border-b border-white/5 hover:bg-white/5 transition">
+            <td class="px-4 py-3 text-white font-medium">{{ req.sale.sale_id }}</td>
+            <td class="px-4 py-3 text-slate-300">{{ req.requested_by.username }}</td>
+            <td class="px-4 py-3 text-slate-300">{{ req.reason|truncatechars:40 }}</td>
+            <td class="px-4 py-3 text-slate-300">{{ req.requested_at|date:"Y-m-d H:i" }}</td>
+            <td class="px-4 py-3 text-right">
+              <div class="flex items-center justify-end gap-2">
+                <form method="post" action="{% url 'process_void_request' req.id %}" class="inline">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="approve">
+                  <button type="submit" class="px-3 py-1 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-medium rounded transition">Approve</button>
+                </form>
+                <form method="post" action="{% url 'process_void_request' req.id %}" class="inline">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="reject">
+                  <input type="hidden" name="notes" value="Rejected by admin">
+                  <button type="submit" class="px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs font-medium rounded transition">Reject</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="text-center py-8 text-slate-500">No pending void requests.</td>
+          </tr>
+          {% endfor %}
         </tbody>
-    </table>
+      </table>
+    </div>
 
-    <!-- Pagination -->
     {% if page_obj.has_other_pages %}
-    <div class="pagination">
+    <div class="flex items-center justify-between px-4 py-3 border-t border-white/5">
+      <div class="text-sm text-slate-400">
+        Showing {{ page_obj.start_index }} - {{ page_obj.end_index }} of {{ page_obj.paginator.count }}
+      </div>
+      <div class="flex gap-1">
         {% if page_obj.has_previous %}
-        <a href="?page=1" class="pagination-btn">
-            <span class="material-icons">first_page</span>
-        </a>
-        <a href="?page={{ page_obj.previous_page_number }}" class="pagination-btn">
-            <span class="material-icons">chevron_left</span>
-        </a>
+        <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-1 rounded bg-base-700 hover:bg-base-600 text-slate-300 text-sm transition">Previous</a>
         {% endif %}
-
         {% for num in page_obj.paginator.page_range %}
-            {% if page_obj.number == num %}
-            <span class="pagination-btn active">{{ num }}</span>
-            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-            <a href="?page={{ num }}" class="pagination-btn">{{ num }}</a>
-            {% endif %}
+          {% if page_obj.number == num %}
+          <span class="px-3 py-1 rounded bg-emerald-500 text-white text-sm">{{ num }}</span>
+          {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+          <a href="?page={{ num }}" class="px-3 py-1 rounded bg-base-700 hover:bg-base-600 text-slate-300 text-sm transition">{{ num }}</a>
+          {% endif %}
         {% endfor %}
-
         {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}" class="pagination-btn">
-            <span class="material-icons">chevron_right</span>
-        </a>
-        <a href="?page={{ page_obj.paginator.num_pages }}" class="pagination-btn">
-            <span class="material-icons">last_page</span>
-        </a>
+        <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-1 rounded bg-base-700 hover:bg-base-600 text-slate-300 text-sm transition">Next</a>
         {% endif %}
+      </div>
     </div>
     {% endif %}
+  </div>
 </div>
-
-<style>
-    /* Styles for table and pagination (similar to sales/list.html) */
-    .action-buttons {
-        display: flex;
-        gap: 8px;
-    }
-    
-    .approve-request {
-        color: var(--success-color);
-    }
-    
-    .reject-request {
-        color: var(--danger-color);
-    }
-</style>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Approve request
-        document.querySelectorAll('.approve-request').forEach(button => {
-            button.addEventListener('click', function() {
-                const requestId = this.dataset.id;
-                const notes = prompt('Enter approval notes (optional):');
-                processVoidRequest(requestId, 'approve', notes);
-            });
-        });
-        
-        // Reject request
-        document.querySelectorAll('.reject-request').forEach(button => {
-            button.addEventListener('click', function() {
-                const requestId = this.dataset.id;
-                const notes = prompt('Enter rejection notes (optional):');
-                processVoidRequest(requestId, 'reject', notes);
-            });
-        });
-    });
-
-    function processVoidRequest(requestId, action, notes) {
-        fetch(`/void-request/${requestId}/process/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: `action=${action}&notes=${encodeURIComponent(notes || '')}`
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            if (data.success) {
-                location.reload();
-            }
-        })
-        .catch(error => {
-            alert('Error processing request: ' + error);
-        });
-    }
-
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-</script>
 {% endblock %}

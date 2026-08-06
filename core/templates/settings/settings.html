@@ -1,434 +1,66 @@
-{% extends 'base.html' %}
-{% block title %}Account Settings{% endblock %}
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
 
 {% block content %}
-<div class="dashboard-header">
-    <div class="dashboard-title">
-        <h1>Account Settings</h1>
-        <p class="dashboard-subtitle">Manage your account and tenant settings</p>
-    </div>
-</div>
+<div class="max-w-3xl mx-auto">
+  <div class="card rounded-xl p-6">
+    <h1 class="text-2xl font-bold text-white mb-6">Settings</h1>
 
-<div class="settings-grid">
-    <!-- Password Change Card -->
-    <div class="settings-card">
-        <div class="settings-card-header">
-            <span class="material-icons">lock</span>
-            <h3>Change Password</h3>
-        </div>
-        <p>Update your account password to maintain security</p>
-        <button onclick="location.href='{% url 'change_password' %}'" class="btn-primary">
-            Change Password
-        </button>
-    </div>
+    <div class="space-y-6">
+      <!-- Change Password -->
+      <div>
+        <h2 class="text-sm font-semibold text-white mb-3">Change Password</h2>
+        <a href="{% url 'change_password' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition">
+          <i data-lucide="key" class="w-4 h-4"></i> Change Password
+        </a>
+      </div>
 
-    {% if can_delete %}
-    <!-- Delete Account Card -->
-    <div class="settings-card danger">
-        <div class="settings-card-header">
-            <span class="material-icons">person_off</span>
-            <h3>Delete Account</h3>
-        </div>
-        <p>Permanently delete your account and all associated data</p>
-        <button onclick="openModal('deleteAccountModal')" class="btn-danger">
-            Delete Account
-        </button>
-    </div>
-
-    {% if is_owner %}
-    <!-- Delete Tenant Card (Owner only) -->
-    <div class="settings-card danger">
-        <div class="settings-card-header">
-            <span class="material-icons">delete_forever</span>
-            <h3>Delete Tenant</h3>
-        </div>
-        <p>Permanently delete your tenant and all associated data</p>
-        <button onclick="openModal('deleteTenantModal')" class="btn-danger">
-            Delete Tenant
-        </button>
-    </div>
-    {% endif %}
-    {% endif %}
-</div>
-
-<!-- Delete Account Modal -->
-<div id="deleteAccountModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>Delete Account</h2>
-            <button class="modal-close" onclick="closeModal('deleteAccountModal')">&times;</button>
-        </div>
-        <div class="modal-body">
-            <div class="alert warning">
-                <span class="material-icons">warning</span>
-                <div>
-                    <strong>Warning</strong>
-                    <p style="margin: 5px 0 0 0; font-weight: normal;">This action cannot be undone. Your account will be permanently deleted.</p>
-                </div>
+      <!-- Account Deletion -->
+      {% if can_delete %}
+      <div class="border-t border-white/5 pt-6">
+        <h2 class="text-sm font-semibold text-white mb-3">Danger Zone</h2>
+        <div class="space-y-3">
+          <button onclick="document.getElementById('delete-account-form').style.display = 'block'" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition">
+            <i data-lucide="user-x" class="w-4 h-4 inline mr-2"></i> Delete My Account
+          </button>
+          <form id="delete-account-form" method="post" action="{% url 'delete_account' %}" class="hidden mt-3 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+            {% csrf_token %}
+            <p class="text-sm text-red-400 mb-3">Are you sure? Enter your password to confirm.</p>
+            <div class="flex gap-3">
+              <input type="password" name="password" placeholder="Your password" required class="flex-1 bg-base-800 border border-white/5 rounded-lg px-4 py-2 text-sm text-slate-200 focus:outline-none focus:border-red-500/50">
+              <button type="submit" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition">Confirm Delete</button>
+              <button type="button" onclick="this.closest('form').style.display = 'none'" class="px-4 py-2 bg-base-700 hover:bg-base-600 text-slate-300 text-sm font-medium rounded-lg transition">Cancel</button>
             </div>
-            <form id="deleteAccountForm" method="POST" action="{% url 'delete_account' %}">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="confirmPassword">Enter your password to confirm:</label>
-                    <input type="password" id="confirmPassword" name="password" required>
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn-secondary" onclick="closeModal('deleteAccountModal')">Cancel</button>
-                    <button type="submit" class="btn-danger">Delete Account</button>
-                </div>
-            </form>
+          </form>
         </div>
-    </div>
-</div>
+      </div>
+      {% endif %}
 
-<!-- Delete Tenant Modal -->
-{% if is_owner %}
-<div id="deleteTenantModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>Delete Tenant</h2>
-            <button class="modal-close" onclick="closeModal('deleteTenantModal')">&times;</button>
-        </div>
-        <div class="modal-body">
-            <div class="alert warning">
-                <span class="material-icons">warning</span>
-                <div>
-                    <strong>Warning</strong>
-                    <p style="margin: 5px 0 0 0; font-weight: normal;">This action cannot be undone. All tenant data including users, sales, and inventory will be permanently deleted.</p>
-                </div>
+      <!-- Tenant Deletion (Owner only) -->
+      {% if is_owner %}
+      <div class="border-t border-white/5 pt-6">
+        <h2 class="text-sm font-semibold text-white mb-3">Tenant Management</h2>
+        <button onclick="document.getElementById('delete-tenant-form').style.display = 'block'" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition">
+          <i data-lucide="building-2" class="w-4 h-4 inline mr-2"></i> Delete Tenant
+        </button>
+        <form id="delete-tenant-form" method="post" action="{% url 'delete_tenant' %}" class="hidden mt-3 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+          {% csrf_token %}
+          <p class="text-sm text-red-400 mb-3">
+            This will permanently delete all data for <strong>{{ tenant_name }}</strong>.
+            Type the tenant name and your password to confirm.
+          </p>
+          <div class="space-y-3">
+            <input type="text" name="tenant_name" placeholder="Tenant name" required class="w-full bg-base-800 border border-white/5 rounded-lg px-4 py-2 text-sm text-slate-200 focus:outline-none focus:border-red-500/50">
+            <input type="password" name="password" placeholder="Your password" required class="w-full bg-base-800 border border-white/5 rounded-lg px-4 py-2 text-sm text-slate-200 focus:outline-none focus:border-red-500/50">
+            <div class="flex gap-3">
+              <button type="submit" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition">Confirm Delete Tenant</button>
+              <button type="button" onclick="this.closest('form').style.display = 'none'" class="px-4 py-2 bg-base-700 hover:bg-base-600 text-slate-300 text-sm font-medium rounded-lg transition">Cancel</button>
             </div>
-            <form id="deleteTenantForm" method="POST" action="{% url 'delete_tenant' %}">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="tenantName">Type tenant name to confirm ({{ tenant_name }}):</label>
-                    <input type="text" id="tenantName" name="tenant_name" required placeholder="Enter tenant name exactly as shown">
-                </div>
-                <div class="form-group">
-                    <label for="tenantPassword">Enter your password:</label>
-                    <input type="password" id="tenantPassword" name="password" required>
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn-secondary" onclick="closeModal('deleteTenantModal')">Cancel</button>
-                    <button type="submit" class="btn-danger">Delete Tenant</button>
-                </div>
-            </form>
-        </div>
+          </div>
+        </form>
+      </div>
+      {% endif %}
     </div>
+  </div>
 </div>
-{% endif %}
-
-<style>
-
-/* Modal Styles */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(5px);
-}
-
-.modal-content {
-    background-color: var(--card-bg);
-    margin: 5% auto;
-    padding: 0;
-    border-radius: var(--card-radius);
-    width: 90%;
-    max-width: 500px;
-    box-shadow: var(--shadow-hover);
-    border: 1px solid var(--border-color);
-    animation: modalSlideIn 0.3s ease-out;
-}
-
-@keyframes modalSlideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-50px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--spacing-lg);
-    border-bottom: 1px solid var(--border-color);
-}
-
-.modal-header h2 {
-    font-size: var(--font-size-xl);
-    font-weight: 600;
-    color: var(--text-color);
-    margin: 0;
-}
-
-.modal-close {
-    background: none;
-    border: none;
-    font-size: var(--font-size-2xl);
-    color: var(--light-text);
-    cursor: pointer;
-    padding: 0;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: var(--transition);
-}
-
-.modal-close:hover {
-    background: var(--btn-hover);
-    color: var(--danger-color);
-}
-
-.modal-body {
-    padding: var(--spacing-lg);
-}
-
-/* Form Styles */
-.form-group {
-    margin-bottom: var(--spacing-lg);
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: var(--spacing-sm);
-    font-weight: 600;
-    color: var(--text-color);
-    font-size: var(--font-size-sm);
-}
-
-.form-group input {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    background: var(--bg-color);
-    color: var(--text-color);
-    font-size: var(--font-size-base);
-    transition: var(--transition);
-}
-
-.form-group input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(0, 102, 58, 0.1);
-    background: var(--input-focus);
-}
-
-.form-actions {
-    display: flex;
-    gap: var(--spacing-md);
-    justify-content: flex-end;
-    margin-top: var(--spacing-xl);
-}
-
-/* Alert Styles */
-.alert {
-    padding: 12px 16px;
-    margin-bottom: 20px;
-    border-radius: 8px;
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    font-weight: 500;
-}
-
-.alert.warning {
-    background: rgba(245, 158, 11, 0.1);
-    color: var(--warning-color);
-    border: 1px solid rgba(245, 158, 11, 0.3);
-}
-
-.alert.warning .material-icons {
-    color: var(--warning-color);
-}
-
-.alert.error {
-    background: rgba(239, 68, 68, 0.1);
-    color: var(--danger-color);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-}
-
-.alert.success {
-    background: rgba(16, 185, 129, 0.1);
-    color: var(--success-color);
-    border: 1px solid rgba(16, 185, 129, 0.3);
-}
-
-.settings-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 25px;
-    margin-top: 25px;
-}
-
-.settings-card {
-    background: var(--card-bg);
-    border-radius: var(--card-radius);
-    padding: 25px;
-    border: 1px solid var(--border-color);
-    transition: var(--transition);
-    box-shadow: var(--shadow);
-}
-
-.settings-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-hover);
-}
-
-.settings-card.danger {
-    border-left: 4px solid var(--danger-color);
-}
-
-.settings-card-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-.settings-card-header .material-icons {
-    font-size: 24px;
-    color: var(--primary-color);
-}
-
-.settings-card.danger .settings-card-header .material-icons {
-    color: var(--danger-color);
-}
-
-.settings-card h3 {
-    font-size: 1.2rem;
-    font-weight: 600;
-    margin: 0;
-}
-
-.settings-card p {
-    color: var(--light-text);
-    margin-bottom: 20px;
-    font-size: 0.9rem;
-    line-height: 1.5;
-}
-
-.btn-primary, .btn-secondary, .btn-danger {
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-    border: none;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-size: var(--font-size-sm);
-}
-
-.btn-primary {
-    background: var(--primary-gradient);
-    color: white;
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 102, 58, 0.4);
-}
-
-.btn-secondary {
-    background: var(--bg-color);
-    color: var(--text-color);
-    border: 1px solid var(--border-color);
-}
-
-.btn-secondary:hover {
-    background: var(--btn-hover);
-    transform: translateY(-1px);
-}
-
-.btn-danger {
-    background: var(--danger-color);
-    color: white;
-}
-
-.btn-danger:hover {
-    background: #dc2626;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .settings-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .modal-content {
-        margin: 10% auto;
-        width: 95%;
-    }
-    
-    .form-actions {
-        flex-direction: column;
-    }
-}
-</style>
-
-<script>
-// Modal functions
-function openModal(modalId) {
-    document.getElementById(modalId).style.display = 'block';
-}
-
-function closeModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
-}
-
-// Close modal when clicking outside
-window.onclick = function(event) {
-    if (event.target.classList.contains('modal')) {
-        event.target.style.display = 'none';
-    }
-}
-
-// Close modal with Escape key
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape') {
-        document.querySelectorAll('.modal').forEach(modal => {
-            modal.style.display = 'none';
-        });
-    }
-});
-
-// Delete tenant form validation
-document.getElementById('deleteTenantForm')?.addEventListener('submit', function(e) {
-    const tenantName = document.getElementById('tenantName').value;
-    const expectedName = '{{ tenant_name }}';
-    
-    if (tenantName !== expectedName) {
-        e.preventDefault();
-        alert('Tenant name does not match. Please enter the exact tenant name: ' + expectedName);
-        return false;
-    }
-});
-
-// Clear form fields when modal is closed
-document.querySelectorAll('.modal').forEach(modal => {
-    modal.addEventListener('click', function(e) {
-        if (e.target === this) {
-            const inputs = this.querySelectorAll('input');
-            inputs.forEach(input => input.value = '');
-        }
-    });
-});
-</script>
 {% endblock %}

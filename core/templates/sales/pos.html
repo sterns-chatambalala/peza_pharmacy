@@ -9,14 +9,26 @@
   .cart-row-enter{ animation: cartIn .18s ease; }
   @keyframes cartIn{ from{ opacity:0; transform:translateX(8px);} to{ opacity:1; transform:translateX(0);} }
   .pay-option.active{ border-color:#22c55e; background:rgba(34,197,94,0.12); color:#fff; }
+
+  @media (max-width: 639px){
+    .pos-shell{ gap: .75rem; }
+    .pos-search-row{ flex-direction: column; align-items: stretch; }
+    .pos-search-row > .flex-1{ width: 100%; }
+    .pos-search-row select{ width: 100%; }
+    .pos-side-card{ height: auto; position: static; }
+    .pos-drug-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .pos-payment-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .pos-customer-grid{ grid-template-columns: 1fr; }
+    .pos-customer-grid .col-span-2{ grid-column: span 1; }
+  }
 {% endblock %}
 
 {% block content %}
-<div class="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-4 h-[calc(100%-0px)]">
+<div class="pos-shell grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_380px] gap-3 sm:gap-4 px-2 sm:px-4">
 
   <!-- ============ DRUG GRID ============ -->
-  <div class="card rounded-xl p-4 flex flex-col min-h-[600px]">
-    <div class="flex items-center gap-3 mb-4">
+  <div class="card rounded-xl p-3 sm:p-4 flex flex-col min-h-[320px] sm:min-h-[520px]">
+    <div class="pos-search-row flex items-stretch sm:items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
       <div class="flex-1 flex items-center gap-2 bg-base-800 border border-white/5 rounded-lg px-3 py-2.5">
         <i data-lucide="search" class="w-4 h-4 text-slate-500"></i>
         <input id="pos-search" type="text" placeholder="Search by name, generic name or scan barcode..." class="flex-1 bg-transparent outline-none text-sm text-slate-200" autocomplete="off" autofocus />
@@ -26,7 +38,7 @@
       </select>
     </div>
 
-    <div id="drug-grid" class="flex-1 overflow-y-auto pos-scroll pr-1 grid grid-cols-2 sm:grid-cols-3 2xl:grid-cols-4 gap-3 content-start">
+    <div id="drug-grid" class="pos-drug-grid flex-1 overflow-y-auto pos-scroll pr-1 grid grid-cols-2 sm:grid-cols-3 2xl:grid-cols-4 gap-2 sm:gap-3 content-start">
       {% for drug in drugs %}
       <button type="button"
         class="drug-card {% if drug.quantity <= 0 %}out-of-stock{% endif %} card rounded-lg p-3 text-left"
@@ -59,7 +71,7 @@
   </div>
 
   <!-- ============ CART ============ -->
-  <div class="card rounded-xl p-4 flex flex-col h-fit xl:h-[calc(100vh-160px)] sticky top-0">
+  <div class="pos-side-card card rounded-xl p-3 sm:p-4 flex flex-col h-fit xl:h-[calc(100vh-160px)] xl:sticky xl:top-0">
     <div class="flex items-center justify-between mb-3">
       <div class="flex items-center gap-2 font-semibold text-white text-sm">
         <i data-lucide="shopping-cart" class="w-4 h-4 text-emerald-400"></i> Current Sale
@@ -79,11 +91,11 @@
       <summary class="text-xs text-slate-400 cursor-pointer flex items-center gap-1.5 select-none">
         <i data-lucide="user" class="w-3.5 h-3.5"></i> Customer details <span class="text-slate-600">(optional)</span>
       </summary>
-      <div class="mt-2 grid grid-cols-2 gap-2">
-        <input id="customer_name" type="text" placeholder="Name" class="col-span-2 bg-base-800 border border-white/5 rounded-lg px-3 py-2 text-xs text-slate-200 outline-none" />
+      <div class="pos-customer-grid mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <input id="customer_name" type="text" placeholder="Name" class="col-span-1 sm:col-span-2 bg-base-800 border border-white/5 rounded-lg px-3 py-2 text-xs text-slate-200 outline-none" />
         <input id="customer_phone" type="text" placeholder="Phone" class="bg-base-800 border border-white/5 rounded-lg px-3 py-2 text-xs text-slate-200 outline-none" />
         <input id="customer_email" type="email" placeholder="Email" class="bg-base-800 border border-white/5 rounded-lg px-3 py-2 text-xs text-slate-200 outline-none" />
-        <input id="customer_address" type="text" placeholder="Address" class="col-span-2 bg-base-800 border border-white/5 rounded-lg px-3 py-2 text-xs text-slate-200 outline-none" />
+        <input id="customer_address" type="text" placeholder="Address" class="col-span-1 sm:col-span-2 bg-base-800 border border-white/5 rounded-lg px-3 py-2 text-xs text-slate-200 outline-none" />
       </div>
     </details>
 
@@ -99,7 +111,7 @@
     <!-- Payment method -->
     <div class="mb-3">
       <div class="text-xs text-slate-400 mb-1.5">Payment method</div>
-      <div class="grid grid-cols-4 gap-1.5" id="payment-methods">
+      <div class="pos-payment-grid grid grid-cols-2 sm:grid-cols-4 gap-1.5" id="payment-methods">
         <button type="button" data-method="CASH" onclick="selectPayment(this)" class="pay-option active border border-white/10 rounded-lg py-2 text-[11px] text-slate-300 flex flex-col items-center gap-1"><i data-lucide="banknote" class="w-3.5 h-3.5"></i>Cash</button>
         <button type="button" data-method="CARD" onclick="selectPayment(this)" class="pay-option border border-white/10 rounded-lg py-2 text-[11px] text-slate-300 flex flex-col items-center gap-1"><i data-lucide="credit-card" class="w-3.5 h-3.5"></i>Card</button>
         <button type="button" data-method="MOBILE_MONEY" onclick="selectPayment(this)" class="pay-option border border-white/10 rounded-lg py-2 text-[11px] text-slate-300 flex flex-col items-center gap-1"><i data-lucide="smartphone" class="w-3.5 h-3.5"></i>Mobile</button>

@@ -1,161 +1,134 @@
 {% extends "base.html" %}
-{% load static %}
-
 {% block title %}Sale #{{ sale.sale_id }}{% endblock %}
-{% block eyebrow %}Sales{% endblock %}
-{% block page_title %}Sale #{{ sale.sale_id }}{% endblock %}
-
-{% block topbar_actions %}
-<a href="{% url 'sales_history' %}" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
-{% if not sale.is_voided %}
-{% if sale.customer_email %}
-<button type="button" class="btn btn-outline btn-sm" id="emailReceiptBtn"><i class="fas fa-envelope"></i> Email Receipt</button>
-{% endif %}
-<button type="button" class="btn btn-danger btn-sm" id="voidSaleBtn"><i class="fas fa-ban"></i> Void Sale</button>
-{% endif %}
-{% endblock %}
-
-{% block extra_css %}
-.receipt-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.25rem; align-items: start; }
-.receipt-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.4rem; flex-wrap: wrap; gap: 1rem; }
-.receipt-head h2 { font-size: 1.1rem; font-weight: 800; }
-.receipt-head .r-sub { font-size: 0.82rem; color: var(--mc-slate); margin-top: 0.2rem; }
-.summary-row { display: flex; justify-content: space-between; padding: 0.6rem 0; border-bottom: 1px dashed var(--mc-border); font-size: 0.88rem; color: var(--mc-slate); }
-.summary-row:last-child { border-bottom: none; }
-.summary-row.total { font-size: 1.1rem; font-weight: 800; color: var(--mc-navy); }
-.void-banner { background: var(--mc-red-tint); color: #7f1d1d; border: 1px solid #fecaca; border-radius: 0.85rem; padding: 1rem 1.2rem; margin-bottom: 1.25rem; font-size: 0.87rem; }
-.void-banner strong { display: block; margin-bottom: 0.2rem; }
-{% endblock %}
 
 {% block content %}
+<div class="space-y-4">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <div class="flex items-center gap-2">
+        <a href="{% url 'sales_history' %}" class="text-slate-400 hover:text-white transition">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        </a>
+        <h1 class="text-2xl font-bold text-white">Sale #{{ sale.sale_id }}</h1>
+        {% if sale.is_voided %}
+        <span class="px-2 py-1 rounded-full text-xs font-medium bg-red-500/20 text-red-400">Voided</span>
+        {% endif %}
+      </div>
+      <p class="text-sm text-slate-400">{{ sale.date|date:"Y-m-d H:i" }}</p>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      {% if not sale.is_voided %}
+      <a href="{% url 'sale_return_create' sale.id %}" class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium rounded-lg transition">
+        <i data-lucide="undo-2" class="w-4 h-4"></i> Return Items
+      </a>
+      {% if sale.customer_email %}
+      <button onclick="emailReceipt('{{ sale.id }}')" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition">
+        <i data-lucide="mail" class="w-4 h-4"></i> Email Receipt
+      </button>
+      {% endif %}
+      {% endif %}
+    </div>
+  </div>
 
-{% if sale.is_voided %}
-<div class="void-banner">
-    <strong><i class="fas fa-ban"></i> This sale was voided</strong>
-    Voided by {{ sale.voided_by.username|default:"—" }} on {{ sale.voided_at|date:"M d, Y H:i" }}. Reason: {{ sale.void_reason|default:"No reason provided." }}
-</div>
-{% endif %}
-
-<div class="receipt-grid">
-    <div class="card card-pad">
-        <div class="receipt-head">
-            <div>
-                <h2>Sale #{{ sale.sale_id }}</h2>
-                <div class="r-sub">{{ sale.date|date:"M d, Y \a\t H:i" }} &middot; Processed by {{ sale.processed_by.username|default:"—" }}</div>
-            </div>
-            {% if sale.is_voided %}
-            <span class="pill pill-red"><i class="fas fa-ban"></i> Voided</span>
-            {% else %}
-            <span class="pill pill-green"><i class="fas fa-circle-check"></i> Completed</span>
-            {% endif %}
-        </div>
-
-        <div class="table-wrap">
-            <table class="data-table">
-                <thead>
-                    <tr><th>Item</th><th>Unit Price</th><th>Qty</th><th style="text-align:right;">Total</th></tr>
-                </thead>
-                <tbody>
-                    {% for item in sale.saleitem_set.all %}
-                    <tr>
-                        <td>{{ item.drug.name }}</td>
-                        <td>MWK {{ item.price|floatformat:2 }}</td>
-                        <td>{{ item.quantity }}</td>
-                        <td style="text-align:right; font-weight:700;">MWK {{ item.total|floatformat:2 }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="card rounded-xl p-4">
+      <h2 class="text-sm font-semibold text-white mb-3">Customer</h2>
+      <div class="space-y-2 text-sm">
+        <div><span class="text-slate-400">Name</span><div class="text-white">{{ sale.customer_name|default:"Walk-in" }}</div></div>
+        <div><span class="text-slate-400">Phone</span><div class="text-white">{{ sale.customer_phone|default:"-" }}</div></div>
+        <div><span class="text-slate-400">Email</span><div class="text-white">{{ sale.customer_email|default:"-" }}</div></div>
+      </div>
     </div>
 
-    <div class="card card-pad">
-        <h3 style="font-size:0.98rem; font-weight:800; margin-bottom:0.9rem;">Summary</h3>
-        <div class="summary-row"><span>Subtotal</span><span>MWK {{ sale.subtotal|floatformat:2 }}</span></div>
-        <div class="summary-row"><span>Discount ({{ sale.discount_percentage }}%)</span><span>- MWK {{ sale.discount_amount|floatformat:2 }}</span></div>
-        <div class="summary-row total"><span>Total Paid</span><span>MWK {{ sale.total_amount|floatformat:2 }}</span></div>
-        <div class="summary-row" style="margin-top:0.6rem;"><span>Payment Method</span><span>{{ sale.get_payment_method_display }}</span></div>
-
-        <h3 style="font-size:0.98rem; font-weight:800; margin: 1.4rem 0 0.9rem;">Customer</h3>
-        <div class="summary-row"><span>Name</span><span>{{ sale.customer_name|default:"Walk-in customer" }}</span></div>
-        {% if sale.customer_phone %}<div class="summary-row"><span>Phone</span><span>{{ sale.customer_phone }}</span></div>{% endif %}
-        {% if sale.customer_email %}<div class="summary-row"><span>Email</span><span>{{ sale.customer_email }}</span></div>{% endif %}
-        {% if sale.customer_address %}<div class="summary-row"><span>Address</span><span>{{ sale.customer_address }}</span></div>{% endif %}
+    <div class="card rounded-xl p-4">
+      <h2 class="text-sm font-semibold text-white mb-3">Payment</h2>
+      <div class="space-y-2 text-sm">
+        <div><span class="text-slate-400">Method</span><div class="text-white">{{ sale.get_payment_method_display }}</div></div>
+        <div><span class="text-slate-400">Processed By</span><div class="text-white">{{ sale.processed_by.username|default:"-" }}</div></div>
+      </div>
     </div>
+
+    <div class="card rounded-xl p-4">
+      <h2 class="text-sm font-semibold text-white mb-3">Summary</h2>
+      <div class="space-y-2 text-sm">
+        <div class="flex justify-between"><span class="text-slate-400">Subtotal</span><span class="text-white">MWK {{ sale.subtotal|floatformat:2 }}</span></div>
+        <div class="flex justify-between"><span class="text-slate-400">Discount</span><span class="text-red-400">-MWK {{ sale.discount_amount|floatformat:2 }}</span></div>
+        <div class="flex justify-between border-t border-white/5 pt-2 font-bold">
+          <span class="text-white">Total</span>
+          <span class="text-emerald-400">MWK {{ sale.total_amount|floatformat:2 }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Items -->
+  <div class="card rounded-xl p-4">
+    <h2 class="text-sm font-semibold text-white mb-3">Items</h2>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-white/5 text-slate-400">
+            <th class="text-left px-4 py-2 font-medium">Drug</th>
+            <th class="text-center px-4 py-2 font-medium">Quantity</th>
+            <th class="text-right px-4 py-2 font-medium">Price (MWK)</th>
+            <th class="text-right px-4 py-2 font-medium">Total (MWK)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in sale.saleitem_set.all %}
+          <tr class="border-b border-white/5">
+            <td class="px-4 py-2 text-white">
+              <a href="{% url 'drug_detail' item.drug.id %}" class="hover:text-emerald-400 transition">{{ item.drug.name }}</a>
+            </td>
+            <td class="px-4 py-2 text-center text-slate-300">{{ item.quantity }}</td>
+            <td class="px-4 py-2 text-right text-slate-300">{{ item.price|floatformat:2 }}</td>
+            <td class="px-4 py-2 text-right text-emerald-400">{{ item.total|floatformat:2 }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" class="text-center py-4 text-slate-500">No items in this sale.</td></tr>
+          {% endfor %}
+        </tbody>
+        <tfoot class="border-t border-white/5">
+          <tr>
+            <td colspan="3" class="px-4 py-2 text-right font-medium text-white">Total:</td>
+            <td class="px-4 py-2 text-right font-bold text-emerald-400">{{ sale.total_amount|floatformat:2 }}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  {% if sale.is_voided %}
+  <div class="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
+    <div class="flex items-start gap-3">
+      <i data-lucide="alert-circle" class="w-5 h-5 text-red-400 mt-0.5"></i>
+      <div>
+        <p class="text-sm text-red-400 font-medium">This sale was voided</p>
+        <p class="text-sm text-slate-400">Reason: {{ sale.void_reason|default:"No reason provided" }}</p>
+        <p class="text-xs text-slate-500">Voided by {{ sale.voided_by.username|default:"Unknown" }} on {{ sale.voided_at|date:"Y-m-d H:i" }}</p>
+      </div>
+    </div>
+  </div>
+  {% endif %}
 </div>
 
-<!-- Void Modal -->
-<div class="modal-backdrop" id="voidModal" style="position:fixed; inset:0; background:rgba(11,23,48,0.55); display:none; align-items:center; justify-content:center; z-index:2000; padding:1rem;">
-    <div class="modal-box" style="background:#fff; border-radius:1.1rem; width:100%; max-width:440px; padding:1.75rem;">
-        <h3 style="font-size:1.05rem; font-weight:800; margin-bottom:0.3rem;">Void this sale?</h3>
-        <p style="font-size:0.85rem; color: var(--mc-slate); margin-bottom:1.1rem;">Stock will be restored. This cannot be undone by you afterwards.</p>
-        <div class="form-field">
-            <label>Reason for voiding</label>
-            <textarea id="voidReason" rows="3" placeholder="e.g. Customer changed their mind" style="padding:0.7rem 0.85rem; border:1.5px solid var(--mc-border); border-radius:0.65rem; font-size:0.87rem; font-family:inherit;"></textarea>
-        </div>
-        <div style="display:flex; gap:0.7rem; margin-top:1.2rem;">
-            <button type="button" class="btn btn-outline" style="flex:1;" onclick="document.getElementById('voidModal').style.display='none';">Cancel</button>
-            <button type="button" class="btn btn-danger" style="flex:1;" id="confirmVoidBtn">Confirm Void</button>
-        </div>
-    </div>
-</div>
-
-{% endblock %}
-
-{% block extra_js %}
-const voidBtn = document.getElementById('voidSaleBtn');
-const voidModal = document.getElementById('voidModal');
-if (voidBtn) {
-    voidBtn.addEventListener('click', () => { voidModal.style.display = 'flex'; });
+<script>
+function emailReceipt(saleId) {
+  fetch(`/sales/${saleId}/email-receipt/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '',
+    },
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      alert('Receipt emailed successfully!');
+    } else {
+      alert('Error: ' + (data.message || 'Unknown error'));
+    }
+  })
+  .catch(() => alert('Error sending email.'));
 }
-
-const confirmVoidBtn = document.getElementById('confirmVoidBtn');
-if (confirmVoidBtn) {
-    confirmVoidBtn.addEventListener('click', async () => {
-        confirmVoidBtn.disabled = true;
-        confirmVoidBtn.textContent = 'Voiding...';
-        const formData = new FormData();
-        formData.append('reason', document.getElementById('voidReason').value);
-        try {
-            const res = await fetch("{% url 'void_sale' sale.id %}", {
-                method: 'POST',
-                headers: { 'X-CSRFToken': '{{ csrf_token }}' },
-                body: formData
-            });
-            const data = await res.json();
-            if (data.success) {
-                location.reload();
-            } else {
-                alert(data.message || 'Could not void this sale.');
-                confirmVoidBtn.disabled = false;
-                confirmVoidBtn.textContent = 'Confirm Void';
-            }
-        } catch (err) {
-            alert('Something went wrong.');
-            confirmVoidBtn.disabled = false;
-            confirmVoidBtn.textContent = 'Confirm Void';
-        }
-    });
-}
-
-const emailBtn = document.getElementById('emailReceiptBtn');
-if (emailBtn) {
-    emailBtn.addEventListener('click', async () => {
-        emailBtn.disabled = true;
-        emailBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-        try {
-            const res = await fetch("{% url 'email_receipt' sale.id %}", {
-                method: 'POST',
-                headers: { 'X-CSRFToken': '{{ csrf_token }}' },
-            });
-            const data = await res.json();
-            alert(data.message || (data.success ? 'Receipt sent.' : 'Could not send receipt.'));
-        } catch (err) {
-            alert('Something went wrong.');
-        } finally {
-            emailBtn.disabled = false;
-            emailBtn.innerHTML = '<i class="fas fa-envelope"></i> Email Receipt';
-        }
-    });
-}
+</script>
 {% endblock %}

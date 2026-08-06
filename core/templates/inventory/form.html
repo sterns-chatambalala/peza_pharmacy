@@ -1,59 +1,126 @@
 {% extends "base.html" %}
-{% load static %}
-
-{% block title %}{% if drug %}Edit Drug{% else %}Add Drug{% endif %}{% endblock %}
-{% block eyebrow %}Inventory{% endblock %}
-{% block page_title %}{% if drug %}Edit {{ drug.name }}{% else %}Add New Drug{% endif %}{% endblock %}
-
-{% block topbar_actions %}
-<a href="{% if drug %}{% url 'drug_detail' drug.id %}{% else %}{% url 'drug_list' %}{% endif %}" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
-{% endblock %}
+{% block title %}{{ drug|yesno:"Edit Drug,Add Drug" }}{% endblock %}
 
 {% block content %}
-
-<form method="post" class="card card-pad" style="max-width: 860px; margin: 0 auto;">
-    {% csrf_token %}
-    <p style="color: var(--mc-slate); font-size: 0.87rem; margin-bottom: 1.5rem;">
-        {% if drug %}Update the core details for this product. Changes apply immediately across inventory and POS.{% else %}Fill in the essentials to add this product to your inventory.{% endif %}
-    </p>
-
-    <div class="form-grid">
-        <div class="form-field full">
-            <label for="name">Drug Name</label>
-            <input type="text" id="name" name="name" placeholder="e.g. Paracetamol 500mg" value="{{ drug.name|default:'' }}" required>
-        </div>
-
-        <div class="form-field">
-            <label for="category">Category</label>
-            <input type="text" id="category" name="category" placeholder="e.g. Analgesics" value="{{ drug.category|default:'' }}" required>
-        </div>
-
-        <div class="form-field">
-            <label for="batch_no">Batch Number</label>
-            <input type="text" id="batch_no" name="batch_no" placeholder="e.g. BN-2026-014" value="{{ drug.batch_no|default:'' }}" required>
-        </div>
-
-        <div class="form-field">
-            <label for="price">Selling Price (MWK)</label>
-            <input type="number" id="price" name="price" min="0" step="0.01" placeholder="0.00" value="{{ drug.price|default:'' }}" required>
-        </div>
-
-        <div class="form-field">
-            <label for="quantity">Quantity in Stock</label>
-            <input type="number" id="quantity" name="quantity" min="0" step="1" placeholder="0" value="{{ drug.quantity|default:'' }}" required>
-        </div>
-
-        <div class="form-field full">
-            <label for="expiry_date">Expiry Date</label>
-            <input type="date" id="expiry_date" name="expiry_date" value="{{ drug.expiry_date|date:'Y-m-d'|default:'' }}" required>
-            <span class="hint">Used to flag near-expiry and expired stock automatically.</span>
-        </div>
+<div class="max-w-2xl mx-auto">
+  <div class="card rounded-xl p-6">
+    <div class="flex items-center gap-3 mb-6">
+      <a href="{% url 'drug_list' %}" class="text-slate-400 hover:text-white transition">
+        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+      </a>
+      <h1 class="text-xl font-bold text-white">{{ drug|yesno:"Edit Drug,Add Drug" }}</h1>
     </div>
 
-    <div style="display:flex; gap:0.75rem; justify-content:flex-end; margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid var(--mc-border);">
-        <a href="{% if drug %}{% url 'drug_detail' drug.id %}{% else %}{% url 'drug_list' %}{% endif %}" class="btn btn-outline">Cancel</a>
-        <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> {% if drug %}Save Changes{% else %}Add Drug{% endif %}</button>
-    </div>
-</form>
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Drug Name *</label>
+          <input type="text" name="name" value="{{ drug.name|default:'' }}" required class="w-full bg-base-800 border border-white/5 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/50">
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Generic Name</label>
+          <input type="text" name="generic_name" value="{{ drug.generic_name|default:'' }}" class="w-full bg-base-800 border border-white/5 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/50">
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Batch No. *</label>
+          <input type="text" name="batch_no" value="{{ drug.batch_no|default:'' }}" required class="w-full bg-base-800 border border-white/5 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/50">
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Category *</label>
+          <input type="text" name="category" value="{{ drug.category|default:'' }}" required class="w-full bg-base-800 border border-white/5 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/50">
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Manufacturer</label>
+          <input type="text" name="manufacturer" value="{{ drug.manufacturer|default:'' }}" class="w-full bg-base-800 border border-white/5 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/50">
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Dosage Form</label>
+          <select name="dosage_form" class="w-full bg-base-800 border border-white/5 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/50">
+            <option value="">Select...</option>
+            <option value="tablet" {% if drug.dosage_form == 'tablet' %}selected{% endif %}>Tablet</option>
+            <option value="capsule" {% if drug.dosage_form == 'capsule' %}selected{% endif %}>Capsule</option>
+            <option value="syrup" {% if drug.dosage_form == 'syrup' %}selected{% endif %}>Syrup</option>
+            <option value="suspension" {% if drug.dosage_form == 'suspension' %}selected{% endif %}>Suspension</option>
+            <option value="injection" {% if drug.dosage_form == 'injection' %}selected{% endif %}>Injection</option>
+            <option value="cream" {% if drug.dosage_form == 'cream' %}selected{% endif %}>Cream/Ointment</option>
+            <option value="drops" {% if drug.dosage_form == 'drops' %}selected{% endif %}>Drops</option>
+            <option value="inhaler" {% if drug.dosage_form == 'inhaler' %}selected{% endif %}>Inhaler</option>
+            <option value="suppository" {% if drug.dosage_form == 'suppository' %}selected{% endif %}>Suppository</option>
+            <option value="powder" {% if drug.dosage_form == 'powder' %}selected{% endif %}>Powder</option>
+            <option value="other" {% if drug.dosage_form == 'other' %}selected{% endif %}>Other</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Strength</label>
+          <input type="text" name="strength" value="{{ drug.strength|default:'' }}" placeholder="e.g. 500mg" class="w-full bg-base-800 border border-white/5 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/50">
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Unit</label>
+          <select name="unit" class="w-full bg-base-800 border border-white/5 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/50">
+            <option value="tablet" {% if drug.unit == 'tablet' %}selected{% endif %}>Tablet(s)</option>
+            <option value="capsule" {% if drug.unit == 'capsule' %}selected{% endif %}>Capsule(s)</option>
+            <option value="bottle" {% if drug.unit == 'bottle' %}selected{% endif %}>Bottle(s)</option>
+            <option value="vial" {% if drug.unit == 'vial' %}selected{% endif %}>Vial(s)</option>
+            <option value="tube" {% if drug.unit == 'tube' %}selected{% endif %}>Tube(s)</option>
+            <option value="sachet" {% if drug.unit == 'sachet' %}selected{% endif %}>Sachet(s)</option>
+            <option value="pack" {% if drug.unit == 'pack' %}selected{% endif %}>Pack(s)</option>
+            <option value="ml" {% if drug.unit == 'ml' %}selected{% endif %}>ml</option>
+            <option value="unit" {% if drug.unit == 'unit' %}selected{% endif %}>Unit(s)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Price (MWK) *</label>
+          <input type="number" step="0.01" name="price" value="{{ drug.price|default:'0' }}" required class="w-full bg-base-800 border border-white/5 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/50">
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Cost Price (MWK)</label>
+          <input type="number" step="0.01" name="cost_price" value="{{ drug.cost_price|default:'0' }}" class="w-full bg-base-800 border border-white/5 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/50">
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Quantity *</label>
+          <input type="number" name="quantity" value="{{ drug.quantity|default:'0' }}" required class="w-full bg-base-800 border border-white/5 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/50">
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Reorder Level</label>
+          <input type="number" name="reorder_level" value="{{ drug.reorder_level|default:'10' }}" class="w-full bg-base-800 border border-white/5 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/50">
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Expiry Date *</label>
+          <input type="date" name="expiry_date" value="{{ drug.expiry_date|date:'Y-m-d'|default:'' }}" required class="w-full bg-base-800 border border-white/5 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/50">
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Barcode</label>
+          <input type="text" name="barcode" value="{{ drug.barcode|default:'' }}" placeholder="Optional" class="w-full bg-base-800 border border-white/5 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/50">
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Location</label>
+          <input type="text" name="location" value="{{ drug.location|default:'' }}" placeholder="Shelf/storage location" class="w-full bg-base-800 border border-white/5 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/50">
+        </div>
+        <div class="flex items-center gap-4">
+          <label class="flex items-center gap-2 text-sm text-slate-400">
+            <input type="checkbox" name="requires_prescription" {% if drug.requires_prescription %}checked{% endif %} class="w-4 h-4 accent-emerald-500">
+            Requires Prescription
+          </label>
+          <label class="flex items-center gap-2 text-sm text-slate-400">
+            <input type="checkbox" name="is_controlled_substance" {% if drug.is_controlled_substance %}checked{% endif %} class="w-4 h-4 accent-emerald-500">
+            Controlled Substance
+          </label>
+          <label class="flex items-center gap-2 text-sm text-slate-400">
+            <input type="checkbox" name="is_active" {% if drug.is_active != False %}checked{% endif %} class="w-4 h-4 accent-emerald-500">
+            Active
+          </label>
+        </div>
+      </div>
 
+      <div class="flex gap-3 pt-4 border-t border-white/5">
+        <button type="submit" class="px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg transition">
+          <i data-lucide="save" class="w-4 h-4 inline mr-2"></i> {{ drug|yesno:"Update,Create" }}
+        </button>
+        <a href="{% url 'drug_list' %}" class="px-6 py-2 bg-base-700 hover:bg-base-600 text-slate-300 font-medium rounded-lg transition">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
 {% endblock %}
