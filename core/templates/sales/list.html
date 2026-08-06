@@ -1,892 +1,127 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load static %}
+
 {% block title %}Sales History{% endblock %}
-{% load humanize %}
+{% block eyebrow %}Pharmacy{% endblock %}
+{% block page_title %}Sales History{% endblock %}
+
+{% block topbar_actions %}
+<a href="{% url 'void_requests_list' %}" class="btn btn-outline btn-sm"><i class="fas fa-rotate-left"></i> Void Requests</a>
+<a href="{% url 'download_sales_excel' %}" class="btn btn-outline btn-sm"><i class="fas fa-download"></i> Export</a>
+<a href="{% url 'pos_system' %}" class="btn btn-primary btn-sm"><i class="fas fa-cash-register"></i> New Sale</a>
+{% endblock %}
+
+{% block extra_css %}
+.period-tabs { display: flex; gap: 0.4rem; margin-bottom: 1.25rem; }
+.period-tabs span { padding: 0.5rem 0.95rem; border-radius: 0.65rem; font-size: 0.8rem; font-weight: 700; background: #fff; border: 1px solid var(--mc-border); color: var(--mc-slate); }
+.method-tag { font-size: 0.7rem; font-weight: 700; color: var(--mc-slate); }
+{% endblock %}
+
 {% block content %}
-<div class="dashboard-header">
-    <div class="dashboard-title">
-        <h1>Sales History</h1>
-        <p class="dashboard-subtitle">View and manage all sales transactions</p>
+
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="stat-top">
+            <div><div class="stat-label">Total Revenue</div><div class="stat-value">MWK {{ total_revenue|floatformat:0 }}</div></div>
+            <div class="stat-icon" style="background: var(--mc-teal);"><i class="fas fa-sack-dollar"></i></div>
+        </div>
     </div>
-    
-    <div class="header-actions">
-        <a href="{% url 'pos_system' %}" class="btn-primary">
-            <span class="material-icons">point_of_sale</span>
-            New Sale
-        </a>
-        <button class="btn-secondary" onclick="downloadSalesReport()">
-            <span class="material-icons">download</span>
-            Export
-        </button>
+    <div class="stat-card">
+        <div class="stat-top">
+            <div><div class="stat-label">Today</div><div class="stat-value">{{ today_sales }}</div></div>
+            <div class="stat-icon" style="background: var(--mc-blue);"><i class="fas fa-calendar-day"></i></div>
+        </div>
+        <div class="stat-delta up">MWK {{ today_revenue|floatformat:0 }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-top">
+            <div><div class="stat-label">This Week</div><div class="stat-value">{{ week_sales }}</div></div>
+            <div class="stat-icon" style="background: var(--mc-purple);"><i class="fas fa-calendar-week"></i></div>
+        </div>
+        <div class="stat-delta up">MWK {{ week_revenue|floatformat:0 }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-top">
+            <div><div class="stat-label">This Month</div><div class="stat-value">{{ month_sales }}</div></div>
+            <div class="stat-icon" style="background: var(--mc-orange);"><i class="fas fa-calendar"></i></div>
+        </div>
+        <div class="stat-delta up">MWK {{ month_revenue|floatformat:0 }}</div>
     </div>
 </div>
 
-<!-- KPI Cards with Enhanced Data -->
-<div class="kpi-grid">
-    <div class="kpi-card revenue">
-        <div class="kpi-icon">
-            <span class="material-icons">attach_money</span>
-        </div>
-        <div class="kpi-title">Total Revenue</div>
-        <div class="kpi-value">MWK{{ total_revenue|intcomma }}</div>
-        <div class="kpi-change positive">
-            <span class="material-icons">trending_up</span>
-            <span>All-time sales</span>
-        </div>
-    </div>
-    
-    <div class="kpi-card">
-        <div class="kpi-icon" style="background: var(--info-color);">
-            <span class="material-icons">receipt</span>
-        </div>
-        <div class="kpi-title">Total Sales</div>
-        <div class="kpi-value">{{ sales.paginator.count }}</div>
-        <div class="kpi-change positive">
-            <span class="material-icons">shopping_cart</span>
-            <span>Transactions</span>
-        </div>
-    </div>
-    
-    <div class="kpi-card">
-        <div class="kpi-icon" style="background: var(--success-color);">
-            <span class="material-icons">today</span>
-        </div>
-        <div class="kpi-title">Today's Sales</div>
-        <div class="kpi-value">{{ today_sales }}</div>
-        <div class="kpi-change positive">
-            <span class="material-icons">event_available</span>
-            <span>MWK{{ today_revenue|intcomma }}</span>
-        </div>
-    </div>
-    
-    <div class="kpi-card">
-        <div class="kpi-icon" style="background: var(--warning-color);">
-            <span class="material-icons">calendar_today</span>
-        </div>
-        <div class="kpi-title">This Week</div>
-        <div class="kpi-value">{{ week_sales }}</div>
-        <div class="kpi-change positive">
-            <span class="material-icons">show_chart</span>
-            <span>MWK{{ week_revenue|intcomma }}</span>
-        </div>
-    </div>
-</div>
-
-<!-- Sales Trend Chart -->
-<div class="chart-card" style="margin-bottom: 25px;">
-    <div class="chart-header">
-        <h3 class="chart-title">Sales Trend - Last 7 Days</h3>
-        <div class="chart-actions">
-            <button class="chart-btn" onclick="toggleChartView()">Toggle View</button>
-        </div>
-    </div>
-    <div class="chart-container">
-        <canvas id="salesTrendChart"></canvas>
-    </div>
-</div>
-
-<!-- Top Selling Products -->
-<div class="table-container" style="margin-bottom: 25px;">
-    <div class="table-header">
-        <h3 class="table-title">Top Selling Products</h3>
-    </div>
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>Product</th>
-                <th>Category</th>
-                <th>Units Sold</th>
-                <th>Revenue</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for product in top_products %}
-            <tr>
-                <td><strong>{{ product.drug__name }}</strong></td>
-                <td>{{ product.drug__category }}</td>
-                <td>{{ product.total_sold }}</td>
-                <td><strong>MWK{{ product.total_revenue|intcomma }}</strong></td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="4" style="text-align: center; padding: 20px; color: var(--light-text);">
-                    No sales data available
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-
-<div class="table-container">
-    <div class="table-header">
-        <div class="table-title">All Sales Transactions ({{ sales.paginator.count }})</div>
-        <div class="table-actions">
-            <input type="text" id="saleSearch" class="search-input" placeholder="Search sales...">
-            <select id="statusFilter" class="search-input">
-                <option value="">All Status</option>
-                <option value="active">Active</option>
-                <option value="voided">Voided</option>
-            </select>
-            <select id="periodFilter" class="search-input">
-                <option value="all">All Time</option>
-                <option value="today">Today</option>
-                <option value="week">This Week</option>
-                <option value="month">This Month</option>
-                <option value="custom">Custom Range</option>
-            </select>
-            <!-- <button class="btn-secondary" onclick="downloadSalesReport()">
-                <span class="material-icons">download</span>
-                Export
-            </button> -->
-        </div>
-    </div>
-
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>Sale ID</th>
-                <th>Customer</th>
-                <th>Date & Time</th>
-                <th>Items</th>
-                <th>Total Amount</th>
-                <th>Payment Method</th>
-                <th>Status</th>
-                <th>Processed By</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody id="saleTableBody">
-            {% for sale in sales %}
-            <tr data-status="{% if sale.is_voided %}voided{% else %}active{% endif %}" 
-                data-date="{{ sale.date|date:'Y-m-d' }}" 
-                data-amount="{{ sale.total_amount }}">
-                <td>
-                    <div class="sale-id">
-                        <strong>#{{ sale.sale_id }}</strong>
+<div class="card card-pad">
+    {% if page_obj.object_list %}
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Sale ID</th>
+                    <th>Customer</th>
+                    <th>Items</th>
+                    <th>Payment</th>
+                    <th>Processed By</th>
+                    <th>Date</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sale in page_obj.object_list %}
+                <tr>
+                    <td><a href="{% url 'sale_detail' sale.id %}" style="text-decoration:none; color: var(--mc-teal-dark); font-weight:700;">#{{ sale.sale_id }}</a></td>
+                    <td>{{ sale.customer_name|default:"Walk-in customer" }}</td>
+                    <td>{{ sale.total_items }} unit{{ sale.total_items|pluralize }} &middot; {{ sale.item_count }} item{{ sale.item_count|pluralize }}</td>
+                    <td><span class="method-tag">{{ sale.get_payment_method_display }}</span></td>
+                    <td>{{ sale.processed_by.username|default:"—" }}</td>
+                    <td>{{ sale.date|date:"M d, Y H:i" }}</td>
+                    <td style="font-weight:800;">MWK {{ sale.total_amount|floatformat:0 }}</td>
+                    <td>
                         {% if sale.is_voided %}
-                        <div class="void-badge">VOIDED</div>
+                        <span class="pill pill-red"><i class="fas fa-ban"></i> Voided</span>
+                        {% else %}
+                        <span class="pill pill-green"><i class="fas fa-circle-check"></i> Completed</span>
                         {% endif %}
-                    </div>
-                </td>
-                <td>
-                    <div class="customer-info">
-                        <div class="customer-name">{{ sale.customer_name|default:"Walk-in Customer" }}</div>
-                        {% if sale.customer_phone %}
-                        <div class="customer-phone">📞 {{ sale.customer_phone }}</div>
-                        {% endif %}
-                        {% if sale.customer_email %}
-                        <div class="customer-email">📧 {{ sale.customer_email }}</div>
-                        {% endif %}
-                    </div>
-                </td>
-                <td>
-                    <div class="date-info">
-                        <div class="main-date">{{ sale.date|date:"M d, Y H:i" }}</div>
-                        <div class="relative-date">{{ sale.date|timesince }} ago</div>
-                    </div>
-                </td>
-                <td>
-                    <div class="sale-items-info">
-                        <div class="items-count">{{ sale.item_count }} items • {{ sale.total_items }} units</div>
-                        <div class="sale-items">
-                            {% for item in sale.saleitem_set.all|slice:":3" %}
-                            <span class="item-tag" title="{{ item.drug.name }} - MWK{{ item.price }} each">
-                                {{ item.drug.name|truncatewords:1 }} (x{{ item.quantity }})
-                            </span>
-                            {% endfor %}
-                            {% if sale.item_count > 3 %}
-                            <span class="item-more">+{{ sale.item_count|add:"-3" }} more</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <div class="amount-info">
-                        <strong>MWK{{ sale.total_amount|intcomma }}</strong>
-                        {% if sale.discount_amount > 0 %}
-                        <div class="discount-badge">-MWK{{ sale.discount_amount|intcomma }}</div>
-                        {% endif %}
-                    </div>
-                </td>
-                <td>{{ sale.get_payment_method_display }}</td>
-                <td>
-                    {% if sale.is_voided %}
-                    <span class="status-badge expired">Voided</span>
-                    {% else %}
-                    <span class="status-badge high">Active</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <div class="processor-info">
-                        <div class="processor-name">{{ sale.processed_by.username }}</div>
-                        <div class="processor-role">{{ sale.processed_by.membership_set.first.role|default:"Staff" }}</div>
-                    </div>
-                </td>
-                <td>
-                    <div class="action-buttons">
-                        <a href="{% url 'sale_detail' sale.id %}" class="btn-icon" title="View Details" style="text-decoration: none;">
-                            <span class="material-icons">visibility</span>
-                        </a>
-                        <!-- <button class="btn-icon print-receipt" data-id="{{ sale.id }}" title="Print Receipt">
-                            <span class="material-icons">receipt</span>
-                        </button> -->
-                        {% if sale.customer_email %}
-                        <button class="btn-icon email-receipt" data-id="{{ sale.id }}" title="Email Receipt">
-                            <span class="material-icons">email</span>
-                        </button>
-                        {% endif %}
-                        {% if not sale.is_voided %}
-                        <button class="btn-icon void-sale" 
-                                data-id="{{ sale.id }}" 
-                                data-same-day="{% if sale.is_same_day %}true{% else %}false{% endif %}"
-                                data-seller="{% if sale.processed_by == request.user %}true{% else %}false{% endif %}"
-                                title="Void Sale">
-                            <span class="material-icons">cancel</span>
-                        </button>
-                        {% endif %}
-                    </div>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="8" style="text-align: center; padding: 40px; color: var(--light-text);">
-                    <div style="font-size: 3rem; margin-bottom: 15px;">🛒</div>
-                    <h3>No sales recorded yet</h3>
-                    <p>Start by creating your first sale</p>
-                    <a href="{% url 'pos_system' %}" class="btn-primary" style="margin-top: 15px;">
-                        <span class="material-icons">point_of_sale</span>
-                        Create First Sale
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                    </td>
+                    <td>
+                        <a href="{% url 'sale_detail' sale.id %}" class="btn btn-outline btn-sm"><i class="fas fa-eye"></i></a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-    <!-- Pagination -->
-    {% if sales.has_other_pages %}
+    {% if page_obj.paginator.num_pages > 1 %}
     <div class="pagination">
-        {% if sales.has_previous %}
-        <a href="?page=1" class="pagination-btn">
-            <span class="material-icons">first_page</span>
-        </a>
-        <a href="?page={{ sales.previous_page_number }}" class="pagination-btn">
-            <span class="material-icons">chevron_left</span>
-        </a>
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}"><i class="fas fa-chevron-left"></i></a>
+        {% else %}
+        <span class="disabled"><i class="fas fa-chevron-left"></i></span>
         {% endif %}
-
-        {% for num in sales.paginator.page_range %}
-            {% if sales.number == num %}
-            <span class="pagination-btn active">{{ num }}</span>
-            {% elif num > sales.number|add:'-3' and num < sales.number|add:'3' %}
-            <a href="?page={{ num }}" class="pagination-btn">{{ num }}</a>
+        {% for num in page_obj.paginator.page_range %}
+            {% if num == page_obj.number %}
+            <span class="current">{{ num }}</span>
+            {% else %}
+            <a href="?page={{ num }}">{{ num }}</a>
             {% endif %}
         {% endfor %}
-
-        {% if sales.has_next %}
-        <a href="?page={{ sales.next_page_number }}" class="pagination-btn">
-            <span class="material-icons">chevron_right</span>
-        </a>
-        <a href="?page={{ sales.paginator.num_pages }}" class="pagination-btn">
-            <span class="material-icons">last_page</span>
-        </a>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}"><i class="fas fa-chevron-right"></i></a>
+        {% else %}
+        <span class="disabled"><i class="fas fa-chevron-right"></i></span>
         {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-receipt"></i>
+        <h3>No sales recorded yet</h3>
+        <p>Sales processed at the POS will appear here with full history and receipts.</p>
+        <a href="{% url 'pos_system' %}" class="btn btn-primary btn-sm" style="margin-top: 1rem;">Go to POS</a>
     </div>
     {% endif %}
 </div>
 
-<!-- Void Sale Modal -->
-<div id="voidModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>Void Sale</h3>
-            <button class="modal-close" onclick="closeVoidModal()">
-                <span class="material-icons">close</span>
-            </button>
-        </div>
-        <div class="modal-body">
-            <form id="voidForm">
-                {% csrf_token %}
-                <input type="hidden" id="voidSaleId" name="sale_id">
-                <div class="form-group">
-                    <label for="voidReason">Reason for voiding:</label>
-                    <textarea id="voidReason" name="reason" class="form-input" 
-                              placeholder="Please provide a reason for voiding this sale..." 
-                              required rows="4"></textarea>
-                </div>
-                <div id="approvalNotice" class="alert alert-warning" style="display: none;">
-                    <span class="material-icons">warning</span>
-                    This sale is from a previous day or was made by another seller. Your void request will need admin approval.
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn-secondary" onclick="closeVoidModal()">Cancel</button>
-                    <button type="submit" class="btn-danger">Confirm Void</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<style>
-    /* Header actions */
-    .header-actions {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-        align-items: center;
-    }
-
-    .header-actions .btn-primary,
-    .header-actions .btn-secondary {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        padding: 8px 12px;
-        font-size: 0.85rem;
-    }
-
-    .void-badge {
-        background: var(--danger-color);
-        color: white;
-        padding: 2px 6px;
-        border-radius: 4px;
-        font-size: 0.7rem;
-        font-weight: 600;
-        margin-top: 4px;
-    }
-    
-    .customer-email {
-        font-size: 0.8rem;
-        color: var(--light-text);
-    }
-    
-    .btn-danger {
-        background: var(--danger-color);
-        color: white;
-    }
-    
-    .btn-danger:hover {
-        background: #dc2626;
-    }
-
-    .customer-info, .sale-id, .date-info, .processor-info {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
-    
-    .customer-name {
-        font-weight: 600;
-        color: var(--text-color);
-        font-size: 0.95rem;
-    }
-    
-    .customer-phone, .customer-email, .sale-time, .relative-date, .processor-role {
-        font-size: 0.8rem;
-        color: var(--light-text);
-    }
-    
-    .sale-items-info {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    }
-    
-    .items-count {
-        font-size: 0.8rem;
-        color: var(--light-text);
-        font-weight: 500;
-    }
-    
-    .sale-items {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 4px;
-    }
-    
-    .item-tag {
-        background: var(--primary-light);
-        color: var(--primary-color);
-        padding: 3px 8px;
-        border-radius: 12px;
-        font-size: 0.7rem;
-        font-weight: 500;
-        cursor: help;
-        max-width: 80px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-    
-    .item-more {
-        color: var(--light-text);
-        font-size: 0.75rem;
-        font-style: italic;
-        align-self: center;
-    }
-    
-    .amount-info {
-        display: flex;
-        flex-direction: column;
-        gap: 3px;
-    }
-    
-    .discount-badge {
-        background: var(--success-color);
-        color: white;
-        padding: 2px 6px;
-        border-radius: 8px;
-        font-size: 0.7rem;
-        font-weight: 500;
-    }
-    
-    .action-buttons {
-        display: flex;
-        gap: 6px;
-        flex-wrap: wrap;
-    }
-    
-    .btn-icon {
-        background: none;
-        border: none;
-        color: var(--text-color);
-        cursor: pointer;
-        padding: 6px;
-        border-radius: 6px;
-        transition: var(--transition);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .btn-icon:hover {
-        background: var(--primary-light);
-        color: var(--primary-color);
-        transform: translateY(-1px);
-    }
-    
-    .pagination {
-        display: flex;
-        justify-content: center;
-        gap: 6px;
-        margin-top: 25px;
-        padding-top: 20px;
-        border-top: 1px solid var(--border-color);
-        align-items: center;
-    }
-    
-    .pagination-btn {
-        padding: 8px 12px;
-        border: 1px solid var(--border-color);
-        background: var(--card-bg);
-        color: var(--text-color);
-        border-radius: 8px;
-        cursor: pointer;
-        transition: var(--transition);
-        font-weight: 500;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 40px;
-        height: 40px;
-    }
-    
-    .pagination-btn.active {
-        background: var(--primary-color);
-        color: white;
-        border-color: var(--primary-color);
-    }
-    
-    .pagination-btn:hover:not(.active) {
-        background: var(--primary-light);
-        color: var(--primary-color);
-        border-color: var(--primary-color);
-    }
-    
-    /* Modal Styles */
-    .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.5);
-        z-index: 1000;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .modal-content {
-        background: var(--card-bg);
-        border-radius: 12px;
-        width: 90%;
-        max-width: 400px;
-        box-shadow: var(--shadow-hover);
-    }
-    
-    .modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 20px;
-        border-bottom: 1px solid var(--border-color);
-    }
-    
-    .modal-close {
-        background: none;
-        border: none;
-        color: var(--light-text);
-        cursor: pointer;
-        padding: 5px;
-        border-radius: 4px;
-    }
-    
-    .modal-close:hover {
-        background: var(--btn-hover);
-    }
-    
-    .modal-body {
-        padding: 20px;
-    }
-    
-    .form-group {
-        margin-bottom: 15px;
-    }
-    
-    .form-input {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        font-size: 0.9rem;
-    }
-    
-    .form-actions {
-        display: flex;
-        gap: 10px;
-        justify-content: flex-end;
-    }
-    
-    .alert {
-        padding: 10px;
-        border-radius: 4px;
-        margin-bottom: 15px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    
-    .alert-warning {
-        background: var(--warning-color);
-        color: white;
-    }
-    
-    .btn-danger {
-        background: var(--danger-color);
-        color: white;
-        padding: 8px 12px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-    
-    .btn-danger:hover {
-        background: #dc2626;
-    }
-    
-    @media (max-width: 768px) {
-        .table-actions {
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .search-input, select {
-            width: 100%;
-        }
-        
-        .action-buttons {
-            flex-direction: column;
-        }
-        
-        .kpi-grid {
-            grid-template-columns: 1fr 1fr;
-        }
-    }
-</style>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize sales trend chart
-        const salesCtx = document.getElementById('salesTrendChart').getContext('2d');
-        const salesData = {
-            labels: [{% for day in sales_trend %}'{{ day.date|date:"D" }}'{% if not forloop.last %},{% endif %}{% endfor %}],
-            datasets: [{
-                label: 'Sales Count',
-                data: [{% for day in sales_trend %}{{ day.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
-                backgroundColor: 'rgba(0, 102, 58, 0.1)',
-                borderColor: '#00663a',
-                borderWidth: 2,
-                tension: 0.4,
-                fill: true,
-                yAxisID: 'y'
-            }, {
-                label: 'Revenue (MWK)',
-                data: [{% for day in sales_trend %}{{ day.revenue }}{% if not forloop.last %},{% endif %}{% endfor %}],
-                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                borderColor: '#3b82f6',
-                borderWidth: 2,
-                tension: 0.4,
-                fill: true,
-                yAxisID: 'y1'
-            }]
-        };
-        
-        window.salesChart = new Chart(salesCtx, {
-            type: 'line',
-            data: salesData,
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    }
-                },
-                scales: {
-                    y: {
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
-                        title: {
-                            display: true,
-                            text: 'Sales Count'
-                        }
-                    },
-                    y1: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        title: {
-                            display: true,
-                            text: 'Revenue (MWK)'
-                        },
-                        grid: {
-                            drawOnChartArea: false,
-                        },
-                    }
-                }
-            }
-        });
-
-        // Search and filter functionality
-        const searchInput = document.getElementById('saleSearch');
-        const statusFilter = document.getElementById('statusFilter');
-        const periodFilter = document.getElementById('periodFilter');
-        const tableBody = document.getElementById('saleTableBody');
-        const rows = Array.from(tableBody.querySelectorAll('tr'));
-        
-        function filterSales() {
-            const searchTerm = searchInput.value.toLowerCase();
-            const statusValue = statusFilter.value;
-            const periodValue = periodFilter.value;
-            
-            const today = new Date().toISOString().split('T')[0];
-            const weekStart = new Date();
-            weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-            const monthStart = new Date();
-            monthStart.setDate(1);
-            
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                const rowStatus = row.getAttribute('data-status');
-                const rowDate = row.getAttribute('data-date');
-                const rowAmount = parseFloat(row.getAttribute('data-amount'));
-                
-                let matchesSearch = text.includes(searchTerm);
-                let matchesStatus = !statusValue || rowStatus === statusValue;
-                let matchesPeriod = true;
-                
-                if (periodValue === 'today') {
-                    matchesPeriod = rowDate === today;
-                } else if (periodValue === 'week') {
-                    matchesPeriod = rowDate >= weekStart.toISOString().split('T')[0];
-                } else if (periodValue === 'month') {
-                    matchesPeriod = rowDate >= monthStart.toISOString().split('T')[0];
-                }
-                
-                row.style.display = matchesSearch && matchesStatus && matchesPeriod ? '' : 'none';
-            });
-        }
-        
-        searchInput.addEventListener('input', filterSales);
-        statusFilter.addEventListener('change', filterSales);
-        periodFilter.addEventListener('change', filterSales);
-        
-        // Void sale functionality
-        document.querySelectorAll('.void-sale').forEach(button => {
-            button.addEventListener('click', function() {
-                const saleId = this.dataset.id;
-                const isSameDay = this.dataset.sameDay === 'true';
-                const isSeller = this.dataset.seller === 'true';
-                const userRole = '{{ request.user.membership_set.first.role }}';
-                const isAdmin = userRole === 'owner' || userRole === 'admin';
-                
-                if (!isAdmin && (!isSeller || !isSameDay)) {
-                    alert('You can only void sales you made today. For other sales, a void request will be sent to admins.');
-                }
-                
-                showVoidModal(saleId, isSameDay, isSeller, isAdmin);
-            });
-        });
-        
-        // Email receipt functionality
-        document.querySelectorAll('.email-receipt').forEach(button => {
-            button.addEventListener('click', function() {
-                const saleId = this.dataset.id;
-                emailReceipt(saleId);
-            });
-        });
-        
-        // Print receipt functionality
-        document.querySelectorAll('.print-receipt').forEach(button => {
-            button.addEventListener('click', function() {
-                const saleId = this.dataset.id;
-                printReceipt(saleId);
-            });
-        });
-    });
-
-    function showVoidModal(saleId, isSameDay, isSeller, isAdmin) {
-        const modal = document.getElementById('voidModal');
-        const approvalNotice = document.getElementById('approvalNotice');
-        const voidSaleId = document.getElementById('voidSaleId');
-        
-        voidSaleId.value = saleId;
-        
-        if (!isSameDay || !isSeller) {
-            approvalNotice.style.display = 'block';
-        } else {
-            approvalNotice.style.display = 'none';
-        }
-        
-        modal.style.display = 'flex';
-    }
-
-    function closeVoidModal() {
-        const modal = document.getElementById('voidModal');
-        modal.style.display = 'none';
-        document.getElementById('voidReason').value = '';
-    }
-
-    document.getElementById('voidForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const saleId = document.getElementById('voidSaleId').value;
-        const reason = document.getElementById('voidReason').value;
-        const isSameDay = document.querySelector(`.void-sale[data-id="${saleId}"]`).dataset.sameDay === 'true';
-        const isSeller = document.querySelector(`.void-sale[data-id="${saleId}"]`).dataset.seller === 'true';
-        const userRole = '{{ request.user.membership_set.first.role }}';
-        const isAdmin = userRole === 'owner' || userRole === 'admin';
-        
-        const requireApproval = !isAdmin && (!isSameDay || !isSeller);
-        
-        voidSale(saleId, reason, requireApproval);
-    });
-
-    function voidSale(saleId, reason, requireApproval) {
-        fetch(`/sale/${saleId}/void/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: `reason=${encodeURIComponent(reason)}&require_approval=${requireApproval}`
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            if (data.success) {
-                if (data.requires_approval) {
-                    alert('Your void request has been submitted for admin approval. You will be notified via email.');
-                }
-                location.reload();
-            }
-        })
-        .catch(error => {
-            alert('Error voiding sale: ' + error);
-        });
-        
-        closeVoidModal();
-    }
-
-    function emailReceipt(saleId) {
-        fetch(`/sale/${saleId}/email-receipt/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRFToken': getCookie('csrftoken')
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-        })
-        .catch(error => {
-            alert('Error sending email: ' + error);
-        });
-    }
-
-    function printReceipt(saleId) {
-        window.open(`/sale/${saleId}/receipt/`, '_blank', 'width=800,height=600');
-    }
-
-    function downloadSalesReport() {
-        const period = document.getElementById('periodFilter').value;
-        const status = document.getElementById('statusFilter').value;
-        const includeVoided = status === 'voided' || status === '';
-        
-        let url = `/sales/download/?period=${period}&include_voided=${includeVoided}`;
-        
-        if (period === 'custom') {
-            const startDate = prompt('Enter start date (YYYY-MM-DD):');
-            const endDate = prompt('Enter end date (YYYY-MM-DD):');
-            if (startDate && endDate) {
-                url += `&start_date=${startDate}&end_date=${endDate}`;
-            } else {
-                alert('Please provide both start and end dates.');
-                return;
-            }
-        }
-        
-        window.location.href = url;
-    }
-
-    function toggleChartView() {
-        const chart = window.salesChart;
-        const currentDataset = chart.data.datasets[0];
-        const otherDataset = chart.data.datasets[1];
-        
-        currentDataset.hidden = !currentDataset.hidden;
-        otherDataset.hidden = !otherDataset.hidden;
-        
-        chart.update();
-    }
-
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-</script>
 {% endblock %}

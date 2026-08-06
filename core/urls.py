@@ -109,6 +109,32 @@ urlpatterns = [
     path('insurance/download-template/', views.download_insurance_claim_template, name='download_insurance_claim_template'),
     path('insurance/download-data/', views.download_insurance_claim_data, name='download_insurance_claim_data'),
 
+    # Customers
+    path('customers/', views.customer_list, name='customer_list'),
+    path('customer/<int:id>/', views.customer_detail, name='customer_detail'),
+    path('customer/new/', views.customer_create, name='customer_create'),
+    path('customer/<int:id>/edit/', views.customer_update, name='customer_update'),
+    path('customer/<int:id>/delete/', views.customer_delete, name='customer_delete'),
+
+    # Purchase Orders
+    path('purchase-orders/', views.purchase_order_list, name='purchase_order_list'),
+    path('purchase-order/new/', views.purchase_order_create, name='purchase_order_create'),
+    path('purchase-order/<int:id>/', views.purchase_order_detail, name='purchase_order_detail'),
+    path('purchase-order/<int:id>/receive/', views.purchase_order_receive, name='purchase_order_receive'),
+    path('purchase-order/<int:id>/cancel/', views.purchase_order_cancel, name='purchase_order_cancel'),
+
+    # Stock Adjustments
+    path('stock-adjustments/', views.stock_adjustment_list, name='stock_adjustment_list'),
+    path('drug/<int:drug_id>/adjust-stock/', views.stock_adjustment_create, name='stock_adjustment_create'),
+
+    # Sale Returns
+    path('returns/', views.sale_return_list, name='sale_return_list'),
+    path('sale/<int:sale_id>/return/', views.sale_return_create, name='sale_return_create'),
+    path('return/<int:id>/process/', views.sale_return_process, name='sale_return_process'),
+
+    # Alerts
+    path('alerts/', views.inventory_alerts, name='inventory_alerts'),
+
     # Settings
     path('settings/', views.settings_view, name='settings'),
     path('settings/change-password/', views.change_password, name='change_password'),

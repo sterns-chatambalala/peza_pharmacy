@@ -179,3 +179,101 @@ class SubscriptionPaymentForm(forms.Form):
         if plan and amount and float(amount) != expected_amounts.get(plan, 0):
             raise forms.ValidationError(f"Invalid amount for {plan} plan. Expected MWK {expected_amounts.get(plan)}.")
         return cleaned_data
+
+# ==================== Pharmacy Enhancement Forms ====================
+
+class DrugFullForm(forms.ModelForm):
+    """Extended drug form covering the new clinical/inventory fields.
+    DrugForm above is kept for backward compatibility; use this one going forward."""
+    class Meta:
+        model = Drug
+        fields = [
+            'name', 'generic_name', 'manufacturer', 'batch_no', 'category',
+            'dosage_form', 'strength', 'unit', 'price', 'cost_price', 'quantity',
+            'reorder_level', 'expiry_date', 'barcode', 'requires_prescription',
+            'is_controlled_substance', 'location', 'is_active',
+        ]
+        widgets = {
+            'expiry_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'barcode': forms.TextInput(attrs={'placeholder': 'Optional', 'class': 'form-control'}),
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'generic_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'manufacturer': forms.TextInput(attrs={'class': 'form-control'}),
+            'batch_no': forms.TextInput(attrs={'class': 'form-control'}),
+            'category': forms.TextInput(attrs={'class': 'form-control'}),
+            'strength': forms.TextInput(attrs={'class': 'form-control'}),
+            'location': forms.TextInput(attrs={'class': 'form-control'}),
+            'price': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'cost_price': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'quantity': forms.NumberInput(attrs={'class': 'form-control'}),
+            'reorder_level': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
+
+
+class CustomerForm(forms.ModelForm):
+    class Meta:
+        model = Customer
+        fields = ['name', 'phone', 'email', 'address', 'date_of_birth', 'allergies', 'chronic_conditions']
+        widgets = {
+            'date_of_birth': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'address': forms.Textarea(attrs={'rows': 2, 'class': 'form-control'}),
+            'allergies': forms.Textarea(attrs={'rows': 2, 'class': 'form-control', 'placeholder': 'Known drug allergies'}),
+            'chronic_conditions': forms.Textarea(attrs={'rows': 2, 'class': 'form-control'}),
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+        }
+
+
+class PurchaseOrderForm(forms.ModelForm):
+    class Meta:
+        model = PurchaseOrder
+        fields = ['supplier', 'expected_delivery', 'notes']
+        widgets = {
+            'expected_delivery': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'notes': forms.Textarea(attrs={'rows': 2, 'class': 'form-control'}),
+            'supplier': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+    def __init__(self, *args, tenant=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if tenant:
+            self.fields['supplier'].queryset = Supplier.objects.filter(tenant=tenant)
+
+
+class PurchaseOrderItemForm(forms.ModelForm):
+    class Meta:
+        model = PurchaseOrderItem
+        fields = ['drug', 'drug_name', 'quantity_ordered', 'unit_cost']
+        widgets = {
+            'drug': forms.Select(attrs={'class': 'form-control'}),
+            'drug_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'quantity_ordered': forms.NumberInput(attrs={'class': 'form-control'}),
+            'unit_cost': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+        }
+
+    def __init__(self, *args, tenant=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if tenant:
+            self.fields['drug'].queryset = Drug.objects.filter(tenant=tenant)
+        self.fields['drug'].required = False
+
+
+class StockAdjustmentForm(forms.ModelForm):
+    class Meta:
+        model = StockAdjustment
+        fields = ['reason', 'quantity_change', 'notes']
+        widgets = {
+            'reason': forms.Select(attrs={'class': 'form-control'}),
+            'quantity_change': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'e.g. -5 or 20'}),
+            'notes': forms.Textarea(attrs={'rows': 2, 'class': 'form-control'}),
+        }
+
+
+class SaleReturnForm(forms.ModelForm):
+    class Meta:
+        model = SaleReturn
+        fields = ['reason', 'restock']
+        widgets = {
+            'reason': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+        }

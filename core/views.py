@@ -3160,3 +3160,378 @@ from django.views.generic import TemplateView
 class RobotsTxtView(TemplateView):
     template_name = "robots.txt"
     content_type = "text/plain"
+
+
+# ==================== Pharmacy Enhancement Views ====================
+# Customers, Purchase Orders, Stock Adjustments, Sale Returns, Alerts
+
+def generate_po_number():
+    return 'PO' + ''.join(random.choices(string.digits, k=7))
+
+def generate_return_id():
+    return 'RT' + ''.join(random.choices(string.digits, k=7))
+
+
+# ---------- Customers ----------
+
+@login_required
+@role_required(['owner', 'admin', 'seller'])
+def customer_list(request):
+    if request.tenant.system != 'PHARMACY':
+        return HttpResponseForbidden('This feature is only available for Pharmacy system.')
+    search_query = request.GET.get('search', '')
+    customers = Customer.objects.filter(tenant=request.tenant)
+    if search_query:
+        customers = customers.filter(
+            Q(name__icontains=search_query) | Q(phone__icontains=search_query) | Q(email__icontains=search_query)
+        )
+    customers = customers.order_by('name')
+    paginator = Paginator(customers, 25)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    return render(request, 'customers/list.html', {'page_obj': page_obj, 'search_query': search_query})
+
+
+@login_required
+@role_required(['owner', 'admin', 'seller'])
+def customer_detail(request, id):
+    if request.tenant.system != 'PHARMACY':
+        return HttpResponseForbidden('This feature is only available for Pharmacy system.')
+    customer = get_object_or_404(Customer, id=id, tenant=request.tenant)
+    sales = customer.sales.filter(is_voided=False).order_by('-date')[:20]
+    return render(request, 'customers/detail.html', {'customer': customer, 'sales': sales})
+
+
+@login_required
+@role_required(['owner', 'admin', 'seller'])
+def customer_create(request):
+    if request.tenant.system != 'PHARMACY':
+        return HttpResponseForbidden('This feature is only available for Pharmacy system.')
+    if request.method == 'POST':
+        form = CustomerForm(request.POST)
+        if form.is_valid():
+            customer = form.save(commit=False)
+            customer.tenant = request.tenant
+            customer.created_by = request.user
+            customer.save()
+            messages.success(request, 'Customer added successfully.')
+            return redirect('customer_detail', id=customer.id)
+    else:
+        form = CustomerForm()
+    return render(request, 'customers/form.html', {'form': form})
+
+
+@login_required
+@role_required(['owner', 'admin', 'seller'])
+def customer_update(request, id):
+    if request.tenant.system != 'PHARMACY':
+        return HttpResponseForbidden('This feature is only available for Pharmacy system.')
+    customer = get_object_or_404(Customer, id=id, tenant=request.tenant)
+    if request.method == 'POST':
+        form = CustomerForm(request.POST, instance=customer)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Customer updated successfully.')
+            return redirect('customer_detail', id=customer.id)
+    else:
+        form = CustomerForm(instance=customer)
+    return render(request, 'customers/form.html', {'form': form, 'customer': customer})
+
+
+@login_required
+@role_required(['owner', 'admin'])
+def customer_delete(request, id):
+    if request.tenant.system != 'PHARMACY':
+        return HttpResponseForbidden('This feature is only available for Pharmacy system.')
+    customer = get_object_or_404(Customer, id=id, tenant=request.tenant)
+    if request.method == 'POST':
+        customer.delete()
+        messages.success(request, 'Customer deleted successfully.')
+        return redirect('customer_list')
+    return redirect('customer_list')
+
+
+# ---------- Purchase Orders ----------
+
+@login_required
+@role_required(['owner', 'admin', 'inventory_manager'])
+def purchase_order_list(request):
+    if request.tenant.system != 'PHARMACY':
+        return HttpResponseForbidden('This feature is only available for Pharmacy system.')
+    status_filter = request.GET.get('status', '')
+    orders = PurchaseOrder.objects.filter(tenant=request.tenant).select_related('supplier')
+    if status_filter:
+        orders = orders.filter(status=status_filter)
+    paginator = Paginator(orders, 25)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    return render(request, 'purchase_orders/list.html', {'page_obj': page_obj, 'status_filter': status_filter})
+
+
+@login_required
+@role_required(['owner', 'admin', 'inventory_manager'])
+def purchase_order_detail(request, id):
+    if request.tenant.system != 'PHARMACY':
+        return HttpResponseForbidden('This feature is only available for Pharmacy system.')
+    order = get_object_or_404(PurchaseOrder, id=id, tenant=request.tenant)
+    return render(request, 'purchase_orders/detail.html', {'order': order})
+
+
+@login_required
+@role_required(['owner', 'admin', 'inventory_manager'])
+@transaction.atomic
+def purchase_order_create(request):
+    if request.tenant.system != 'PHARMACY':
+        return HttpResponseForbidden('This feature is only available for Pharmacy system.')
+    if request.method == 'POST':
+        form = PurchaseOrderForm(request.POST, tenant=request.tenant)
+        drug_ids = request.POST.getlist('drug_id[]')
+        drug_names = request.POST.getlist('drug_name[]')
+        quantities = request.POST.getlist('quantity_ordered[]')
+        unit_costs = request.POST.getlist('unit_cost[]')
+
+        if form.is_valid():
+            if not drug_names or not any(name.strip() for name in drug_names):
+                messages.error(request, 'Add at least one item to the purchase order.')
+                return render(request, 'purchase_orders/form.html', {'form': form})
+
+            order = form.save(commit=False)
+            order.tenant = request.tenant
+            order.po_number = generate_po_number()
+            order.status = 'ordered'
+            order.created_by = request.user
+            order.save()
+
+            for drug_id, drug_name, qty, cost in zip(drug_ids, drug_names, quantities, unit_costs):
+                if not drug_name.strip():
+                    continue
+                try:
+                    qty = int(qty)
+                    cost = Decimal(cost or '0')
+                except (ValueError, TypeError):
+                    continue
+                drug_obj = None
+                if drug_id:
+                    drug_obj = Drug.objects.filter(id=drug_id, tenant=request.tenant).first()
+                PurchaseOrderItem.objects.create(
+                    purchase_order=order,
+                    drug=drug_obj,
+                    drug_name=drug_name,
+                    quantity_ordered=qty,
+                    unit_cost=cost,
+                )
+            messages.success(request, f'Purchase order {order.po_number} created.')
+            return redirect('purchase_order_detail', id=order.id)
+    else:
+        form = PurchaseOrderForm(tenant=request.tenant)
+    drugs = Drug.objects.filter(tenant=request.tenant, is_active=True)
+    return render(request, 'purchase_orders/form.html', {'form': form, 'drugs': drugs})
+
+
+@login_required
+@role_required(['owner', 'admin', 'inventory_manager'])
+@transaction.atomic
+def purchase_order_receive(request, id):
+    """Receive stock against a purchase order: updates Drug.quantity and PO status."""
+    if request.tenant.system != 'PHARMACY':
+        return HttpResponseForbidden('This feature is only available for Pharmacy system.')
+    order = get_object_or_404(PurchaseOrder, id=id, tenant=request.tenant)
+    if order.status in ('received', 'cancelled'):
+        messages.error(request, 'This purchase order can no longer be received against.')
+        return redirect('purchase_order_detail', id=order.id)
+
+    if request.method == 'POST':
+        for item in order.items.select_related('drug').all():
+            field_name = f'receive_{item.id}'
+            qty_received_now = request.POST.get(field_name, '0')
+            try:
+                qty_received_now = int(qty_received_now)
+            except ValueError:
+                qty_received_now = 0
+            if qty_received_now <= 0:
+                continue
+            remaining = item.quantity_ordered - item.quantity_received
+            qty_received_now = min(qty_received_now, remaining)
+            item.quantity_received += qty_received_now
+            item.save()
+
+            if item.drug:
+                item.drug.quantity = F('quantity') + qty_received_now
+                item.drug.last_modified_by = request.user
+                item.drug.save()
+
+        order.status = 'received' if order.is_fully_received else 'partially_received'
+        if order.status == 'received':
+            order.received_date = timezone.now().date()
+        order.save()
+        messages.success(request, f'Stock received for purchase order {order.po_number}.')
+        return redirect('purchase_order_detail', id=order.id)
+
+    return redirect('purchase_order_detail', id=order.id)
+
+
+@login_required
+@role_required(['owner', 'admin'])
+def purchase_order_cancel(request, id):
+    if request.tenant.system != 'PHARMACY':
+        return HttpResponseForbidden('This feature is only available for Pharmacy system.')
+    order = get_object_or_404(PurchaseOrder, id=id, tenant=request.tenant)
+    if request.method == 'POST' and order.status not in ('received',):
+        order.status = 'cancelled'
+        order.save()
+        messages.success(request, f'Purchase order {order.po_number} cancelled.')
+    return redirect('purchase_order_detail', id=order.id)
+
+
+# ---------- Stock Adjustments ----------
+
+@login_required
+@role_required(['owner', 'admin', 'inventory_manager'])
+def stock_adjustment_list(request):
+    if request.tenant.system != 'PHARMACY':
+        return HttpResponseForbidden('This feature is only available for Pharmacy system.')
+    adjustments = StockAdjustment.objects.filter(tenant=request.tenant).select_related('drug', 'adjusted_by')
+    paginator = Paginator(adjustments, 25)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    return render(request, 'stock_adjustments/list.html', {'page_obj': page_obj})
+
+
+@login_required
+@role_required(['owner', 'admin', 'inventory_manager'])
+@transaction.atomic
+def stock_adjustment_create(request, drug_id):
+    if request.tenant.system != 'PHARMACY':
+        return HttpResponseForbidden('This feature is only available for Pharmacy system.')
+    drug = get_object_or_404(Drug, id=drug_id, tenant=request.tenant)
+    if request.method == 'POST':
+        form = StockAdjustmentForm(request.POST)
+        if form.is_valid():
+            quantity_change = form.cleaned_data['quantity_change']
+            new_quantity = drug.quantity + quantity_change
+            if new_quantity < 0:
+                messages.error(request, 'Adjustment would result in negative stock.')
+                return render(request, 'stock_adjustments/form.html', {'form': form, 'drug': drug})
+
+            adjustment = form.save(commit=False)
+            adjustment.tenant = request.tenant
+            adjustment.drug = drug
+            adjustment.quantity_before = drug.quantity
+            adjustment.quantity_after = new_quantity
+            adjustment.adjusted_by = request.user
+            adjustment.save()
+
+            drug.quantity = new_quantity
+            drug.last_modified_by = request.user
+            drug.save()
+
+            messages.success(request, f'Stock adjusted for {drug.name}.')
+            return redirect('drug_detail', id=drug.id)
+    else:
+        form = StockAdjustmentForm()
+    return render(request, 'stock_adjustments/form.html', {'form': form, 'drug': drug})
+
+
+# ---------- Sale Returns ----------
+
+@login_required
+@role_required(['owner', 'admin', 'seller'])
+def sale_return_list(request):
+    if request.tenant.system != 'PHARMACY':
+        return HttpResponseForbidden('This feature is only available for Pharmacy system.')
+    status_filter = request.GET.get('status', '')
+    returns = SaleReturn.objects.filter(tenant=request.tenant).select_related('sale', 'requested_by')
+    if status_filter:
+        returns = returns.filter(status=status_filter)
+    paginator = Paginator(returns, 25)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    return render(request, 'sale_returns/list.html', {'page_obj': page_obj, 'status_filter': status_filter})
+
+
+@login_required
+@role_required(['owner', 'admin', 'seller'])
+@transaction.atomic
+def sale_return_create(request, sale_id):
+    if request.tenant.system != 'PHARMACY':
+        return HttpResponseForbidden('This feature is only available for Pharmacy system.')
+    sale = get_object_or_404(Sale, id=sale_id, tenant=request.tenant)
+    sale_items = sale.saleitem_set.select_related('drug').all()
+
+    if request.method == 'POST':
+        form = SaleReturnForm(request.POST)
+        item_ids = request.POST.getlist('sale_item_id[]')
+        return_quantities = request.POST.getlist('return_quantity[]')
+
+        if form.is_valid():
+            selected = [(iid, qty) for iid, qty in zip(item_ids, return_quantities) if qty and int(qty) > 0]
+            if not selected:
+                messages.error(request, 'Select at least one item and quantity to return.')
+                return render(request, 'sale_returns/form.html', {'form': form, 'sale': sale, 'sale_items': sale_items})
+
+            sale_return = form.save(commit=False)
+            sale_return.tenant = request.tenant
+            sale_return.sale = sale
+            sale_return.return_id = generate_return_id()
+            sale_return.requested_by = request.user
+            sale_return.save()
+
+            refund_total = Decimal('0')
+            for item_id, qty in selected:
+                sale_item = get_object_or_404(SaleItem, id=item_id, sale=sale)
+                qty = int(qty)
+                qty = min(qty, sale_item.quantity)
+                SaleReturnItem.objects.create(sale_return=sale_return, sale_item=sale_item, quantity=qty)
+                refund_total += qty * sale_item.price
+
+            sale_return.refund_amount = refund_total
+            sale_return.save()
+
+            messages.success(request, f'Return {sale_return.return_id} submitted for approval.')
+            return redirect('sale_return_list')
+    else:
+        form = SaleReturnForm()
+    return render(request, 'sale_returns/form.html', {'form': form, 'sale': sale, 'sale_items': sale_items})
+
+
+@login_required
+@role_required(['owner', 'admin'])
+@transaction.atomic
+def sale_return_process(request, id):
+    if request.tenant.system != 'PHARMACY':
+        return HttpResponseForbidden('This feature is only available for Pharmacy system.')
+    sale_return = get_object_or_404(SaleReturn, id=id, tenant=request.tenant)
+    if sale_return.status != 'pending':
+        messages.error(request, 'This return has already been processed.')
+        return redirect('sale_return_list')
+
+    if request.method == 'POST':
+        decision = request.POST.get('decision')
+        if decision == 'approve':
+            if sale_return.restock:
+                for return_item in sale_return.items.select_related('sale_item__drug').all():
+                    drug = return_item.sale_item.drug
+                    drug.quantity = F('quantity') + return_item.quantity
+                    drug.save()
+            sale_return.status = 'approved'
+        else:
+            sale_return.status = 'rejected'
+        sale_return.processed_by = request.user
+        sale_return.processed_at = timezone.now()
+        sale_return.save()
+        messages.success(request, f'Return {sale_return.return_id} {sale_return.status}.')
+    return redirect('sale_return_list')
+
+
+# ---------- Alerts / Reports ----------
+
+@login_required
+def inventory_alerts(request):
+    """Low-stock and expiry alerts for the dashboard / inventory team."""
+    if request.tenant.system != 'PHARMACY':
+        return HttpResponseForbidden('This feature is only available for Pharmacy system.')
+    drugs = Drug.objects.filter(tenant=request.tenant, is_active=True)
+    low_stock = [d for d in drugs if d.is_low_stock]
+    near_expiry = [d for d in drugs if d.is_near_expiry]
+    expired = [d for d in drugs if d.is_expired]
+    return render(request, 'inventory/alerts.html', {
+        'low_stock': low_stock,
+        'near_expiry': near_expiry,
+        'expired': expired,
+    })

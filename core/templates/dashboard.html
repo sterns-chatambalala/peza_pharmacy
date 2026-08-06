@@ -1,650 +1,353 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load static %}
 {% block title %}Dashboard{% endblock %}
-{% block content %}
-        <!-- Dashboard Header -->
-        <div class="dashboard-header">
-            <div class="dashboard-title">
-                <h1>Dashboard</h1>
-                <p class="dashboard-subtitle">Welcome back, {{ user.username }}! Here's what's happening with your pharmacy today.</p>
-            </div>
-            
-            <div class="date-filter">
-                <span class="material-icons">date_range</span>
-                <select id="dateRange">
-                    <option value="today">Today</option>
-                    <option value="week" selected>This Week</option>
-                    <option value="month">This Month</option>
-                    <option value="quarter">This Quarter</option>
-                </select>
-            </div>
-        </div>
 
-        <!-- KPI Cards -->
-        <div class="kpi-grid">
-            <div class="kpi-card revenue">
-                <div class="kpi-icon">
-                    <span class="material-icons">attach_money</span>
-                </div>
-                <div class="kpi-title">Total Revenue</div>
-                <div class="kpi-value">MK{{ total_revenue|floatformat:2 }}</div>
-                <div class="kpi-change positive">
-                    <span class="material-icons">trending_up</span>
-                    <span>+{{ revenue_growth|floatformat:1 }}% from last week</span>
-                </div>
-            </div>
-            
-            <div class="kpi-card inventory">
-                <div class="kpi-icon">
-                    <span class="material-icons">inventory_2</span>
-                </div>
-                <div class="kpi-title">Total Products</div>
-                <div class="kpi-value">{{ total_drugs }}</div>
-                <div class="kpi-change positive">
-                    <span class="material-icons">trending_up</span>
-                    <span>+{{ inventory_growth|floatformat:1 }}% from last week</span>
-                </div>
-            </div>
-            
-            <div class="kpi-card prescriptions">
-                <div class="kpi-icon">
-                    <span class="material-icons">receipt_long</span>
-                </div>
-                <div class="kpi-title">Prescriptions</div>
-                <div class="kpi-value">{{ total_prescriptions }}</div>
-                <div class="kpi-change positive">
-                    <span class="material-icons">trending_up</span>
-                    <span>+{{ prescription_growth|floatformat:1 }}% from last week</span>
-                </div>
-            </div>
-            
-            <div class="kpi-card alerts">
-                <div class="kpi-icon">
-                    <span class="material-icons">warning</span>
-                </div>
-                <div class="kpi-title">Critical Alerts</div>
-                <div class="kpi-value">{{ low_stock_drugs }}</div>
-                <div class="kpi-change negative">
-                    <span class="material-icons">trending_down</span>
-                    <span>Needs attention</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Charts Grid -->
-        <div class="charts-grid">
-            <!-- Revenue Chart -->
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h3 class="chart-title">Revenue Trends (Last 7 Days)</h3>
-                    <div class="chart-actions">
-                        <button class="chart-btn">Week</button>
-                        <button class="chart-btn">Month</button>
-                        <button class="chart-btn">Year</button>
-                    </div>
-                </div>
-                <div class="chart-container">
-                    <canvas id="revenueChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Top Categories -->
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h3 class="chart-title">Top Drug Categories</h3>
-                </div>
-                <div class="small-chart-container">
-                    <canvas id="categoriesChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tables and Activity Grid -->
-        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: var(--spacing-md); margin-bottom: var(--spacing-xl);">
-            <!-- Low Stock Alerts Table -->
-            <div class="table-container">
-                <div class="table-header">
-                    <h3 class="table-title">Low Stock Alerts ({{ low_stock_drugs }} items)</h3>
-                    <div class="table-actions">
-                        <input type="text" class="search-input" placeholder="Search products...">
-                        <a href="{% url 'drug_create' %}" class="btn-primary">
-                            <span class="material-icons">add</span>
-                            Add Product
-                        </a>
-                    </div>
-                </div>
-                
-                <!-- Desktop Table View -->
-                <div class="desktop-table-view">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Product Name</th>
-                                <th>Category</th>
-                                <th>Current Stock</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for drug in low_stock_items %}
-                            <tr>
-                                <td>{{ drug.name }}</td>
-                                <td>{{ drug.category }}</td>
-                                <td>{{ drug.quantity }}</td>
-                                <td>
-                                    {% if drug.quantity < 5 %}
-                                    <span class="status-badge low">Critical</span>
-                                    {% else %}
-                                    <span class="status-badge low">Low</span>
-                                    {% endif %}
-                                </td>
-                                <td><a href="{% url 'drug_update' drug.id %}" class="btn-primary" style="padding: 6px 10px; font-size: 0.8rem; text-decoration: none;">Reorder</a></td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="5" style="text-align: center; padding: 20px; color: var(--light-text);">
-                                    No low stock items. Great job!
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                
-                <!-- Mobile Table View -->
-                <div class="mobile-table-view">
-                    {% for drug in low_stock_items %}
-                    <div class="mobile-table-item">
-                        <div class="mobile-table-row">
-                            <span class="mobile-table-label">Product</span>
-                            <span class="mobile-table-value">{{ drug.name }}</span>
-                        </div>
-                        <div class="mobile-table-row">
-                            <span class="mobile-table-label">Category</span>
-                            <span class="mobile-table-value">{{ drug.category }}</span>
-                        </div>
-                        <div class="mobile-table-row">
-                            <span class="mobile-table-label">Stock</span>
-                            <span class="mobile-table-value">{{ drug.quantity }}</span>
-                        </div>
-                        <div class="mobile-table-row">
-                            <span class="mobile-table-label">Status</span>
-                            <span class="mobile-table-value">
-                                {% if drug.quantity < 5 %}
-                                <span class="status-badge low">Critical</span>
-                                {% else %}
-                                <span class="status-badge low">Low</span>
-                                {% endif %}
-                            </span>
-                        </div>
-                        <div class="mobile-table-row">
-                            <span class="mobile-table-label">Action</span>
-                            <span class="mobile-table-value">
-                                <a href="{% url 'drug_update' drug.id %}" class="btn-primary" style="padding: 6px 10px; font-size: 0.8rem; text-decoration: none;">Reorder</a>
-                            </span>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <div style="text-align: center; padding: 20px; color: var(--light-text);">
-                        No low stock items. Great job!
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <!-- Recent Activity -->
-            <div class="activity-feed">
-                <div class="chart-header">
-                    <h3 class="chart-title">Recent Activity</h3>
-                </div>
-                
-                {% for sale in recent_sales|slice:":3" %}
-                <div class="activity-item">
-                    <div class="activity-icon sale">
-                        <span class="material-icons">point_of_sale</span>
-                    </div>
-                    <div class="activity-content">
-                        <div class="activity-title">Sale #{{ sale.sale_id }} completed</div>
-                        <div class="activity-time">{{ sale.date|timesince }} ago • MK{{ sale.total_amount|floatformat:2 }}</div>
-                    </div>
-                </div>
-                {% endfor %}
-                
-                {% for prescription in recent_prescriptions|slice:":2" %}
-                <div class="activity-item">
-                    <div class="activity-icon prescription">
-                        <span class="material-icons">receipt</span>
-                    </div>
-                    <div class="activity-content">
-                        <div class="activity-title">New prescription: {{ prescription.patient_name }}</div>
-                        <div class="activity-time">{{ prescription.date_prescribed|timesince }} ago</div>
-                    </div>
-                </div>
-                {% endfor %}
-                
-                {% if not recent_sales and not recent_prescriptions %}
-                <div style="text-align: center; padding: 20px; color: var(--light-text);">
-                    No recent activity
-                </div>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Additional Charts Row -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md); margin-bottom: var(--spacing-xl);">
-            <!-- Monthly Sales Chart -->
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h3 class="chart-title">Monthly Sales Overview</h3>
-                    <div class="chart-actions">
-                        <button class="chart-btn">View Details</button>
-                    </div>
-                </div>
-                <div class="chart-container">
-                    <canvas id="monthlySalesChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Inventory Status -->
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h3 class="chart-title">Inventory Status</h3>
-                    <div class="chart-actions">
-                        <button class="chart-btn">Manage</button>
-                    </div>
-                </div>
-                <div class="chart-container">
-                    <canvas id="inventoryChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Recent Prescriptions Table -->
-        <div class="table-container">
-            <div class="table-header">
-                <h3 class="table-title">Recent Prescriptions</h3>
-                <div class="table-actions">
-                    <input type="text" class="search-input" placeholder="Search prescriptions...">
-                    <a href="{% url 'prescription_create' %}" class="btn-primary">
-                        <span class="material-icons">add</span>
-                        New Prescription
-                    </a>
-                </div>
-            </div>
-            
-            <!-- Desktop Table View -->
-            <div class="desktop-table-view">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Prescription ID</th>
-                            <th>Patient Name</th>
-                            <th>Doctor</th>
-                            <th>Date</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for prescription in recent_prescriptions|slice:":5" %}
-                        <tr>
-                            <td>#{{ prescription.prescription_id }}</td>
-                            <td>{{ prescription.patient_name }}</td>
-                            <td>Dr. {{ prescription.doctor_name }}</td>
-                            <td>{{ prescription.date_prescribed|date:"M d, Y" }}</td>
-                            <td><span class="status-badge high">Active</span></td>
-                            <td>
-                                <a href="{% url 'prescription_detail' prescription.id %}" style="background: none; border: none; color: var(--primary-color); cursor: pointer; text-decoration: none;">
-                                    <span class="material-icons">visibility</span>
-                                </a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="6" style="text-align: center; padding: 20px; color: var(--light-text);">
-                                No prescriptions found
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            
-            <!-- Mobile Table View -->
-            <div class="mobile-table-view">
-                {% for prescription in recent_prescriptions|slice:":5" %}
-                <div class="mobile-table-item">
-                    <div class="mobile-table-row">
-                        <span class="mobile-table-label">Prescription ID</span>
-                        <span class="mobile-table-value">#{{ prescription.prescription_id }}</span>
-                    </div>
-                    <div class="mobile-table-row">
-                        <span class="mobile-table-label">Patient</span>
-                        <span class="mobile-table-value">{{ prescription.patient_name }}</span>
-                    </div>
-                    <div class="mobile-table-row">
-                        <span class="mobile-table-label">Doctor</span>
-                        <span class="mobile-table-value">Dr. {{ prescription.doctor_name }}</span>
-                    </div>
-                    <div class="mobile-table-row">
-                        <span class="mobile-table-label">Date</span>
-                        <span class="mobile-table-value">{{ prescription.date_prescribed|date:"M d, Y" }}</span>
-                    </div>
-                    <div class="mobile-table-row">
-                        <span class="mobile-table-label">Status</span>
-                        <span class="mobile-table-value"><span class="status-badge high">Active</span></span>
-                    </div>
-                    <div class="mobile-table-row">
-                        <span class="mobile-table-label">Action</span>
-                        <span class="mobile-table-value">
-                            <a href="{% url 'prescription_detail' prescription.id %}" style="background: none; border: none; color: var(--primary-color); cursor: pointer; text-decoration: none;">
-                                <span class="material-icons">visibility</span> View
-                            </a>
-                        </span>
-                    </div>
-                </div>
-                {% empty %}
-                <div style="text-align: center; padding: 20px; color: var(--light-text);">
-                    No prescriptions found
-                </div>
-                {% endfor %}
-            </div>
-        </div><br>
-
-        <!-- Top Selling Products -->
-        <div class="table-container">
-            <div class="table-header">
-                <h3 class="table-title">Top Selling Products</h3>
-                <div class="table-actions">
-                    <input type="text" class="search-input" placeholder="Search products...">
-                </div>
-            </div>
-            
-            <!-- Desktop Table View -->
-            <div class="desktop-table-view">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Product Name</th>
-                            <th>Category</th>
-                            <th>Units Sold</th>
-                            <th>Revenue</th>
-                            <th>Stock Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in top_selling_products %}
-                        <tr>
-                            <td>{{ item.drug__name }}</td>
-                            <td>{{ item.drug__category }}</td>
-                            <td>{{ item.total_quantity }}</td>
-                            <td>MK{{ item.total_revenue|floatformat:2 }}</td>
-                            <td>
-                                {% if item.drug__quantity < 5 %}
-                                <span class="status-badge low">Critical</span>
-                                {% elif item.drug__quantity < 10 %}
-                                <span class="status-badge medium">Low</span>
-                                {% else %}
-                                <span class="status-badge high">Good</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="5" style="text-align: center; padding: 20px; color: var(--light-text);">
-                                No sales data available
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            
-            <!-- Mobile Table View -->
-            <div class="mobile-table-view">
-                {% for item in top_selling_products %}
-                <div class="mobile-table-item">
-                    <div class="mobile-table-row">
-                        <span class="mobile-table-label">Product</span>
-                        <span class="mobile-table-value">{{ item.drug__name }}</span>
-                    </div>
-                    <div class="mobile-table-row">
-                        <span class="mobile-table-label">Category</span>
-                        <span class="mobile-table-value">{{ item.drug__category }}</span>
-                    </div>
-                    <div class="mobile-table-row">
-                        <span class="mobile-table-label">Units Sold</span>
-                        <span class="mobile-table-value">{{ item.total_quantity }}</span>
-                    </div>
-                    <div class="mobile-table-row">
-                        <span class="mobile-table-label">Revenue</span>
-                        <span class="mobile-table-value">MK{{ item.total_revenue|floatformat:2 }}</span>
-                    </div>
-                    <div class="mobile-table-row">
-                        <span class="mobile-table-label">Stock Status</span>
-                        <span class="mobile-table-value">
-                            {% if item.drug__quantity < 5 %}
-                            <span class="status-badge low">Critical</span>
-                            {% elif item.drug__quantity < 10 %}
-                            <span class="status-badge medium">Low</span>
-                            {% else %}
-                            <span class="status-badge high">Good</span>
-                            {% endif %}
-                        </span>
-                    </div>
-                </div>
-                {% empty %}
-                <div style="text-align: center; padding: 20px; color: var(--light-text);">
-                    No sales data available
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    
+{% block extra_css %}
+<style>
+  .chart-card canvas { width: 100% !important; }
+  .cat-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; }
+  .cat-row:not(:last-child) { border-bottom: 1px dashed var(--color-border); }
+  .cat-swatch { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+  .cat-name { flex: 1; font-size: 0.84rem; font-weight: 500; }
+  .cat-count { font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-ink-soft); }
+  .greeting-card {
+    background: linear-gradient(120deg, var(--color-primary-dark), var(--color-primary));
+    border-radius: var(--radius-xl);
+    padding: 26px 30px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 22px;
+  }
+  .greeting-card::after {
+    content: '';
+    position: absolute; right: -40px; top: -40px;
+    width: 220px; height: 220px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(217,154,63,0.35), transparent 70%);
+  }
+  .greeting-card .eyebrow { color: rgba(255,255,255,0.65); }
+  .greeting-card h1 { color: #fff; margin: 4px 0 6px; }
+  .greeting-card p { color: rgba(255,255,255,0.78); font-size: 0.9rem; max-width: 480px; }
+  .greeting-actions { display: flex; gap: 10px; margin-top: 18px; position: relative; z-index: 1; flex-wrap: wrap; }
+  .mini-stat { display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 0.78rem; color: rgba(255,255,255,0.85); }
+  .greeting-stats { display: flex; gap: 22px; margin-top: 20px; flex-wrap: wrap; position: relative; z-index: 1; }
+  .greeting-stats .item strong { display: block; font-family: var(--font-mono); font-size: 1.3rem; color: #fff; }
+  .greeting-stats .item span { font-size: 0.72rem; color: rgba(255,255,255,0.65); text-transform: uppercase; letter-spacing: 0.05em; }
+</style>
 {% endblock %}
 
-{% block scripts %}
+{% block content %}
+
+{% if system == 'PHARMACY' %}
+
+<div class="greeting-card">
+  <div class="eyebrow">{{ request.tenant.name }} · {% now "l, j F Y" %}</div>
+  <h1>Welcome back, {{ request.user.get_full_name|default:request.user.username }}</h1>
+  <p>Here's how the pharmacy is tracking today — stock levels, prescriptions, and sales at a glance.</p>
+  <div class="greeting-stats">
+    <div class="item"><strong>{{ today_sales }}</strong><span>Sales today</span></div>
+    <div class="item"><strong>{{ today_prescriptions }}</strong><span>Rx today</span></div>
+    <div class="item"><strong>{{ critical_stock }}</strong><span>Critical stock</span></div>
+    <div class="item"><strong>{{ expired_drugs }}</strong><span>Expired items</span></div>
+  </div>
+  <div class="greeting-actions">
+    <a href="{% url 'pos_system' %}" class="btn btn-accent">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Start a sale
+    </a>
+    <a href="{% url 'drug_create' %}" class="btn btn-secondary" style="background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.25);color:#fff;">Add drug</a>
+    <a href="{% url 'prescription_create' %}" class="btn btn-secondary" style="background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.25);color:#fff;">New prescription</a>
+  </div>
+</div>
+
+<!-- ============== STAT CARDS ============== -->
+<div class="grid grid-stats" style="margin-bottom:18px;">
+
+  <div class="label-card">
+    <div class="label-card-top">
+      <div class="label-card-icon icon-tint-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      </div>
+      <span class="label-card-trend up">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+        {{ revenue_growth }}%
+      </span>
+    </div>
+    <div class="label-card-value">MWK {{ total_revenue|floatformat:0 }}</div>
+    <div class="label-card-name">Total revenue</div>
+    <hr class="label-perf">
+    <div class="label-card-foot"><span>ALL-TIME</span><span>{{ total_sales }} sales</span></div>
+  </div>
+
+  <div class="label-card">
+    <div class="label-card-top">
+      <div class="label-card-icon icon-tint-accent">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M8 14h.01M12 14h4"/></svg>
+      </div>
+      <span class="badge badge-warning"><span class="dot"></span>{{ today_sales }} today</span>
+    </div>
+    <div class="label-card-value">{{ total_sales }}</div>
+    <div class="label-card-name">Sales processed</div>
+    <hr class="label-perf">
+    <div class="label-card-foot"><span>THIS WEEK</span><a href="{% url 'sales_history' %}" style="color:var(--color-primary-dark);font-weight:600;">View all →</a></div>
+  </div>
+
+  <div class="label-card">
+    <div class="label-card-top">
+      <div class="label-card-icon icon-tint-danger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L2.6 17.5A1.8 1.8 0 004.2 20.2h15.6a1.8 1.8 0 001.6-2.7L13.7 3.9a1.8 1.8 0 00-3.4 0z"/><line x1="12" y1="9.5" x2="12" y2="13.5"/><circle cx="12" cy="16.5" r="0.9" fill="currentColor" stroke="none"/></svg>
+      </div>
+      {% if critical_stock > 0 %}<span class="badge badge-danger"><span class="dot"></span>{{ critical_stock }} critical</span>{% endif %}
+    </div>
+    <div class="label-card-value">{{ low_stock_drugs }}</div>
+    <div class="label-card-name">Low stock items</div>
+    <hr class="label-perf">
+    <div class="label-card-foot"><span>OF {{ total_drugs }} DRUGS</span><a href="{% url 'inventory_alerts' %}" style="color:var(--color-danger);font-weight:600;">Review →</a></div>
+  </div>
+
+  <div class="label-card">
+    <div class="label-card-top">
+      <div class="label-card-icon icon-tint-info">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l5 5v13a1 1 0 01-1 1H6a1 1 0 01-1-1V4a1 1 0 011-1z"/><path d="M14 3v5h5M8 13h5M8 17h8"/></svg>
+      </div>
+      <span class="label-card-trend up">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+        {{ prescription_growth }}%
+      </span>
+    </div>
+    <div class="label-card-value">{{ total_prescriptions }}</div>
+    <div class="label-card-name">Prescriptions filled</div>
+    <hr class="label-perf">
+    <div class="label-card-foot"><span>TODAY</span><span>{{ today_prescriptions }} new</span></div>
+  </div>
+
+</div>
+
+<!-- ============== CHARTS ROW ============== -->
+<div class="grid grid-2" style="margin-bottom:18px;">
+
+  <div class="card chart-card">
+    <div class="card-head">
+      <h3>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
+        Sales, last 7 days
+      </h3>
+      <span class="eyebrow">MWK</span>
+    </div>
+    <div class="card-body">
+      <canvas id="salesTrendChart" height="90"></canvas>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <h3>Inventory health</h3>
+    </div>
+    <div class="card-body">
+      {% with total=inventory_stats.in_stock|add:inventory_stats.low_stock|add:inventory_stats.critical_stock %}
+      <div style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:6px;"><span class="text-soft">In stock</span><span class="text-mono">{{ inventory_stats.in_stock }}</span></div>
+        <div class="progress-track"><div class="progress-fill" style="width:{% widthratio inventory_stats.in_stock total|default:1 100 %}%;"></div></div>
+      </div>
+      <div style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:6px;"><span class="text-soft">Low stock</span><span class="text-mono">{{ inventory_stats.low_stock }}</span></div>
+        <div class="progress-track"><div class="progress-fill warning" style="width:{% widthratio inventory_stats.low_stock total|default:1 100 %}%;"></div></div>
+      </div>
+      <div style="margin-bottom:6px;">
+        <div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:6px;"><span class="text-soft">Critical</span><span class="text-mono">{{ inventory_stats.critical_stock }}</span></div>
+        <div class="progress-track"><div class="progress-fill danger" style="width:{% widthratio inventory_stats.critical_stock total|default:1 100 %}%;"></div></div>
+      </div>
+      {% endwith %}
+
+      <hr class="label-perf" style="margin:18px 0 12px;">
+      <div class="eyebrow" style="margin-bottom:8px;">Top categories</div>
+      {% for cat in top_categories %}
+      <div class="cat-row">
+        <span class="cat-swatch" style="background: {% cycle 'var(--color-primary)' 'var(--color-accent)' 'var(--color-info)' 'var(--color-plum)' 'var(--color-danger)' %};"></span>
+        <span class="cat-name">{{ cat.category }}</span>
+        <span class="cat-count">{{ cat.count }}</span>
+      </div>
+      {% empty %}
+      <p class="text-soft text-sm">No categories yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+<!-- ============== RECENT ACTIVITY ============== -->
+<div class="grid grid-2" style="margin-bottom:18px;">
+
+  <div class="card">
+    <div class="card-head">
+      <h3>Recent sales</h3>
+      <a href="{% url 'sales_history' %}" class="btn btn-ghost btn-sm">View all</a>
+    </div>
+    <div class="card-body-flush table-wrap">
+      <table class="table">
+        <thead><tr><th>Sale</th><th>Cashier</th><th>Payment</th><th>Date</th><th style="text-align:right;">Amount</th></tr></thead>
+        <tbody>
+          {% for sale in recent_sales %}
+          <tr onclick="window.location='{% url 'sale_detail' sale.id %}'" style="cursor:pointer;">
+            <td><span class="table-title text-mono">#{{ sale.sale_id }}</span></td>
+            <td>{{ sale.processed_by.username|default:"—" }}</td>
+            <td><span class="badge badge-neutral">{{ sale.get_payment_method_display }}</span></td>
+            <td class="table-sub">{{ sale.date|date:"d M, H:i" }}</td>
+            <td class="num" style="text-align:right;">MWK {{ sale.total_amount|floatformat:2 }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5"><div class="empty-state" style="padding:28px;"><p>No sales recorded yet.</p></div></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <h3>Recent prescriptions</h3>
+      <a href="{% url 'prescription_list' %}" class="btn btn-ghost btn-sm">View all</a>
+    </div>
+    <div class="card-body-flush">
+      {% for rx in recent_prescriptions %}
+      <div style="display:flex;align-items:center;gap:12px;padding:13px 22px;{% if not forloop.last %}border-bottom:1px solid var(--color-border);{% endif %}">
+        <div class="row-avatar">{{ rx.patient_name|slice:":1"|upper }}</div>
+        <div style="min-width:0;flex:1;">
+          <div class="table-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ rx.patient_name }}</div>
+          <div class="table-sub text-mono">#{{ rx.prescription_id }} · Dr. {{ rx.doctor_name }}</div>
+        </div>
+        <a href="{% url 'prescription_detail' rx.id %}" class="btn btn-ghost btn-sm btn-icon" aria-label="View">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+      </div>
+      {% empty %}
+      <div class="empty-state" style="padding:28px;"><p>No prescriptions logged yet.</p></div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+<!-- ============== LOW STOCK + TOP SELLERS ============== -->
+<div class="grid grid-2-even">
+
+  <div class="card">
+    <div class="card-head">
+      <h3>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-danger)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L2.6 17.5A1.8 1.8 0 004.2 20.2h15.6a1.8 1.8 0 001.6-2.7L13.7 3.9a1.8 1.8 0 00-3.4 0z"/><line x1="12" y1="9.5" x2="12" y2="13.5"/></svg>
+        Needs reordering
+      </h3>
+      <a href="{% url 'drug_list' %}?stock=low" class="btn btn-ghost btn-sm">Manage stock</a>
+    </div>
+    <div class="card-body-flush table-wrap">
+      <table class="table">
+        <thead><tr><th>Drug</th><th>Batch</th><th style="text-align:right;">Qty</th></tr></thead>
+        <tbody>
+          {% for drug in low_stock_items %}
+          <tr onclick="window.location='{% url 'drug_detail' drug.id %}'" style="cursor:pointer;">
+            <td><span class="table-title">{{ drug.name }}</span><br><span class="table-sub">{{ drug.category }}</span></td>
+            <td class="text-mono text-sm">{{ drug.batch_no }}</td>
+            <td style="text-align:right;">
+              {% if drug.quantity <= 5 %}<span class="badge badge-danger">{{ drug.quantity }} left</span>
+              {% else %}<span class="badge badge-warning">{{ drug.quantity }} left</span>{% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="3"><div class="empty-state" style="padding:28px;"><p>All stock levels look healthy.</p></div></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <h3>Top selling products</h3>
+    </div>
+    <div class="card-body-flush table-wrap">
+      <table class="table">
+        <thead><tr><th>Drug</th><th style="text-align:right;">Units sold</th></tr></thead>
+        <tbody>
+          {% for item in top_selling_products %}
+          <tr>
+            <td><span class="table-title">{{ item.drug__name }}</span><br><span class="table-sub">{{ item.drug__category }}</span></td>
+            <td class="num" style="text-align:right;">{{ item.total_quantity }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="2"><div class="empty-state" style="padding:28px;"><p>No sales data yet.</p></div></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+{% elif system == 'SCHOOL' %}
+<div class="page-head">
+  <div class="page-head-text">
+    <div class="eyebrow">Overview</div>
+    <h1 class="h1">School dashboard</h1>
+  </div>
+</div>
+<div class="card"><div class="empty-state">
+  <div class="empty-state-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10L12 5 2 10l10 5 10-5zM6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></svg>
+  </div>
+  <h3>School management is on its way</h3>
+  <p>This workspace is set up for the school system. Full dashboard modules are coming soon.</p>
+  <a href="{% url 'dashboard_school' %}" class="btn btn-primary">Open school area</a>
+</div></div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
-    // Initialize charts with real data
-    document.addEventListener('DOMContentLoaded', function() {
-        // Revenue Trends Chart - Using actual sales data
-        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-        new Chart(revenueCtx, {
-            type: 'line',
-            data: {
-                labels: [{% for sale in sales_data %}'{{ sale.date|date:"D" }}'{% if not forloop.last %},{% endif %}{% endfor %}],
-                datasets: [{
-                    label: 'Revenue (MK)',
-                    data: [{% for sale in sales_data %}{{ sale.total|default:0 }}{% if not forloop.last %},{% endif %}{% endfor %}],
-                    borderColor: '#00663a',
-                    backgroundColor: 'rgba(0, 102, 58, 0.1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4,
-                    pointBackgroundColor: '#00663a',
-                    pointBorderColor: '#ffffff',
-                    pointBorderWidth: 2,
-                    pointRadius: 4,
-                    pointHoverRadius: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.05)'
-                        },
-                        ticks: {
-                            callback: function(value) {
-                                return 'MK' + value;
-                            }
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                }
-            }
-        });
+  var salesData = [
+    {% for d in sales_data %}
+    { date: "{{ d.date|date:'D' }}", total: {{ d.total|default:0 }} }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ];
 
-        // Top Categories Chart - Using actual category data
-        const categoriesCtx = document.getElementById('categoriesChart').getContext('2d');
-        new Chart(categoriesCtx, {
-            type: 'doughnut',
-            data: {
-                labels: [{% for cat in top_categories %}'{{ cat.category }}'{% if not forloop.last %},{% endif %}{% endfor %}],
-                datasets: [{
-                    data: [{% for cat in top_categories %}{{ cat.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
-                    backgroundColor: [
-                        '#00663a', '#28a745', '#17a2b8', '#ffc107', '#dc3545',
-                        '#6610f2', '#e83e8c', '#fd7e14', '#20c997', '#6f42c1'
-                    ],
-                    borderWidth: 0,
-                    cutout: '60%'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 15,
-                            usePointStyle: true,
-                            pointStyle: 'circle',
-                            font: {
-                                size: 11
-                            }
-                        }
-                    }
-                }
-            }
-        });
+  var ctx = document.getElementById('salesTrendChart');
+  if (ctx && salesData.length) {
+    var gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 220);
+    gradient.addColorStop(0, 'rgba(63,107,82,0.28)');
+    gradient.addColorStop(1, 'rgba(63,107,82,0.02)');
 
-        // Monthly Sales Chart - Using monthly sales data
-        const monthlySalesCtx = document.getElementById('monthlySalesChart').getContext('2d');
-        new Chart(monthlySalesCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                datasets: [{
-                    label: 'Sales',
-                    data: [{% for month in monthly_sales %}{{ month.total|default:0 }}{% if not forloop.last %},{% endif %}{% endfor %}],
-                    backgroundColor: 'rgba(0, 102, 58, 0.8)',
-                    borderColor: '#00663a',
-                    borderWidth: 1,
-                    borderRadius: 6,
-                    borderSkipped: false
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.05)'
-                        },
-                        ticks: {
-                            callback: function(value) {
-                                return 'MK' + (value / 1000) + 'k';
-                            }
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                }
-            }
-        });
-
-        // Inventory Status Chart - Using actual inventory data
-        const inventoryCtx = document.getElementById('inventoryChart').getContext('2d');
-        new Chart(inventoryCtx, {
-            type: 'pie',
-            data: {
-                labels: ['In Stock', 'Low Stock', 'Critical Stock', 'Expired'],
-                datasets: [{
-                    data: [
-                        {{ inventory_stats.in_stock }},
-                        {{ inventory_stats.low_stock }},
-                        {{ inventory_stats.critical_stock }},
-                        {{ expired_drugs }}
-                    ],
-                    backgroundColor: [
-                        '#28a745', '#ffc107', '#dc3545', '#6c757d'
-                    ],
-                    borderWidth: 2,
-                    borderColor: '#ffffff'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 15,
-                            usePointStyle: true,
-                            pointStyle: 'circle',
-                            font: {
-                                size: 11
-                            }
-                        }
-                    }
-                }
-            }
-        });
-
-        // Animate KPI values
-        animateKPIValues();
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: salesData.map(function (d) { return d.date; }),
+        datasets: [{
+          label: 'Revenue',
+          data: salesData.map(function (d) { return d.total; }),
+          borderColor: '#3F6B52',
+          backgroundColor: gradient,
+          borderWidth: 2.5,
+          pointRadius: 4,
+          pointBackgroundColor: '#fff',
+          pointBorderColor: '#3F6B52',
+          pointBorderWidth: 2,
+          fill: true,
+          tension: 0.35,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false }, tooltip: {
+          backgroundColor: '#2B2A28', titleFont: { family: 'IBM Plex Mono' }, bodyFont: { family: 'IBM Plex Mono' },
+          padding: 10, cornerRadius: 8,
+          callbacks: { label: function (c) { return 'MWK ' + c.parsed.y.toLocaleString(); } }
+        }},
+        scales: {
+          y: { beginAtZero: true, grid: { color: '#E8DFC9' }, ticks: { font: { family: 'IBM Plex Mono', size: 10 } } },
+          x: { grid: { display: false }, ticks: { font: { family: 'IBM Plex Mono', size: 10 } } }
+        }
+      }
     });
-
-    // Animate KPI values
-    function animateKPIValues() {
-        const kpiValues = document.querySelectorAll('.kpi-value');
-        
-        kpiValues.forEach(element => {
-            const target = element.textContent;
-            const isMonetary = target.includes('MK');
-            const numericValue = parseInt(target.replace(/[MK,]/g, ''));
-            
-            let current = 0;
-            const increment = numericValue / 50;
-            const timer = setInterval(() => {
-                current += increment;
-                if (current >= numericValue) {
-                    current = numericValue;
-                    clearInterval(timer);
-                }
-                
-                if (isMonetary) {
-                    element.textContent = 'MK' + Math.floor(current).toLocaleString();
-                } else {
-                    element.textContent = Math.floor(current).toLocaleString();
-                }
-            }, 30);
-        });
-    }
+  }
 </script>
 {% endblock %}

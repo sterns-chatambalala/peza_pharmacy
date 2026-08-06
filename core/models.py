@@ -158,14 +158,50 @@ def get_roles_for_system(system):
     return [('owner', 'Owner'), ('admin', 'Admin')]
 
 class Drug(models.Model):
+    DOSAGE_FORMS = [
+        ('tablet', 'Tablet'),
+        ('capsule', 'Capsule'),
+        ('syrup', 'Syrup'),
+        ('suspension', 'Suspension'),
+        ('injection', 'Injection'),
+        ('cream', 'Cream/Ointment'),
+        ('drops', 'Drops'),
+        ('inhaler', 'Inhaler'),
+        ('suppository', 'Suppository'),
+        ('powder', 'Powder'),
+        ('other', 'Other'),
+    ]
+    UNITS = [
+        ('tablet', 'Tablet(s)'),
+        ('capsule', 'Capsule(s)'),
+        ('bottle', 'Bottle(s)'),
+        ('vial', 'Vial(s)'),
+        ('tube', 'Tube(s)'),
+        ('sachet', 'Sachet(s)'),
+        ('pack', 'Pack(s)'),
+        ('ml', 'ml'),
+        ('unit', 'Unit(s)'),
+    ]
+
     tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
     name = models.CharField(max_length=200)
+    generic_name = models.CharField(max_length=200, blank=True, help_text="Active ingredient / generic name")
+    manufacturer = models.CharField(max_length=200, blank=True)
     batch_no = models.CharField(max_length=100)
     category = models.CharField(max_length=100)
+    dosage_form = models.CharField(max_length=20, choices=DOSAGE_FORMS, blank=True)
+    strength = models.CharField(max_length=50, blank=True, help_text="e.g. 500mg, 5mg/ml")
+    unit = models.CharField(max_length=20, choices=UNITS, default='tablet')
     price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    cost_price = models.DecimalField(max_digits=10, decimal_places=2, default=0, validators=[MinValueValidator(0)], help_text="Purchase/cost price for margin tracking")
     quantity = models.IntegerField(validators=[MinValueValidator(0)])
+    reorder_level = models.IntegerField(default=10, validators=[MinValueValidator(0)], help_text="Reorder alert triggers below this quantity")
     expiry_date = models.DateField()
     barcode = models.CharField(max_length=100, unique=True, blank=True, null=True)
+    requires_prescription = models.BooleanField(default=False)
+    is_controlled_substance = models.BooleanField(default=False, help_text="Subject to controlled-substance recordkeeping")
+    location = models.CharField(max_length=100, blank=True, help_text="Shelf / storage location")
+    is_active = models.BooleanField(default=True, help_text="Inactive drugs are hidden from POS but kept for records")
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='drugs_created')
     last_modified_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='drugs_modified')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -176,12 +212,30 @@ class Drug(models.Model):
     
     @property
     def is_low_stock(self):
-        return self.quantity < 10
+        return self.quantity <= self.reorder_level
     
     @property
     def is_expired(self):
         from datetime import date
         return self.expiry_date < date.today()
+
+    @property
+    def is_near_expiry(self):
+        """True if the drug expires within 90 days (and hasn't already expired)."""
+        from datetime import date
+        days_left = (self.expiry_date - date.today()).days
+        return 0 <= days_left <= 90
+
+    @property
+    def days_to_expiry(self):
+        from datetime import date
+        return (self.expiry_date - date.today()).days
+
+    @property
+    def profit_margin(self):
+        if self.cost_price and self.cost_price > 0:
+            return ((self.price - self.cost_price) / self.cost_price) * 100
+        return 0
 
 class Prescription(models.Model):
     tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
@@ -229,6 +283,7 @@ class Sale(models.Model):
     
     tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
     sale_id = models.CharField(max_length=100, unique=True)
+    customer = models.ForeignKey('Customer', on_delete=models.SET_NULL, null=True, blank=True, related_name='sales')
     customer_name = models.CharField(max_length=200, blank=True)
     customer_phone = models.CharField(max_length=15, blank=True)
     customer_address = models.TextField(blank=True)
@@ -302,3 +357,154 @@ class InsuranceClaim(models.Model):
     
     def __str__(self):
         return f"Claim #{self.claim_id} - {self.patient_name}"
+
+# ==================== Pharmacy Enhancement Models ====================
+
+class Customer(models.Model):
+    """Patient/customer records for loyalty tracking, allergy checks and purchase history."""
+    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE, related_name='customers')
+    name = models.CharField(max_length=200)
+    phone = models.CharField(max_length=15)
+    email = models.EmailField(blank=True, null=True)
+    address = models.TextField(blank=True)
+    date_of_birth = models.DateField(blank=True, null=True)
+    allergies = models.TextField(blank=True, help_text="Known drug allergies")
+    chronic_conditions = models.TextField(blank=True)
+    loyalty_points = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='customers_created')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [models.Index(fields=['phone'])]
+        ordering = ['name']
+
+    def __str__(self):
+        return f"{self.name} ({self.phone})"
+
+    @property
+    def total_spent(self):
+        return self.sales.filter(is_voided=False).aggregate(total=models.Sum('total_amount'))['total'] or 0
+
+    @property
+    def visit_count(self):
+        return self.sales.filter(is_voided=False).count()
+
+
+class PurchaseOrder(models.Model):
+    """An order placed with a supplier to restock inventory."""
+    STATUS_CHOICES = [
+        ('draft', 'Draft'),
+        ('ordered', 'Ordered'),
+        ('partially_received', 'Partially Received'),
+        ('received', 'Received'),
+        ('cancelled', 'Cancelled'),
+    ]
+    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE, related_name='purchase_orders')
+    po_number = models.CharField(max_length=100, unique=True)
+    supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, related_name='purchase_orders')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
+    order_date = models.DateField(default=timezone.now)
+    expected_delivery = models.DateField(blank=True, null=True)
+    received_date = models.DateField(blank=True, null=True)
+    notes = models.TextField(blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='purchase_orders_created')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"PO #{self.po_number} - {self.supplier.name}"
+
+    @property
+    def total_cost(self):
+        return sum((item.subtotal for item in self.items.all()), 0)
+
+    @property
+    def is_fully_received(self):
+        items = list(self.items.all())
+        return bool(items) and all(item.is_fully_received for item in items)
+
+
+class PurchaseOrderItem(models.Model):
+    purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, related_name='items')
+    drug = models.ForeignKey(Drug, on_delete=models.SET_NULL, related_name='purchase_order_items', null=True, blank=True)
+    drug_name = models.CharField(max_length=200, help_text="Used when ordering a drug not yet in inventory")
+    quantity_ordered = models.IntegerField(validators=[MinValueValidator(1)])
+    quantity_received = models.IntegerField(default=0)
+    unit_cost = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+
+    def __str__(self):
+        return f"{self.drug_name} x{self.quantity_ordered}"
+
+    @property
+    def subtotal(self):
+        return self.quantity_ordered * self.unit_cost
+
+    @property
+    def is_fully_received(self):
+        return self.quantity_received >= self.quantity_ordered
+
+
+class StockAdjustment(models.Model):
+    """Audit trail for any manual change to drug quantity outside of a sale or purchase receipt."""
+    REASON_CHOICES = [
+        ('damaged', 'Damaged'),
+        ('expired', 'Expired'),
+        ('theft_loss', 'Theft / Loss'),
+        ('stock_count', 'Stock Count Correction'),
+        ('return_to_supplier', 'Return to Supplier'),
+        ('other', 'Other'),
+    ]
+    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE, related_name='stock_adjustments')
+    drug = models.ForeignKey(Drug, on_delete=models.CASCADE, related_name='stock_adjustments')
+    reason = models.CharField(max_length=20, choices=REASON_CHOICES)
+    quantity_before = models.IntegerField()
+    quantity_change = models.IntegerField(help_text="Negative reduces stock, positive increases it")
+    quantity_after = models.IntegerField()
+    notes = models.TextField(blank=True)
+    adjusted_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='stock_adjustments_made')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.drug.name}: {self.quantity_change:+d} ({self.reason})"
+
+
+class SaleReturn(models.Model):
+    """Customer return / refund against a completed sale."""
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE, related_name='sale_returns')
+    sale = models.ForeignKey(Sale, on_delete=models.CASCADE, related_name='returns')
+    return_id = models.CharField(max_length=100, unique=True)
+    reason = models.TextField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    restock = models.BooleanField(default=True, help_text="Whether returned items go back into sellable inventory")
+    refund_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    requested_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='returns_requested')
+    processed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='returns_processed')
+    created_at = models.DateTimeField(auto_now_add=True)
+    processed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Return #{self.return_id} for Sale #{self.sale.sale_id}"
+
+
+class SaleReturnItem(models.Model):
+    sale_return = models.ForeignKey(SaleReturn, on_delete=models.CASCADE, related_name='items')
+    sale_item = models.ForeignKey(SaleItem, on_delete=models.CASCADE, related_name='return_items')
+    quantity = models.IntegerField(validators=[MinValueValidator(1)])
+
+    @property
+    def refund_value(self):
+        return self.quantity * self.sale_item.price

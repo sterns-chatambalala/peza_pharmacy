@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - MoyoTech IMS</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --accent-teal: #14b8a6;
@@ -39,10 +38,14 @@
         }
 
         body {
-            font-family: 'Poppins', 'Troy', sans-serif;
+            font-family: 'Troy', sans-serif;
             color: var(--text-color);
             background-color: var(--bg-color);
             -webkit-font-smoothing: antialiased;
+        }
+
+        input, button, textarea, select {
+            font-family: inherit;
         }
 
         .page {
@@ -68,6 +71,12 @@
             background: transparent;
             box-shadow: none;
             border: 0;
+            position: relative;
+        }
+
+        .visual-frame img {
+            position: relative;
+            z-index: 0;
         }
 
         .visual-frame img {
@@ -80,6 +89,124 @@
         /* curved cut where the white panel meets the photo, like the reference */
         .visual-panel::after {
             content: none;
+        }
+
+        /* ---------------- TEXT OVERLAY ON VISUAL PANEL ---------------- */
+        /* positioned to match the specific photo: bright ceiling strip top-left,
+           and the frosted white box already in the lower-left of the image */
+
+        .overlay-header {
+            position: absolute;
+            top: 4%;
+            left: 5.5%;
+            width: 48%;
+            pointer-events: none;
+        }
+
+        .overlay-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            color: #0b1730;
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .overlay-logo img {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
+            display: block;
+            border-radius: 0.8rem;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 0.2rem;
+            box-shadow: 0 8px 20px rgba(15, 184, 172, 0.12);
+        }
+
+        .overlay-logo .brand-word {
+            display: inline-flex;
+            align-items: center;
+            gap: 0;
+        }
+
+        .overlay-logo .brand-green {
+            color: var(--accent-teal);
+            font-weight: 800;
+        }
+
+        .overlay-logo .brand-blue {
+            color: #2563eb;
+            font-weight: 800;
+        }
+
+        .overlay-header h2 {
+            margin-top: 10px;
+            font-size: 1.15rem;
+            line-height: 1.22;
+            font-weight: 700;
+            color: var(--heading-color);
+            letter-spacing: -0.3px;
+        }
+
+        .overlay-header h2 .accent {
+            color: var(--accent-teal);
+            display: block;
+        }
+
+        .overlay-header p {
+            margin-top: 8px;
+            max-width: 210px;
+            font-size: 0.62rem;
+            line-height: 1.45;
+            color: var(--text-color);
+        }
+
+        .overlay-features {
+            position: absolute;
+            top: 76%;
+            left: 4.5%;
+            width: 30%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 12px;
+            box-sizing: border-box;
+        }
+
+        .overlay-feature {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .overlay-feature .icon-circle {
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #0f3d3d;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .overlay-feature .icon-circle .material-icons {
+            font-size: 11px;
+        }
+
+        .overlay-feature h4 {
+            font-size: 0.6rem;
+            font-weight: 600;
+            color: var(--heading-color);
+            margin-bottom: 1px;
+        }
+
+        .overlay-feature p {
+            font-size: 0.52rem;
+            line-height: 1.3;
+            color: var(--light-text);
         }
 
         /* ---------------- RIGHT FORM PANEL ---------------- */
@@ -453,6 +580,11 @@
                 font-size: 1.8rem;
             }
         }
+
+        @media (max-width: 1200px) {
+            .overlay-heading h2 { font-size: 1.7rem; }
+            .overlay-features { padding: 16px; }
+        }
     </style>
 </head>
 <body>
@@ -461,6 +593,45 @@
         <div class="visual-panel">
             <div class="visual-frame">
                 <img src="{% static 'loginpic.png' %}" alt="MoyoTech Pharmacy">
+
+                <!-- TEXT OVERLAY -->
+                <div class="overlay-header">
+                    <div class="overlay-logo">
+                        <img src="{% static 'logo.png' %}?v=2" alt="MediCore logo" loading="eager">
+                        <span class="brand-word">
+                            <span class="brand-green">Medi</span><span class="brand-blue">core</span>
+                        </span>
+                    </div>
+                    <h2>
+                        Empowering Pharmacies.
+                        <span class="accent">Improving Lives.</span>
+                    </h2>
+                    <p>MoyoTech is an all-in-one pharmacy management system designed to simplify operations and enhance patient care.</p>
+                </div>
+
+                <div class="overlay-features">
+                    <div class="overlay-feature">
+                        <div class="icon-circle"><span class="material-icons">shield</span></div>
+                        <div>
+                            <h4>Secure &amp; Compliant</h4>
+                            <p>Your data is protected with enterprise-grade security.</p>
+                        </div>
+                    </div>
+                    <div class="overlay-feature">
+                        <div class="icon-circle"><span class="material-icons">schedule</span></div>
+                        <div>
+                            <h4>99.9% Uptime</h4>
+                            <p>Reliable performance when you need it most.</p>
+                        </div>
+                    </div>
+                    <div class="overlay-feature">
+                        <div class="icon-circle"><span class="material-icons">support_agent</span></div>
+                        <div>
+                            <h4>24/7 Support</h4>
+                            <p>Our team is always here to help you succeed.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 

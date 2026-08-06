@@ -1,381 +1,76 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load static %}
 
-{% block title %}{{ drug.name }} - PharmaCare IMS{% endblock %}
+{% block title %}{{ drug.name }}{% endblock %}
+{% block eyebrow %}Inventory{% endblock %}
+{% block page_title %}{{ drug.name }}{% endblock %}
+
+{% block topbar_actions %}
+<a href="{% url 'drug_list' %}" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
+<a href="{% url 'drug_update' drug.id %}" class="btn btn-primary btn-sm"><i class="fas fa-pen"></i> Edit Drug</a>
+{% endblock %}
+
+{% block extra_css %}
+.detail-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.25rem; align-items: start; }
+.detail-head { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.4rem; }
+.detail-icon { width: 58px; height: 58px; border-radius: 1rem; background: var(--mc-teal-tint); color: var(--mc-teal-dark); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+.info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.1rem 1.5rem; }
+.info-item .info-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--mc-slate); margin-bottom: 0.25rem; }
+.info-item .info-value { font-size: 0.95rem; font-weight: 700; color: var(--mc-navy); }
+.side-stat { display: flex; align-items: center; justify-content: space-between; padding: 0.7rem 0; border-bottom: 1px dashed var(--mc-border); }
+.side-stat:last-child { border-bottom: none; }
+.side-stat .s-label { font-size: 0.8rem; color: var(--mc-slate); font-weight: 600; }
+.side-stat .s-value { font-size: 0.92rem; font-weight: 800; color: var(--mc-navy); }
+{% endblock %}
 
 {% block content %}
-<div class="dashboard-header">
-    <div class="dashboard-title">
-        <h1>{{ drug.name }}</h1>
-        <p class="dashboard-subtitle">Drug Details - Batch: {{ drug.batch_no }}</p>
-    </div>
-    
-    <div class="header-actions">
-        <a href="{% url 'drug_update' drug.id %}" class="btn-primary">
-            <span class="material-icons">edit</span>
-            Edit Drug
-        </a>
-        <a href="{% url 'drug_list' %}" class="btn-secondary">
-            <span class="material-icons">arrow_back</span>
-            Back to List
-        </a>
-    </div>
-</div>
 
-<div class="charts-grid">
-    <!-- Drug Information Card -->
-    <div class="chart-card">
-        <div class="chart-header">
-            <h3 class="chart-title">Drug Information</h3>
-            <span class="status-badge {% if drug.is_low_stock %}low{% else %}high{% endif %}">
-                {% if drug.is_low_stock %}Low Stock{% else %}In Stock{% endif %}
-            </span>
+<div class="card card-pad" style="margin-bottom: 1.25rem;">
+    <div class="detail-head">
+        <div class="detail-icon"><i class="fas fa-pills"></i></div>
+        <div>
+            <h2 style="font-size: 1.15rem; font-weight: 800;">{{ drug.name }} {% if drug.strength %}<span style="color: var(--mc-slate); font-weight: 600;">· {{ drug.strength }}</span>{% endif %}</h2>
+            <div style="color: var(--mc-slate); font-size: 0.86rem; margin-top: 0.2rem;">
+                {{ drug.generic_name|default:"—" }} &middot; {{ drug.get_dosage_form_display|default:"—" }}
+            </div>
         </div>
-        
-        <div class="drug-details">
-            <div class="detail-row">
-                <span class="detail-label">Name:</span>
-                <span class="detail-value">{{ drug.name }}</span>
-            </div>
-            
-            <div class="detail-row">
-                <span class="detail-label">Batch Number:</span>
-                <span class="detail-value">{{ drug.batch_no }}</span>
-            </div>
-            
-            <div class="detail-row">
-                <span class="detail-label">Category:</span>
-                <span class="detail-value">{{ drug.category }}</span>
-            </div>
-            
-            <div class="detail-row">
-                <span class="detail-label">Price:</span>
-                <span class="detail-value">MW {{ drug.price }}</span>
-            </div>
-            
-            <div class="detail-row">
-                <span class="detail-label">Quantity:</span>
-                <span class="detail-value {% if drug.quantity < 10 %}text-danger{% elif drug.quantity < 20 %}text-warning{% else %}text-success{% endif %}">
-                    {{ drug.quantity }} units
-                </span>
-            </div>
-            
-            <div class="detail-row">
-                <span class="detail-label">Expiry Date:</span>
-                <span class="detail-value {% if drug.is_expired %}text-danger{% endif %}">
-                    {{ drug.expiry_date }}
-                    {% if drug.is_expired %}(Expired){% endif %}
-                </span>
-            </div>
-            
-            {% if drug.barcode %}
-            <div class="detail-row">
-                <span class="detail-label">Barcode:</span>
-                <span class="detail-value">{{ drug.barcode }}</span>
-            </div>
-            {% endif %}
-            
-            <div class="detail-row">
-                <span class="detail-label">Created By:</span>
-                <span class="detail-value">{{ drug.created_by.username }} on {{ drug.created_at|date:"M d, Y" }}</span>
-            </div>
-            
-            {% if drug.last_modified_by %}
-            <div class="detail-row">
-                <span class="detail-label">Last Modified:</span>
-                <span class="detail-value">{{ drug.last_modified_by.username }} on {{ drug.updated_at|date:"M d, Y" }}</span>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-
-    <!-- Stock Status Card -->
-    <div class="chart-card">
-        <div class="chart-header">
-            <h3 class="chart-title">Stock Status</h3>
-        </div>
-        
-        <div class="stock-status">
-            <div class="status-indicator {% if drug.is_expired %}expired{% elif drug.is_low_stock %}low{% else %}good{% endif %}">
-                <span class="material-icons">
-                    {% if drug.is_expired %}warning{% elif drug.is_low_stock %}error{% else %}check_circle{% endif %}
-                </span>
-                <h4>
-                    {% if drug.is_expired %}
-                    EXPIRED
-                    {% elif drug.is_low_stock %}
-                    LOW STOCK
-                    {% else %}
-                    GOOD
-                    {% endif %}
-                </h4>
-            </div>
-            
-            <div class="stock-metrics">
-                <div class="metric">
-                    <span class="metric-label">Current Stock Level</span>
-                    <div class="progress-bar">
-                        <div class="progress-fill {% if drug.quantity < 10 %}danger{% elif drug.quantity < 20 %}warning{% else %}success{% endif %}" 
-                             style="width: {% widthratio drug.quantity 100 100 %}%">
-                        </div>
-                    </div>
-                    <span class="metric-value">{{ drug.quantity }} units</span>
-                </div>
-                
-                <div class="metric">
-                    <span class="metric-label">Days until expiry</span>
-                    <span class="metric-value {% if drug.days_until_expiry < 30 %}text-danger{% elif drug.days_until_expiry < 90 %}text-warning{% else %}text-success{% endif %}">
-                        {{ drug.days_until_expiry }} days
-                    </span>
-                </div>
-            </div>
+        <div style="margin-left: auto; display:flex; gap:0.5rem;">
+            {% if drug.is_expired %}<span class="pill pill-red"><i class="fas fa-calendar-xmark"></i> Expired</span>
+            {% elif drug.is_low_stock %}<span class="pill pill-amber"><i class="fas fa-triangle-exclamation"></i> Low Stock</span>
+            {% else %}<span class="pill pill-green"><i class="fas fa-circle-check"></i> In Stock</span>{% endif %}
+            {% if drug.requires_prescription %}<span class="pill pill-blue"><i class="fas fa-file-prescription"></i> Rx Only</span>{% endif %}
+            {% if drug.is_controlled_substance %}<span class="pill pill-slate"><i class="fas fa-shield-halved"></i> Controlled</span>{% endif %}
         </div>
     </div>
 </div>
 
-<!-- Quick Actions -->
-<!-- <div class="table-container">
-    <div class="table-header">
-        <h3 class="table-title">Quick Actions</h3>
+<div class="detail-grid">
+    <div class="card card-pad">
+        <div class="section-title" style="margin-bottom:1.1rem;"><span style="font-size:0.98rem;font-weight:800;">Product Details</span></div>
+        <div class="info-grid">
+            <div class="info-item"><div class="info-label">Category</div><div class="info-value">{{ drug.category }}</div></div>
+            <div class="info-item"><div class="info-label">Manufacturer</div><div class="info-value">{{ drug.manufacturer|default:"—" }}</div></div>
+            <div class="info-item"><div class="info-label">Batch No.</div><div class="info-value">{{ drug.batch_no }}</div></div>
+            <div class="info-item"><div class="info-label">Barcode</div><div class="info-value">{{ drug.barcode|default:"—" }}</div></div>
+            <div class="info-item"><div class="info-label">Unit</div><div class="info-value">{{ drug.get_unit_display }}</div></div>
+            <div class="info-item"><div class="info-label">Storage Location</div><div class="info-value">{{ drug.location|default:"—" }}</div></div>
+            <div class="info-item"><div class="info-label">Expiry Date</div><div class="info-value">{{ drug.expiry_date|date:"M d, Y" }} {% if drug.is_near_expiry and not drug.is_expired %}<span class="pill pill-amber" style="margin-left:0.4rem;">{{ drug.days_to_expiry }}d left</span>{% endif %}</div></div>
+            <div class="info-item"><div class="info-label">Reorder Level</div><div class="info-value">{{ drug.reorder_level }} {{ drug.get_unit_display }}</div></div>
+            <div class="info-item"><div class="info-label">Created By</div><div class="info-value">{{ drug.created_by.username|default:"—" }}</div></div>
+            <div class="info-item"><div class="info-label">Last Updated</div><div class="info-value">{{ drug.updated_at|date:"M d, Y H:i" }}</div></div>
+        </div>
     </div>
-    
-    <div class="quick-actions-grid">
-        <a href="{% url 'drug_update' drug.id %}" class="action-card">
-            <span class="material-icons">edit</span>
-            <h4>Edit Drug</h4>
-            <p>Update drug information and stock</p>
-        </a>
-        
-        <a href="{% url 'prescription_create' %}" class="action-card">
-            <span class="material-icons">receipt</span>
-            <h4>Create Prescription</h4>
-            <p>Prescribe this drug to a patient</p>
-        </a>
-        
-        <a href="{% url 'pos_system' %}" class="action-card">
-            <span class="material-icons">point_of_sale</span>
-            <h4>Sell Drug</h4>
-            <p>Process a sale for this drug</p>
-        </a>
-        
-        <a href="{% url 'drug_list' %}" class="action-card">
-            <span class="material-icons">inventory</span>
-            <h4>View All Drugs</h4>
-            <p>Browse complete inventory</p>
-        </a>
+
+    <div class="card card-pad">
+        <div class="section-title" style="margin-bottom:0.3rem;"><span style="font-size:0.98rem;font-weight:800;">Pricing &amp; Stock</span></div>
+        <div class="side-stat"><span class="s-label">Selling Price</span><span class="s-value">MWK {{ drug.price|floatformat:2 }}</span></div>
+        <div class="side-stat"><span class="s-label">Cost Price</span><span class="s-value">MWK {{ drug.cost_price|floatformat:2 }}</span></div>
+        <div class="side-stat"><span class="s-label">Profit Margin</span><span class="s-value">{{ drug.profit_margin|floatformat:1 }}%</span></div>
+        <div class="side-stat"><span class="s-label">Quantity on Hand</span><span class="s-value">{{ drug.quantity }} {{ drug.get_unit_display }}</span></div>
+        <div class="side-stat"><span class="s-label">Stock Value</span><span class="s-value">MWK {% widthratio drug.quantity 1 drug.price %}</span></div>
+
+        <a href="{% url 'stock_adjustment_create' drug.id %}" class="btn btn-outline btn-sm" style="width:100%; margin-top:1.1rem;"><i class="fas fa-sliders-h"></i> Adjust Stock</a>
     </div>
-</div> -->
+</div>
 
-<style>
-    .header-actions {
-        display: flex;
-        gap: 15px;
-        align-items: center;
-    }
-    
-    .drug-details {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-    }
-    
-    .detail-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 12px 0;
-        border-bottom: 1px solid var(--border-color);
-    }
-    
-    .detail-row:last-child {
-        border-bottom: none;
-    }
-    
-    .detail-label {
-        font-weight: 600;
-        color: var(--light-text);
-    }
-    
-    .detail-value {
-        font-weight: 500;
-    }
-    
-    .text-danger { color: var(--danger-color); }
-    .text-warning { color: var(--warning-color); }
-    .text-success { color: var(--success-color); }
-    
-    .stock-status {
-        display: flex;
-        flex-direction: column;
-        gap: 25px;
-    }
-    
-    .status-indicator {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        padding: 20px;
-        border-radius: 15px;
-        background: var(--primary-light);
-    }
-    
-    .status-indicator.expired {
-        background: rgba(239, 68, 68, 0.1);
-        color: var(--danger-color);
-    }
-    
-    .status-indicator.low {
-        background: rgba(245, 158, 11, 0.1);
-        color: var(--warning-color);
-    }
-    
-    .status-indicator.good {
-        background: rgba(16, 185, 129, 0.1);
-        color: var(--success-color);
-    }
-    
-    .status-indicator .material-icons {
-        font-size: 2.5rem;
-    }
-    
-    .status-indicator h4 {
-        margin: 0;
-        font-weight: 700;
-    }
-    
-    .stock-metrics {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-    }
-    
-    .metric {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-    
-    .metric-label {
-        font-weight: 600;
-        color: var(--light-text);
-        font-size: 0.9rem;
-    }
-    
-    .progress-bar {
-        width: 100%;
-        height: 8px;
-        background: var(--border-color);
-        border-radius: 4px;
-        overflow: hidden;
-    }
-    
-    .progress-fill {
-        height: 100%;
-        border-radius: 4px;
-        transition: width 0.3s ease;
-    }
-    
-    .progress-fill.success { background: var(--success-color); }
-    .progress-fill.warning { background: var(--warning-color); }
-    .progress-fill.danger { background: var(--danger-color); }
-    
-    .metric-value {
-        font-weight: 600;
-        font-size: 1.1rem;
-    }
-    
-    .quick-actions-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
-    }
-    
-    .action-card {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        padding: 25px;
-        background: var(--primary-light);
-        border-radius: 15px;
-        text-decoration: none;
-        color: var(--text-color);
-        transition: var(--transition);
-        border: 1px solid transparent;
-    }
-    
-    .action-card:hover {
-        transform: translateY(-3px);
-        box-shadow: var(--shadow-hover);
-        border-color: var(--primary-color);
-        color: var(--primary-color);
-    }
-    
-    .action-card .material-icons {
-        font-size: 2.5rem;
-        margin-bottom: 15px;
-        color: var(--primary-color);
-    }
-    
-    .action-card h4 {
-        margin: 0 0 10px 0;
-        font-weight: 600;
-    }
-    
-    .action-card p {
-        margin: 0;
-        color: var(--light-text);
-        font-size: 0.9rem;
-    }
-    
-    @media (max-width: 768px) {
-        .header-actions {
-            flex-direction: column;
-            width: 100%;
-        }
-        
-        .btn-primary, .btn-secondary {
-            width: 100%;
-            justify-content: center;
-        }
-        
-        .detail-row {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 5px;
-        }
-        
-        .quick-actions-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
-
-<script>
-    // Calculate days until expiry
-    document.addEventListener('DOMContentLoaded', function() {
-        const expiryDate = new Date('{{ drug.expiry_date|date:"Y-m-d" }}');
-        const today = new Date();
-        const diffTime = expiryDate - today;
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
-        // Update the days until expiry display
-        const daysElement = document.querySelector('.metric-value:last-child');
-        if (daysElement) {
-            daysElement.textContent = diffDays + ' days';
-            
-            // Update color based on days
-            if (diffDays < 0) {
-                daysElement.classList.add('text-danger');
-                daysElement.textContent = 'Expired';
-            } else if (diffDays < 30) {
-                daysElement.classList.add('text-danger');
-            } else if (diffDays < 90) {
-                daysElement.classList.add('text-warning');
-            } else {
-                daysElement.classList.add('text-success');
-            }
-        }
-    });
-</script>
 {% endblock %}

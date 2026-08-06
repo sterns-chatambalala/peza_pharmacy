@@ -76,3 +76,41 @@ admin.site.register(Prescription, PrescriptionAdmin)
 admin.site.register(Supplier, SupplierAdmin)
 admin.site.register(Sale, SaleAdmin)
 admin.site.register(InsuranceClaim, InsuranceClaimAdmin)
+
+
+# ==================== Pharmacy Enhancement Admin ====================
+
+class CustomerAdmin(admin.ModelAdmin):
+    list_display = ('name', 'phone', 'email', 'loyalty_points', 'is_active', 'tenant', 'created_at')
+    list_filter = ('is_active',)
+    search_fields = ('name', 'phone', 'email')
+
+class PurchaseOrderItemInline(admin.TabularInline):
+    model = PurchaseOrderItem
+    extra = 1
+
+class PurchaseOrderAdmin(admin.ModelAdmin):
+    list_display = ('po_number', 'supplier', 'status', 'order_date', 'expected_delivery', 'tenant')
+    list_filter = ('status',)
+    search_fields = ('po_number', 'supplier__name')
+    inlines = [PurchaseOrderItemInline]
+
+class StockAdjustmentAdmin(admin.ModelAdmin):
+    list_display = ('drug', 'reason', 'quantity_before', 'quantity_change', 'quantity_after', 'adjusted_by', 'created_at', 'tenant')
+    list_filter = ('reason',)
+    search_fields = ('drug__name',)
+
+class SaleReturnItemInline(admin.TabularInline):
+    model = SaleReturnItem
+    extra = 1
+
+class SaleReturnAdmin(admin.ModelAdmin):
+    list_display = ('return_id', 'sale', 'status', 'refund_amount', 'restock', 'requested_by', 'created_at', 'tenant')
+    list_filter = ('status', 'restock')
+    search_fields = ('return_id', 'sale__sale_id')
+    inlines = [SaleReturnItemInline]
+
+admin.site.register(Customer, CustomerAdmin)
+admin.site.register(PurchaseOrder, PurchaseOrderAdmin)
+admin.site.register(StockAdjustment, StockAdjustmentAdmin)
+admin.site.register(SaleReturn, SaleReturnAdmin)

@@ -1,241 +1,59 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load static %}
 
-{% block title %}{% if drug %}Edit{% else %}Add{% endif %} Drug - PharmaCare IMS{% endblock %}
+{% block title %}{% if drug %}Edit Drug{% else %}Add Drug{% endif %}{% endblock %}
+{% block eyebrow %}Inventory{% endblock %}
+{% block page_title %}{% if drug %}Edit {{ drug.name }}{% else %}Add New Drug{% endif %}{% endblock %}
+
+{% block topbar_actions %}
+<a href="{% if drug %}{% url 'drug_detail' drug.id %}{% else %}{% url 'drug_list' %}{% endif %}" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
+{% endblock %}
 
 {% block content %}
-<div class="dashboard-header">
-    <div class="dashboard-title">
-        <h1>{% if drug %}Edit{% else %}Add New{% endif %} Drug</h1>
-        <p class="dashboard-subtitle">{% if drug %}Update drug information{% else %}Add a new drug to inventory{% endif %}</p>
+
+<form method="post" class="card card-pad" style="max-width: 860px; margin: 0 auto;">
+    {% csrf_token %}
+    <p style="color: var(--mc-slate); font-size: 0.87rem; margin-bottom: 1.5rem;">
+        {% if drug %}Update the core details for this product. Changes apply immediately across inventory and POS.{% else %}Fill in the essentials to add this product to your inventory.{% endif %}
+    </p>
+
+    <div class="form-grid">
+        <div class="form-field full">
+            <label for="name">Drug Name</label>
+            <input type="text" id="name" name="name" placeholder="e.g. Paracetamol 500mg" value="{{ drug.name|default:'' }}" required>
+        </div>
+
+        <div class="form-field">
+            <label for="category">Category</label>
+            <input type="text" id="category" name="category" placeholder="e.g. Analgesics" value="{{ drug.category|default:'' }}" required>
+        </div>
+
+        <div class="form-field">
+            <label for="batch_no">Batch Number</label>
+            <input type="text" id="batch_no" name="batch_no" placeholder="e.g. BN-2026-014" value="{{ drug.batch_no|default:'' }}" required>
+        </div>
+
+        <div class="form-field">
+            <label for="price">Selling Price (MWK)</label>
+            <input type="number" id="price" name="price" min="0" step="0.01" placeholder="0.00" value="{{ drug.price|default:'' }}" required>
+        </div>
+
+        <div class="form-field">
+            <label for="quantity">Quantity in Stock</label>
+            <input type="number" id="quantity" name="quantity" min="0" step="1" placeholder="0" value="{{ drug.quantity|default:'' }}" required>
+        </div>
+
+        <div class="form-field full">
+            <label for="expiry_date">Expiry Date</label>
+            <input type="date" id="expiry_date" name="expiry_date" value="{{ drug.expiry_date|date:'Y-m-d'|default:'' }}" required>
+            <span class="hint">Used to flag near-expiry and expired stock automatically.</span>
+        </div>
     </div>
-    
-    <a href="{% url 'drug_list' %}" class="btn-primary">
-        <span class="material-icons">arrow_back</span>
-        Back to Inventory
-    </a>
-</div>
 
-<div class="table-container">
-    <form method="post" class="drug-form">
-        {% csrf_token %}
-        
-        <div class="form-grid">
-            <div class="form-group">
-                <label for="name">Drug Name *</label>
-                <input type="text" id="name" name="name" value="{{ drug.name|default:'' }}" required 
-                       class="form-input" placeholder="Enter drug name">
-            </div>
-            
-            <div class="form-group">
-                <label for="batch_no">Batch Number *</label>
-                <input type="text" id="batch_no" name="batch_no" value="{{ drug.batch_no|default:'' }}" required 
-                       class="form-input" placeholder="Enter batch number">
-            </div>
-            
-            <div class="form-group">
-                <label for="category">Category *</label>
-                <select id="category" name="category" class="form-input" required>
-                    <option value="">Select category</option>
-                    <option value="Pain Relief" {% if drug.category == "Pain Relief" %}selected{% endif %}>Pain Relief</option>
-                    <option value="Antibiotics" {% if drug.category == "Antibiotics" %}selected{% endif %}>Antibiotics</option>
-                    <option value="Cardiovascular" {% if drug.category == "Cardiovascular" %}selected{% endif %}>Cardiovascular</option>
-                    <option value="Diabetes" {% if drug.category == "Diabetes" %}selected{% endif %}>Diabetes</option>
-                    <option value="Respiratory" {% if drug.category == "Respiratory" %}selected{% endif %}>Respiratory</option>
-                    <option value="Other" {% if drug.category == "Other" %}selected{% endif %}>Other</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label for="price">Price (MW) *</label>
-                <input type="number" id="price" name="price" value="{{ drug.price|default:'' }}" step="0.01" min="0" required 
-                       class="form-input" placeholder="0.00">
-            </div>
-            
-            <div class="form-group">
-                <label for="quantity">Quantity *</label>
-                <input type="number" id="quantity" name="quantity" value="{{ drug.quantity|default:'' }}" min="0" required 
-                       class="form-input" placeholder="Enter quantity">
-            </div>
-            
-            <div class="form-group">
-                <label for="expiry_date">Expiry Date *</label>
-                <input type="date" id="expiry_date" name="expiry_date" value="{{ drug.expiry_date|date:'Y-m-d'|default:'' }}" required 
-                       class="form-input">
-            </div>
-            
-            <div class="form-group full-width">
-                <label for="barcode">Barcode (Optional)</label>
-                <input type="text" id="barcode" name="barcode" value="{{ drug.barcode|default:'' }}" 
-                       class="form-input" placeholder="Enter barcode">
-            </div>
-        </div>
-        
-        <div class="form-actions">
-            <button type="submit" class="btn-primary">
-                <span class="material-icons">{% if drug %}save{% else %}add{% endif %}</span>
-                {% if drug %}Update Drug{% else %}Add Drug{% endif %}
-            </button>
-            
-            {% if drug %}
-            <a href="{% url 'drug_delete' drug.id %}" class="btn-danger" onclick="return confirm('Are you sure you want to delete this drug?')">
-                <span class="material-icons">delete</span>
-                Delete Drug
-            </a>
-            {% endif %}
-            
-            <a href="{% url 'drug_list' %}" class="btn-secondary">
-                <span class="material-icons">cancel</span>
-                Cancel
-            </a>
-        </div>
-    </form>
-</div>
+    <div style="display:flex; gap:0.75rem; justify-content:flex-end; margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid var(--mc-border);">
+        <a href="{% if drug %}{% url 'drug_detail' drug.id %}{% else %}{% url 'drug_list' %}{% endif %}" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> {% if drug %}Save Changes{% else %}Add Drug{% endif %}</button>
+    </div>
+</form>
 
-<style>
-    .drug-form {
-        padding: 0;
-    }
-    
-    .form-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 25px;
-        margin-bottom: 30px;
-    }
-    
-    .form-group {
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .form-group.full-width {
-        grid-column: 1 / -1;
-    }
-    
-    .form-group label {
-        font-weight: 600;
-        margin-bottom: 8px;
-        color: var(--text-color);
-        font-size: 0.95rem;
-    }
-    
-    .form-input {
-        padding: 12px 15px;
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
-        background: var(--card-bg);
-        color: var(--text-color);
-        font-size: 1rem;
-        transition: var(--transition);
-    }
-    
-    .form-input:focus {
-        outline: none;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 3px rgba(0, 102, 58, 0.1);
-    }
-    
-    .form-input::placeholder {
-        color: var(--light-text);
-    }
-    
-    .form-actions {
-        display: flex;
-        gap: 15px;
-        justify-content: flex-end;
-        padding-top: 25px;
-        border-top: 1px solid var(--border-color);
-    }
-    
-    .btn-secondary {
-        background: var(--bg-color);
-        color: var(--text-color);
-        border: 1px solid var(--border-color);
-        padding: 12px 20px;
-        border-radius: 12px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: var(--transition);
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        text-decoration: none;
-    }
-    
-    .btn-secondary:hover {
-        background: var(--btn-hover);
-        transform: translateY(-2px);
-    }
-    
-    .btn-danger {
-        background: linear-gradient(135deg, #ef4444, #dc2626);
-        color: white;
-        border: none;
-        padding: 12px 20px;
-        border-radius: 12px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: var(--transition);
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        text-decoration: none;
-    }
-    
-    .btn-danger:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
-    }
-    
-    @media (max-width: 768px) {
-        .form-grid {
-            grid-template-columns: 1fr;
-        }
-        
-        .form-actions {
-            flex-direction: column;
-        }
-        
-        .btn-primary, .btn-secondary, .btn-danger {
-            width: 100%;
-            justify-content: center;
-        }
-    }
-</style>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Set minimum date to today for expiry date
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('expiry_date').min = today;
-        
-        // Add real-time validation
-        const form = document.querySelector('.drug-form');
-        form.addEventListener('submit', function(e) {
-            const price = parseFloat(document.getElementById('price').value);
-            const quantity = parseInt(document.getElementById('quantity').value);
-            const expiryDate = new Date(document.getElementById('expiry_date').value);
-            const today = new Date();
-            
-            if (price < 0) {
-                e.preventDefault();
-                alert('Price cannot be negative.');
-                return false;
-            }
-            
-            if (quantity < 0) {
-                e.preventDefault();
-                alert('Quantity cannot be negative.');
-                return false;
-            }
-            
-            if (expiryDate <= today) {
-                e.preventDefault();
-                alert('Expiry date must be in the future.');
-                return false;
-            }
-        });
-    });
-</script>
 {% endblock %}
