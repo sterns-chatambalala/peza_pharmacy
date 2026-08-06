@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div class="card p-4 rounded">
+  <h2 class="text-lg font-semibold text-white">Profile</h2>
+  <div class="mt-3 text-sm text-slate-200 space-y-2">
+    <p><strong>Username:</strong> {{ user_obj.username }}</p>
+    <p><strong>Full name:</strong> {{ user_obj.get_full_name }}</p>
+    <p><strong>Email:</strong> {{ user_obj.email }}</p>
+    {% if membership %}
+      <p><strong>Role:</strong> {{ membership.get_role_display }}</p>
+      <p><strong>Tenant:</strong> {{ membership.tenant.name }}</p>
+    {% endif %}
+  </div>
+  <div class="mt-4">
+    <a href="{% url 'settings' %}" class="px-3 py-2 bg-base-800 rounded text-slate-200">Edit settings</a>
+  </div>
+</div>
+{% endblock %}

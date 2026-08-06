@@ -1005,27 +1005,56 @@
 
         .kf-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1.5rem;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 1.25rem;
         }
 
         .kf-card {
-            padding: 0.5rem 0.25rem;
+            position: relative;
+            overflow: hidden;
+            padding: 1.25rem 1.15rem;
+            border-radius: 1.2rem;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(240, 247, 255, 0.96));
+            border: 1px solid rgba(11, 23, 48, 0.07);
+            box-shadow: 0 16px 32px -20px rgba(11, 23, 48, 0.24);
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+        }
+
+        .kf-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(15, 184, 172, 0.08), transparent 45%, rgba(47, 123, 246, 0.06));
+            pointer-events: none;
+        }
+
+        .kf-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(15, 184, 172, 0.28);
+            box-shadow: 0 22px 38px -18px rgba(11, 23, 48, 0.28);
         }
 
         .kf-icon {
             width: 46px;
             height: 46px;
-            border-radius: 0.85rem;
+            border-radius: 0.9rem;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.1rem;
             color: white;
-            margin-bottom: 1.1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.22);
+            transition: transform 0.25s ease;
+        }
+
+        .kf-card:hover .kf-icon {
+            transform: translateY(-2px) scale(1.02);
         }
 
         .kf-card h4 {
+            position: relative;
+            z-index: 1;
             font-size: 1.02rem;
             font-weight: 800;
             color: var(--mc-navy);
@@ -1033,17 +1062,35 @@
         }
 
         .kf-card p {
+            position: relative;
+            z-index: 1;
             font-size: 0.88rem;
             color: var(--mc-slate);
             line-height: 1.6;
         }
 
-        .kf-teal   { background: var(--mc-teal); }
-        .kf-blue   { background: var(--mc-blue); }
-        .kf-purple { background: #8b5cf6; }
-        .kf-green  { background: #65a30d; }
-        .kf-orange { background: #f97316; }
-        .kf-pink   { background: #ec4899; }
+        .kf-teal   { background: linear-gradient(135deg, var(--mc-teal), #14b8a6); }
+        .kf-blue   { background: linear-gradient(135deg, var(--mc-blue), #60a5fa); }
+        .kf-purple { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+        .kf-green  { background: linear-gradient(135deg, #65a30d, #84cc16); }
+        .kf-orange { background: linear-gradient(135deg, #f97316, #fb923c); }
+        .kf-pink   { background: linear-gradient(135deg, #ec4899, #f472b6); }
+
+        @media (max-width: 1100px) {
+            .kf-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 640px) {
+            .kf-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .kf-card {
+                padding: 1.1rem;
+            }
+        }
 
         /* ---------- Pricing ---------- */
         .pricing-head-row {

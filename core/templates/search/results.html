@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Search results for "{{ query }}"{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+  <h2 class="text-lg font-semibold text-white">Search results for "{{ query }}"</h2>
+  {% if results and results.object_list %}
+    <ul class="space-y-2">
+      {% for item in results %}
+        <li class="card p-3 rounded">
+          <a href="{{ item.url }}" class="text-slate-200 hover:underline">{{ item.title }}</a>
+          {% if item.subtitle %}<div class="text-[12px] text-slate-400">{{ item.subtitle }}</div>{% endif %}
+          <div class="text-[11px] text-slate-500 uppercase">{{ item.type }}</div>
+        </li>
+      {% endfor %}
+    </ul>
+    <div class="mt-4">
+      {% if page_obj.has_previous %}<a href="?q={{ query }}&page={{ page_obj.previous_page_number }}" class="px-2 py-1 mr-2 text-sm bg-base-800 rounded">Previous</a>{% endif %}
+      {% if page_obj.has_next %}<a href="?q={{ query }}&page={{ page_obj.next_page_number }}" class="px-2 py-1 text-sm bg-base-800 rounded">Next</a>{% endif %}
+    </div>
+  {% else %}
+    <div class="text-slate-400">No results found.</div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,7 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.conf import settings
 from django.http import JsonResponse, HttpResponseForbidden
-from django.db.models import Q, Sum, Count
+from django.db.models import Q, Sum, Count, F
+from django.urls import reverse
 from datetime import date
 from pathlib import Path
 import base64
@@ -19,6 +20,106 @@ from .forms import *
 from functools import wraps
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
+
+
+@login_required
+def global_search(request):
+    q = request.GET.get('q', '').strip()
+    results = []
+    page_obj = None
+    if q:
+        tenant = None
+        try:
+            tenant = request.membership.tenant
+        except Exception:
+            tenant = None
+
+        # Search across drugs, prescriptions, customers and sales
+        drug_qs = Drug.objects.filter(tenant=tenant).filter(
+            Q(name__icontains=q) | Q(generic_name__icontains=q) | Q(barcode__icontains=q)
+        )
+        pres_qs = Prescription.objects.filter(tenant=tenant).filter(
+            Q(patient_name__icontains=q) | Q(doctor_name__icontains=q)
+        )
+        cust_qs = Customer.objects.filter(tenant=tenant).filter(
+            Q(name__icontains=q) | Q(phone__icontains=q) | Q(email__icontains=q)
+        )
+        sale_qs = Sale.objects.filter(tenant=tenant).filter(
+            Q(sale_id__icontains=q) | Q(customer_name__icontains=q) | Q(customer_phone__icontains=q)
+        )
+
+        # Collect simple serialized results with type and url
+        for d in drug_qs[:50]:
+            results.append({'type': 'drug', 'title': d.name, 'subtitle': d.generic_name or '', 'url': reverse('drug_detail', args=[d.id])})
+        for p in pres_qs[:50]:
+            results.append({'type': 'prescription', 'title': p.prescription_id, 'subtitle': p.patient_name, 'url': reverse('prescription_detail', args=[p.id])})
+        for c in cust_qs[:50]:
+            results.append({'type': 'customer', 'title': c.name, 'subtitle': c.phone or '', 'url': reverse('customer_detail', args=[c.id])})
+        for s in sale_qs[:50]:
+            results.append({'type': 'sale', 'title': s.sale_id, 'subtitle': str(s.total_amount), 'url': reverse('sale_detail', args=[s.id])})
+
+    # Simple pagination
+    paginator = Paginator(results, 25)
+    page_number = request.GET.get('page')
+    try:
+        page_obj = paginator.get_page(page_number)
+    except Exception:
+        page_obj = paginator.get_page(1)
+
+    return render(request, 'search/results.html', {'query': q, 'results': page_obj, 'page_obj': page_obj})
+
+
+@login_required
+def profile_view(request):
+    # Minimal profile page — show basic user and membership info
+    membership = None
+    try:
+        membership = request.membership
+    except Exception:
+        membership = None
+    return render(request, 'profile/detail.html', {'user_obj': request.user, 'membership': membership})
+
+
+@login_required
+def notifications_json(request):
+    # Build lightweight notifications list from low-stock and recent void requests
+    tenant = None
+    try:
+        tenant = request.membership.tenant
+    except Exception:
+        tenant = None
+
+    notes = []
+    if tenant:
+        # Low stock alerts
+        low_stock = Drug.objects.filter(tenant=tenant).filter(quantity__lte=F('reorder_level')).order_by('quantity')[:5]
+        for d in low_stock:
+            notes.append({'type': 'low_stock', 'message': f'{d.name} low stock ({d.quantity})', 'url': reverse('drug_detail', args=[d.id])})
+
+        # Recent void requests
+        recent_voids = VoidRequest.objects.filter(sale__tenant=tenant).order_by('-requested_at')[:5]
+        for v in recent_voids:
+            notes.append({'type': 'void_request', 'message': f'Void request: {v.sale.sale_id}', 'url': reverse('void_requests_list')})
+
+        # Recent subscription/payment transactions
+        payments = SubscriptionPaymentTransaction.objects.filter(tenant=tenant).order_by('-created_at')[:5]
+        for p in payments:
+            status = p.status.capitalize()
+            notes.append({'type': 'payment', 'message': f'Payment {status}: {p.charge_id} ({p.amount}{p.currency})', 'url': reverse('subscription_detail')})
+
+        # Recent high-value sales (last 24 hours)
+        from django.utils import timezone as dj_tz
+        since = dj_tz.now() - timedelta(hours=24)
+        recent_sales = Sale.objects.filter(tenant=tenant, date__gte=since).order_by('-date')[:5]
+        for s in recent_sales:
+            notes.append({'type': 'sale', 'message': f'Sale: {s.sale_id} — {s.total_amount}{s.currency if hasattr(s, "currency") else ""}', 'url': reverse('sale_detail', args=[s.id])})
+
+        # Pending user verifications (email/OTP) as email-related notifications
+        pending_verifs = UserVerification.objects.filter(user__membership__tenant=tenant, is_verified=False).order_by('-verification_expiry')[:5]
+        for uv in pending_verifs:
+            notes.append({'type': 'email', 'message': f'Unverified user: {uv.user.email or uv.user.username}', 'url': reverse('user_list')})
+
+    return JsonResponse({'notifications': notes, 'count': len(notes)})
 
 
 def landing_page(request):
@@ -1362,6 +1463,44 @@ def barcode_lookup(request):
     except Drug.DoesNotExist:
         return JsonResponse({'success': False, 'message': 'Drug not found'})
 
+
+# Global search across multiple models
+@login_required
+def global_search(request):
+    q = request.GET.get('q', '').strip()
+    drugs = prescriptions = customers = sales = []
+    if q:
+        drugs = Drug.objects.filter(tenant=request.tenant).filter(
+            Q(name__icontains=q) | Q(generic_name__icontains=q)
+        )[:12]
+        prescriptions = Prescription.objects.filter(tenant=request.tenant).filter(
+            Q(prescription_id__icontains=q) | Q(patient_name__icontains=q)
+        )[:12]
+        customers = Customer.objects.filter(tenant=request.tenant).filter(
+            Q(name__icontains=q) | Q(phone__icontains=q) | Q(email__icontains=q)
+        )[:12]
+        sales = Sale.objects.filter(tenant=request.tenant).filter(
+            Q(sale_id__icontains=q) | Q(customer_name__icontains=q)
+        )[:12]
+
+    return render(request, 'search/results.html', {
+        'q': q,
+        'drugs': drugs,
+        'prescriptions': prescriptions,
+        'customers': customers,
+        'sales': sales,
+    })
+
+
+# Profile view for the current user
+@login_required
+def profile_view(request):
+    membership = getattr(request, 'membership', None)
+    return render(request, 'users/detail.html', {
+        'user': request.user,
+        'membership': membership,
+    })
+
 # Prescription Views (Pharmacy-specific)
 # prescriptions/views.py
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -1397,9 +1536,9 @@ def prescription_list(request):
     # Apply filters
     if search_query:
         prescriptions = prescriptions.filter(
-            models.Q(patient_name__icontains=search_query) |
-            models.Q(prescription_id__icontains=search_query) |
-            models.Q(doctor_name__icontains=search_query)
+            Q(patient_name__icontains=search_query) |
+            Q(prescription_id__icontains=search_query) |
+            Q(doctor_name__icontains=search_query)
         )
     
     if status_filter:
@@ -1487,9 +1626,9 @@ def download_prescriptions_excel(request):
     
     if search_query:
         prescriptions = prescriptions.filter(
-            models.Q(patient_name__icontains=search_query) |
-            models.Q(prescription_id__icontains=search_query) |
-            models.Q(doctor_name__icontains=search_query)
+            Q(patient_name__icontains=search_query) |
+            Q(prescription_id__icontains=search_query) |
+            Q(doctor_name__icontains=search_query)
         )
     
     if status_filter:
