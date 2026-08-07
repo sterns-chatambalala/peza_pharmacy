@@ -176,7 +176,7 @@ BASE_URL = 'http://127.0.0.1:8003/'
 
 SITE_URL = 'http://localhost:8000'
 
-PAYCHANGU_API_KEY = os.getenv('PAYCHANGU_API_KEY', 'sec-live-iuhs6TdCPfdukvrfwl9vMwFbIm5Pi5x6')
+PAYCHANGU_API_KEY = os.getenv('PAYCHANGU_API_KEY', 'sec-live-69uprGlRXNWAas30ojzLIB5RF5tdcmma')
 
 ADMIN_PAYMENT_EMAIL = os.getenv('ADMIN_PAYMENT_EMAIL', 'wavet3ch041@gmail.com')
 
