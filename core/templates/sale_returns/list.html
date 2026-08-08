@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Sale Returns{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-bold text-white">Sale Returns</h1>
+      <p class="text-sm text-slate-400">Manage customer returns and refunds</p>
+    </div>
+  </div>
+
+  <div class="card rounded-xl p-4">
+    <form method="get" class="flex flex-wrap items-center gap-3">
+      <select name="status" class="bg-base-800 border border-white/5 rounded-lg px-4 py-2 text-sm text-slate-300 focus:outline-none focus:border-emerald-500/50">
+        <option value="">All Statuses</option>
+        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+        <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Approved</option>
+        <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>Rejected</option>
+      </select>
+      <button type="submit" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium rounded-lg transition">Filter</button>
+      {% if status_filter %}
+      <a href="{% url 'sale_return_list' %}" class="px-4 py-2 bg-base-700 hover:bg-base-600 text-slate-300 text-sm font-medium rounded-lg transition">Clear</a>
+      {% endif %}
+    </form>
+  </div>
+
+  <div class="card rounded-xl overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-white/5 text-slate-400">
+            <th class="text-left px-4 py-3 font-medium">Return ID</th>
+            <th class="text-left px-4 py-3 font-medium">Sale</th>
+            <th class="text-left px-4 py-3 font-medium">Reason</th>
+            <th class="text-left px-4 py-3 font-medium">Status</th>
+            <th class="text-right px-4 py-3 font-medium">Refund (MWK)</th>
+            <th class="text-left px-4 py-3 font-medium">Requested</th>
+            <th class="text-right px-4 py-3 font-medium">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for return_obj in page_obj %}
+          <tr class="border-b border-white/5 hover:bg-white/5 transition">
+            <td class="px-4 py-3 text-white font-medium">{{ return_obj.return_id }}</td>
+            <td class="px-4 py-3 text-slate-300">{{ return_obj.sale.sale_id }}</td>
+            <td class="px-4 py-3 text-slate-300">{{ return_obj.reason|truncatechars:30 }}</td>
+            <td class="px-4 py-3">
+              <span class="px-2 py-1 rounded-full text-xs font-medium
+                {% if return_obj.status == 'approved' %}bg-emerald-500/20 text-emerald-400
+                {% elif return_obj.status == 'rejected' %}bg-red-500/20 text-red-400
+                {% else %}bg-amber-500/20 text-amber-400{% endif %}">
+                {{ return_obj.get_status_display }}
+              </span>
+            </td>
+            <td class="px-4 py-3 text-right text-slate-300">{{ return_obj.refund_amount|floatformat:2 }}</td>
+            <td class="px-4 py-3 text-slate-300">{{ return_obj.created_at|date:"Y-m-d" }}</td>
+            <td class="px-4 py-3 text-right">
+              {% if return_obj.status == 'pending' %}
+              <a href="{% url 'sale_return_process' return_obj.id %}" class="text-emerald-400 hover:underline text-xs">Process</a>
+              {% else %}
+              <span class="text-slate-500 text-xs">Processed</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7" class="text-center py-8 text-slate-500">No returns found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if page_obj.has_other_pages %}
+    <div class="flex items-center justify-between px-4 py-3 border-t border-white/5">
+      <div class="text-sm text-slate-400">
+        Showing {{ page_obj.start_index }} - {{ page_obj.end_index }} of {{ page_obj.paginator.count }}
+      </div>
+      <div class="flex gap-1">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="px-3 py-1 rounded bg-base-700 hover:bg-base-600 text-slate-300 text-sm transition">Previous</a>
+        {% endif %}
+        {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}
+          <span class="px-3 py-1 rounded bg-emerald-500 text-white text-sm">{{ num }}</span>
+          {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+          <a href="?page={{ num }}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="px-3 py-1 rounded bg-base-700 hover:bg-base-600 text-slate-300 text-sm transition">{{ num }}</a>
+          {% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="px-3 py-1 rounded bg-base-700 hover:bg-base-600 text-slate-300 text-sm transition">Next</a>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
