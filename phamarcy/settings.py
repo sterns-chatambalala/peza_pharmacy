@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-bnuppa(l@&-#vyoo(*2yvbx2-u0#s+u8gcdyn0nmtx1h5(&p=g'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -169,14 +169,14 @@ EMAIL_HOST = 'host44.registrar-servers.com'
 EMAIL_PORT=465
 EMAIL_USE_SSL=True
 EMAIL_USE_TLS=False
-EMAIL_HOST_USER = 'hello@medicore.com'
+EMAIL_HOST_USER = 'hello@moyotechmw.com'
 EMAIL_HOST_PASSWORD = '!c-$V^L34SYz'
-DEFAULT_FROM_EMAIL = 'Medicore <hello@medicore.com>'
+DEFAULT_FROM_EMAIL = 'MoyoTech IMS <hello@moyotechmw.com>'
 BASE_URL = 'http://127.0.0.1:8003/'
 
 SITE_URL = 'http://localhost:8000'
 
-PAYCHANGU_API_KEY = os.getenv('PAYCHANGU_API_KEY', 'sec-live-iuhs6TdCPfdukvrfwl9vMwFbIm5Pi5x6')
+PAYCHANGU_API_KEY = os.getenv('PAYCHANGU_API_KEY', 'sec-live-69uprGlRXNWAas30ojzLIB5RF5tdcmma')
 
 ADMIN_PAYMENT_EMAIL = os.getenv('ADMIN_PAYMENT_EMAIL', 'wavet3ch041@gmail.com')
 

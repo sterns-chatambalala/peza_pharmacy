@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Error{% endblock %} · PharmaCare</title>
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        base: {
+                            950: '#070a12', 900: '#0b0f1a', 850: '#0f1422',
+                            800: '#131a2b', 750: '#161d30', 700: '#1c2438',
+                            600: '#26304a', 500: '#3a4666',
+                        },
+                        brand: {
+                            green: '#22c55e', blue: '#3b82f6', orange: '#f97316',
+                            red: '#ef4444', purple: '#a855f7', yellow: '#eab308',
+                        }
+                    },
+                    fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        @font-face {
+            font-family: 'Troy';
+            src: url('{% static "troy.woff2" %}') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+        html, body {
+            background: #070a12;
+            font-family: 'Troy', 'Inter', sans-serif;
+            height: 100%;
+            margin: 0;
+        }
+        * { font-family: inherit; }
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .error-card {
+            background: linear-gradient(180deg, #0f1422 0%, #0d111c 100%);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 60px 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 1px 0 0 rgba(255,255,255,0.03) inset, 0 8px 24px -8px rgba(0,0,0,0.5);
+        }
+        .error-code {
+            font-size: 6rem;
+            font-weight: 800;
+            color: #1c2438;
+            line-height: 1;
+        }
+        .error-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #f8fafc;
+            margin-top: 1rem;
+        }
+        .error-message {
+            color: #94a3b8;
+            margin-top: 0.5rem;
+            font-size: 1.1rem;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        .btn-primary {
+            background-color: #22c55e;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #16a34a;
+        }
+        .btn-secondary {
+            background-color: #1c2438;
+            color: #e0e0e0;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .btn-secondary:hover {
+            background-color: #26304a;
+        }
+        .btn i { display: inline-block; }
+        /* Light mode overrides */
+        html.light-mode, html.light-mode body {
+            background: #f3f5f9 !important;
+        }
+        html.light-mode .error-card {
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid rgba(15,23,42,0.08);
+            box-shadow: 0 1px 0 0 rgba(255,255,255,0.6) inset, 0 8px 20px -8px rgba(15,23,42,0.12);
+        }
+        html.light-mode .error-code {
+            color: #475569;
+        }
+        html.light-mode .error-title {
+            color: #0f172a;
+        }
+        html.light-mode .error-message {
+            color: #64748b;
+        }
+        html.light-mode .btn-secondary {
+            background-color: #eef1f6;
+            color: #0f172a;
+            border-color: rgba(15,23,42,0.1);
+        }
+        html.light-mode .btn-secondary:hover {
+            background-color: #dfe4ec;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <div class="error-card">
+        <div class="error-code">{% block error_code %}500{% endblock %}</div>
+        <h1 class="error-title">{% block error_title %}Server Error{% endblock %}</h1>
+        <p class="error-message">{% block error_message %}Something went wrong.{% endblock %}</p>
+        <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+            {% block error_actions %}
+            <a href="{% url 'dashboard' %}" class="btn btn-primary">
+                <i data-lucide="home" class="w-4 h-4"></i> Go Home
+            </a>
+            {% endblock %}
+        </div>
+        {% block extra_content %}{% endblock %}
+    </div>
+    <script>
+        lucide.createIcons();
+        // Simple theme detection (respect user's preference)
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+            document.documentElement.classList.add('light-mode');
+        }
+        // Optional: listen for changes
+        window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', e => {
+            document.documentElement.classList.toggle('light-mode', e.matches);
+        });
+    </script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
