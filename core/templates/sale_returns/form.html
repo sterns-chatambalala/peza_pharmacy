@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}New Sale Return{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+  <div class="card rounded-xl p-6">
+    <div class="flex items-center gap-3 mb-6">
+      <a href="{% url 'sale_return_list' %}" class="text-slate-400 hover:text-white transition">
+        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+      </a>
+      <h1 class="text-xl font-bold text-white">New Sale Return</h1>
+    </div>
+
+    <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 mb-6 text-sm text-slate-300">
+      <p><strong>Sale #{{ sale.sale_id }}</strong> — {{ sale.date|date:"Y-m-d H:i" }}</p>
+      <p class="text-slate-400">Customer: {{ sale.customer_name|default:"Walk-in" }}</p>
+    </div>
+
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+
+      <div class="card rounded-xl p-4 bg-base-800">
+        <h3 class="text-sm font-semibold text-white mb-3">Select Items to Return</h3>
+        <div class="space-y-2">
+          {% for item in sale_items %}
+          <div class="flex items-center gap-4 p-2 rounded-lg hover:bg-white/5 transition">
+            <div class="flex-1">
+              <div class="text-white text-sm">{{ item.drug.name }}</div>
+              <div class="text-xs text-slate-400">Qty: {{ item.quantity }} × MWK {{ item.price|floatformat:2 }}</div>
+            </div>
+            <div class="flex items-center gap-2">
+              <label class="text-sm text-slate-400">Return:</label>
+              <input type="number" name="return_quantity[]" min="0" max="{{ item.quantity }}" value="{{ item.quantity }}" class="w-16 bg-base-700 border border-white/5 rounded-lg px-2 py-1 text-sm text-slate-200 focus:outline-none focus:border-emerald-500/50">
+              <input type="hidden" name="sale_item_id[]" value="{{ item.id }}">
+            </div>
+          </div>
+          {% empty %}
+          <p class="text-slate-500 text-sm">No items in this sale.</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm text-slate-400 mb-1">Reason for Return *</label>
+        <textarea name="reason" rows="3" required class="w-full bg-base-800 border border-white/5 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/50"></textarea>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <label class="flex items-center gap-2 text-sm text-slate-400">
+          <input type="checkbox" name="restock" checked class="w-4 h-4 accent-emerald-500">
+          Restock returned items
+        </label>
+      </div>
+
+      <div class="flex gap-3 pt-4 border-t border-white/5">
+        <button type="submit" class="px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg transition">
+          <i data-lucide="save" class="w-4 h-4 inline mr-2"></i> Submit Return
+        </button>
+        <a href="{% url 'sale_return_list' %}" class="px-6 py-2 bg-base-700 hover:bg-base-600 text-slate-300 font-medium rounded-lg transition">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

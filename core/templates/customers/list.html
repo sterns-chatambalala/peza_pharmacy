@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Customers{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-bold text-white">Customers</h1>
+      <p class="text-sm text-slate-400">Manage your pharmacy customers</p>
+    </div>
+    <a href="{% url 'customer_create' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium rounded-lg transition">
+      <i data-lucide="plus" class="w-4 h-4"></i> Add Customer
+    </a>
+  </div>
+
+  <div class="card rounded-xl p-4">
+    <form method="get" class="flex flex-wrap items-center gap-3">
+      <div class="flex-1 min-w-[200px]">
+        <input type="search" name="search" value="{{ search_query }}" placeholder="Search by name, phone, email..." class="w-full bg-base-800 border border-white/5 rounded-lg px-4 py-2 text-sm text-slate-300 placeholder-slate-500 focus:outline-none focus:border-emerald-500/50">
+      </div>
+      <button type="submit" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium rounded-lg transition">Filter</button>
+      {% if search_query %}
+      <a href="{% url 'customer_list' %}" class="px-4 py-2 bg-base-700 hover:bg-base-600 text-slate-300 text-sm font-medium rounded-lg transition">Clear</a>
+      {% endif %}
+    </form>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    {% for customer in page_obj %}
+    <div class="card rounded-xl p-4 hover:border-emerald-500/30 transition">
+      <div class="flex items-start justify-between">
+        <div>
+          <h3 class="text-white font-semibold">{{ customer.name }}</h3>
+          <p class="text-xs text-slate-400">{{ customer.phone }}</p>
+        </div>
+        <div class="flex gap-1">
+          <a href="{% url 'customer_detail' customer.id %}" class="p-1.5 rounded hover:bg-white/10 text-slate-400 hover:text-white transition" title="View">
+            <i data-lucide="eye" class="w-4 h-4"></i>
+          </a>
+          <a href="{% url 'customer_update' customer.id %}" class="p-1.5 rounded hover:bg-white/10 text-slate-400 hover:text-white transition" title="Edit">
+            <i data-lucide="edit" class="w-4 h-4"></i>
+          </a>
+        </div>
+      </div>
+      <div class="mt-3 space-y-1 text-sm">
+        {% if customer.email %}
+        <div class="flex items-center gap-2 text-slate-400">
+          <i data-lucide="mail" class="w-3.5 h-3.5"></i>
+          <span>{{ customer.email }}</span>
+        </div>
+        {% endif %}
+        {% if customer.address %}
+        <div class="flex items-center gap-2 text-slate-400">
+          <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+          <span class="text-xs">{{ customer.address|truncatechars:40 }}</span>
+        </div>
+        {% endif %}
+      </div>
+      <div class="mt-3 pt-3 border-t border-white/5 flex justify-between text-xs text-slate-500">
+        <span>{{ customer.visit_count }} visits</span>
+        <span>MWK {{ customer.total_spent|floatformat:0 }} spent</span>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-span-full text-center py-8 text-slate-500">
+      No customers found. <a href="{% url 'customer_create' %}" class="text-emerald-400 hover:underline">Add your first customer</a>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if page_obj.has_other_pages %}
+  <div class="flex items-center justify-between">
+    <div class="text-sm text-slate-400">
+      Showing {{ page_obj.start_index }} - {{ page_obj.end_index }} of {{ page_obj.paginator.count }}
+    </div>
+    <div class="flex gap-1">
+      {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" class="px-3 py-1 rounded bg-base-700 hover:bg-base-600 text-slate-300 text-sm transition">Previous</a>
+      {% endif %}
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <span class="px-3 py-1 rounded bg-emerald-500 text-white text-sm">{{ num }}</span>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}" class="px-3 py-1 rounded bg-base-700 hover:bg-base-600 text-slate-300 text-sm transition">{{ num }}</a>
+        {% endif %}
+      {% endfor %}
+      {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" class="px-3 py-1 rounded bg-base-700 hover:bg-base-600 text-slate-300 text-sm transition">Next</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
