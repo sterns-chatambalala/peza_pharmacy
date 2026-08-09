@@ -165,14 +165,14 @@ LOGGING = {
 import os
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'host44.registrar-servers.com'
+EMAIL_HOST = 'premium160.web-hosting.com'
 EMAIL_PORT=465
 EMAIL_USE_SSL=True
 EMAIL_USE_TLS=False
-EMAIL_HOST_USER = 'hello@moyotechmw.com'
-EMAIL_HOST_PASSWORD = '!c-$V^L34SYz'
-DEFAULT_FROM_EMAIL = 'MoyoTech IMS <hello@moyotechmw.com>'
-BASE_URL = 'http://127.0.0.1:8003/'
+EMAIL_HOST_USER = 'medicore@pezamw.com'
+EMAIL_HOST_PASSWORD = '=)jraAc1[{IJQgvU'
+DEFAULT_FROM_EMAIL = 'MediCore <medicore@pezamw.com>'
+BASE_URL = 'http://127.0.0.1:9008/'
 
 SITE_URL = 'http://localhost:8000'
 
@@ -180,7 +180,7 @@ PAYCHANGU_API_KEY = os.getenv('PAYCHANGU_API_KEY', 'sec-live-69uprGlRXNWAas30ojz
 
 ADMIN_PAYMENT_EMAIL = os.getenv('ADMIN_PAYMENT_EMAIL', 'wavet3ch041@gmail.com')
 
-ADMIN_EMAIL = 'admin@medicore.com'
+ADMIN_EMAIL = 'medicore@pezamw.com'
 
 # Authentication settings
 LOGIN_URL = 'login'

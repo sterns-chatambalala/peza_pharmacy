@@ -71,13 +71,26 @@ def global_search(request):
 
 @login_required
 def profile_view(request):
-    # Minimal profile page — show basic user and membership info
-    membership = None
-    try:
-        membership = request.membership
-    except Exception:
-        membership = None
-    return render(request, 'profile/detail.html', {'user_obj': request.user, 'membership': membership})
+    membership = getattr(request, 'membership', None)
+    sales_count = 0
+    prescriptions_count = 0
+    days_since_joined = 0
+    recent_activity = []
+
+    if membership:
+        sales_count = Sale.objects.filter(processed_by=request.user, tenant=membership.tenant).count()
+        prescriptions_count = Prescription.objects.filter(created_by=request.user, tenant=membership.tenant).count()
+        days_since_joined = (timezone.now().date() - membership.joined_at.date()).days
+        # recent_activity can be built here if needed
+
+    return render(request, 'users/detail.html', {
+        'user_membership': membership,
+        'user': request.user,
+        'sales_count': sales_count,
+        'prescriptions_count': prescriptions_count,
+        'days_since_joined': days_since_joined,
+        'recent_activity': recent_activity,
+    })
 
 
 @login_required
@@ -1493,13 +1506,13 @@ def global_search(request):
 
 
 # Profile view for the current user
-@login_required
-def profile_view(request):
-    membership = getattr(request, 'membership', None)
-    return render(request, 'users/detail.html', {
-        'user': request.user,
-        'membership': membership,
-    })
+# @login_required
+# def profile_view(request):
+#     membership = getattr(request, 'membership', None)
+#     return render(request, 'users/detail.html', {
+#         'user': request.user,
+#         'membership': membership,
+#     })
 
 # Prescription Views (Pharmacy-specific)
 # prescriptions/views.py
