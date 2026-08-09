@@ -24,8 +24,9 @@
             500: '#3a4666',
           },
           brand: {
+            teal: '#14b8a6',
+            blue: '#2563eb',
             green: '#22c55e',
-            blue: '#3b82f6',
             orange: '#f97316',
             red: '#ef4444',
             purple: '#a855f7',
@@ -170,6 +171,125 @@
   html.light-mode aside .rounded-xl.p-4.bg-gradient-to-br {
     background: linear-gradient(135deg, #ecfdf5 0%, #f0fdfa 50%, #ffffff 100%) !important;
     border-color: rgba(16,185,129,0.18) !important;
+  }
+
+  /* ================================================================
+     PREMIUM POLISH LAYER
+     Brand gradient system (teal -> blue, matching the login screen)
+     applied globally to every page that extends this shell, without
+     needing to touch each individual template.
+     ================================================================ */
+  :root {
+    --brand-teal: #14b8a6;
+    --brand-blue: #2563eb;
+    --brand-gradient: linear-gradient(135deg, #14b8a6 0%, #2563eb 100%);
+  }
+
+  /* Cards: subtle lift + glow on hover, crisper edge */
+  .card {
+    border-radius: 0.9rem;
+    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+  }
+  a.card:hover, .card.card-hover:hover {
+    border-color: rgba(20,184,166,0.35);
+    box-shadow: 0 1px 0 0 rgba(255,255,255,0.04) inset, 0 14px 32px -12px rgba(0,0,0,0.6);
+    transform: translateY(-1px);
+  }
+  html.light-mode a.card:hover, html.light-mode .card.card-hover:hover {
+    box-shadow: 0 1px 0 0 rgba(255,255,255,0.6) inset, 0 14px 28px -12px rgba(15,23,42,0.18);
+  }
+
+  /* Primary solid buttons (bg-emerald-500 / bg-blue-500) get the brand gradient */
+  .bg-emerald-500 {
+    background-image: var(--brand-gradient);
+    box-shadow: 0 10px 22px -10px rgba(37,99,235,0.55);
+    transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+  }
+  .bg-emerald-500:hover { filter: brightness(1.08); transform: translateY(-1px); box-shadow: 0 12px 26px -10px rgba(37,99,235,0.65); }
+  .bg-emerald-500:active { transform: translateY(0); }
+  .bg-emerald-500:disabled, .bg-emerald-500.disabled { filter: grayscale(0.4) brightness(0.8); box-shadow: none; }
+
+  .bg-blue-500 {
+    background-image: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+    box-shadow: 0 10px 22px -10px rgba(37,99,235,0.5);
+    transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+  }
+  .bg-blue-500:hover { filter: brightness(1.08); transform: translateY(-1px); }
+
+  .bg-red-500 {
+    background-image: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+    box-shadow: 0 10px 22px -10px rgba(239,68,68,0.45);
+    transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+  }
+  .bg-red-500:hover { filter: brightness(1.08); transform: translateY(-1px); }
+
+  .bg-amber-500 {
+    background-image: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    box-shadow: 0 10px 22px -10px rgba(217,119,6,0.4);
+    transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+  }
+  .bg-amber-500:hover { filter: brightness(1.08); transform: translateY(-1px); }
+
+  /* Secondary buttons */
+  .bg-base-700 { transition: background-color .15s ease, transform .15s ease; }
+  .bg-base-700:hover { transform: translateY(-1px); }
+
+  /* Inputs: brand-colored focus ring everywhere (search, filters, forms) */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select, textarea {
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  input:focus:not([type="checkbox"]):not([type="radio"]), select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--brand-teal) !important;
+    box-shadow: 0 0 0 3px rgba(20,184,166,0.15);
+  }
+
+  /* Table polish: sticky, readable header + hover rows */
+  table thead tr th {
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.7rem;
+  }
+  table tbody tr { transition: background-color .12s ease; }
+
+  /* Badges / pills get a touch more definition */
+  .rounded-full.text-xs.font-medium, .rounded-full.text-xs.font-semibold {
+    letter-spacing: 0.01em;
+  }
+
+  /* Sidebar: brand glow on logo + refined active state */
+  .sidebar-brand-logo { box-shadow: 0 8px 20px rgba(20,184,166,0.25), 0 2px 6px rgba(37,99,235,0.15); }
+  aside { position: relative; }
+  aside::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--brand-gradient);
+    opacity: 0.9;
+  }
+  .nav-link.active {
+    background: linear-gradient(90deg, rgba(20,184,166,0.16), rgba(37,99,235,0.05) 70%, transparent);
+    border-left: 3px solid var(--brand-teal);
+    box-shadow: inset 0 0 0 1px rgba(20,184,166,0.06);
+  }
+  .nav-link.active i[data-lucide] { color: var(--brand-teal) !important; }
+  .nav-link:not(.active) { border-left: 3px solid transparent; }
+
+  /* Topbar polish */
+  header.backdrop-blur { box-shadow: 0 1px 0 0 rgba(255,255,255,0.03); }
+  #profile-btn > div.rounded-full {
+    background: var(--brand-gradient) !important;
+    color: #fff !important;
+    border: none !important;
+  }
+
+  /* Scroll-to-top focus states for accessibility + polish */
+  a, button { -webkit-tap-highlight-color: transparent; }
+
+  /* Empty states */
+  main .text-center.py-12 i[data-lucide], main .text-center.py-16 i[data-lucide] {
+    filter: drop-shadow(0 4px 10px rgba(20,184,166,0.15));
   }
 
   {% block extra_style %}{% endblock %}

@@ -3541,9 +3541,38 @@ def stock_adjustment_list(request):
     if request.tenant.system != 'PHARMACY':
         return HttpResponseForbidden('This feature is only available for Pharmacy system.')
     adjustments = StockAdjustment.objects.filter(tenant=request.tenant).select_related('drug', 'adjusted_by')
+
+    search_query = request.GET.get('search', '').strip()
+    reason_filter = request.GET.get('reason', '').strip()
+
+    if search_query:
+        adjustments = adjustments.filter(
+            Q(drug__name__icontains=search_query) | Q(notes__icontains=search_query)
+        )
+    if reason_filter:
+        adjustments = adjustments.filter(reason=reason_filter)
+
+    totals = adjustments.aggregate(
+        total_increases=Sum('quantity_change', filter=Q(quantity_change__gt=0)),
+        total_decreases=Sum('quantity_change', filter=Q(quantity_change__lt=0)),
+    )
+    total_increases = totals['total_increases'] or 0
+    total_decreases = totals['total_decreases'] or 0
+
     paginator = Paginator(adjustments, 25)
     page_obj = paginator.get_page(request.GET.get('page'))
-    return render(request, 'stock_adjustments/list.html', {'page_obj': page_obj})
+
+    drugs = Drug.objects.filter(tenant=request.tenant).order_by('name')
+
+    return render(request, 'stock_adjustments/list.html', {
+        'page_obj': page_obj,
+        'drugs': drugs,
+        'search_query': search_query,
+        'reason_filter': reason_filter,
+        'reason_choices': StockAdjustment.REASON_CHOICES,
+        'total_increases': total_increases,
+        'total_decreases': total_decreases,
+    })
 
 
 @login_required

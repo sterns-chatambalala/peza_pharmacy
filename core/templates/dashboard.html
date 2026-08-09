@@ -3,13 +3,30 @@
 
 {% block content %}
 
+<!-- Welcome banner -->
+<div class="card card-hover rounded-xl p-5 relative overflow-hidden">
+  <div class="absolute inset-0 opacity-[0.06] pointer-events-none" style="background: radial-gradient(600px circle at 0% 0%, #14b8a6, transparent 60%), radial-gradient(600px circle at 100% 100%, #2563eb, transparent 60%);"></div>
+  <div class="relative flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <div class="text-xs font-semibold tracking-wide text-emerald-400 uppercase mb-1" id="greeting-label">Welcome back</div>
+      <h1 class="text-xl font-bold text-white">{{ request.user.get_full_name|default:request.user.username }}</h1>
+      <p class="text-sm text-slate-400 mt-0.5">Here's what's happening with {{ request.tenant.name|default:"your pharmacy" }} today.</p>
+    </div>
+    <div class="flex items-center gap-2 text-xs text-slate-400 bg-base-800 border border-white/5 rounded-lg px-3 py-2">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 glow-live"></span>
+      <span id="dashboard-date"></span>
+    </div>
+  </div>
+</div>
+
 <!-- KPI cards -->
 <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
 
-  <div class="card rounded-xl p-4 relative">
+  <div class="card card-hover rounded-xl p-4 relative overflow-hidden">
+    <div class="absolute top-0 left-0 right-0 h-0.5" style="background: linear-gradient(90deg,#14b8a6,#2563eb);"></div>
     <div class="flex items-center justify-between mb-3">
-      <div class="w-9 h-9 rounded-lg bg-blue-500/15 text-blue-400 flex items-center justify-center"><i data-lucide="pill" class="w-4.5 h-4.5"></i></div>
-      <a href="{% url 'drug_list' %}"><i data-lucide="more-vertical" class="w-4 h-4 text-slate-500"></i></a>
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white" style="background: linear-gradient(135deg,#14b8a6,#2563eb);"><i data-lucide="pill" class="w-4.5 h-4.5"></i></div>
+      <a href="{% url 'drug_list' %}"><i data-lucide="arrow-up-right" class="w-4 h-4 text-slate-500"></i></a>
     </div>
     <div class="text-xs text-slate-400 mb-1">Total Drugs</div>
     <div class="text-2xl font-bold text-white">{{ total_drugs|default:0 }}</div>
@@ -19,10 +36,11 @@
     </div>
   </div>
 
-  <div class="card rounded-xl p-4 relative">
+  <div class="card card-hover rounded-xl p-4 relative overflow-hidden">
+    <div class="absolute top-0 left-0 right-0 h-0.5 bg-amber-400"></div>
     <div class="flex items-center justify-between mb-3">
-      <div class="w-9 h-9 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center"><i data-lucide="package-minus" class="w-4.5 h-4.5"></i></div>
-      <a href="{% url 'inventory_alerts' %}"><i data-lucide="more-vertical" class="w-4 h-4 text-slate-500"></i></a>
+      <div class="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-400 flex items-center justify-center"><i data-lucide="package-minus" class="w-4.5 h-4.5"></i></div>
+      <a href="{% url 'inventory_alerts' %}"><i data-lucide="arrow-up-right" class="w-4 h-4 text-slate-500"></i></a>
     </div>
     <div class="text-xs text-slate-400 mb-1">Low Stock</div>
     <div class="text-2xl font-bold text-white">{{ low_stock_drugs|default:0 }}</div>
@@ -31,10 +49,11 @@
     </div>
   </div>
 
-  <div class="card rounded-xl p-4 relative">
+  <div class="card card-hover rounded-xl p-4 relative overflow-hidden">
+    <div class="absolute top-0 left-0 right-0 h-0.5 bg-red-500"></div>
     <div class="flex items-center justify-between mb-3">
-      <div class="w-9 h-9 rounded-lg bg-red-500/15 text-red-400 flex items-center justify-center"><i data-lucide="shield-alert" class="w-4.5 h-4.5"></i></div>
-      <a href="{% url 'inventory_alerts' %}"><i data-lucide="more-vertical" class="w-4 h-4 text-slate-500"></i></a>
+      <div class="w-10 h-10 rounded-xl bg-red-500/15 text-red-400 flex items-center justify-center"><i data-lucide="shield-alert" class="w-4.5 h-4.5"></i></div>
+      <a href="{% url 'inventory_alerts' %}"><i data-lucide="arrow-up-right" class="w-4 h-4 text-slate-500"></i></a>
     </div>
     <div class="text-xs text-slate-400 mb-1">Critical Stock</div>
     <div class="text-2xl font-bold text-white">{{ critical_stock|default:0 }}</div>
@@ -43,10 +62,11 @@
     </div>
   </div>
 
-  <div class="card rounded-xl p-4 relative">
+  <div class="card card-hover rounded-xl p-4 relative overflow-hidden">
+    <div class="absolute top-0 left-0 right-0 h-0.5 bg-slate-400/60"></div>
     <div class="flex items-center justify-between mb-3">
-      <div class="w-9 h-9 rounded-lg bg-slate-500/15 text-slate-300 flex items-center justify-center"><i data-lucide="calendar-x" class="w-4.5 h-4.5"></i></div>
-      <a href="{% url 'inventory_alerts' %}"><i data-lucide="more-vertical" class="w-4 h-4 text-slate-500"></i></a>
+      <div class="w-10 h-10 rounded-xl bg-slate-500/15 text-slate-300 flex items-center justify-center"><i data-lucide="calendar-x" class="w-4.5 h-4.5"></i></div>
+      <a href="{% url 'inventory_alerts' %}"><i data-lucide="arrow-up-right" class="w-4 h-4 text-slate-500"></i></a>
     </div>
     <div class="text-xs text-slate-400 mb-1">Expired Drugs</div>
     <div class="text-2xl font-bold text-white">{{ expired_drugs|default:0 }}</div>
@@ -55,10 +75,11 @@
     </div>
   </div>
 
-  <div class="card rounded-xl p-4 relative">
+  <div class="card card-hover rounded-xl p-4 relative overflow-hidden">
+    <div class="absolute top-0 left-0 right-0 h-0.5 bg-purple-400"></div>
     <div class="flex items-center justify-between mb-3">
-      <div class="w-9 h-9 rounded-lg bg-purple-500/15 text-purple-400 flex items-center justify-center"><i data-lucide="file-text" class="w-4.5 h-4.5"></i></div>
-      <a href="{% url 'prescription_list' %}"><i data-lucide="more-vertical" class="w-4 h-4 text-slate-500"></i></a>
+      <div class="w-10 h-10 rounded-xl bg-purple-500/15 text-purple-400 flex items-center justify-center"><i data-lucide="file-text" class="w-4.5 h-4.5"></i></div>
+      <a href="{% url 'prescription_list' %}"><i data-lucide="arrow-up-right" class="w-4 h-4 text-slate-500"></i></a>
     </div>
     <div class="text-xs text-slate-400 mb-1">Prescriptions Today</div>
     <div class="text-2xl font-bold text-white">{{ today_prescriptions|default:0 }}</div>
@@ -68,10 +89,11 @@
     </div>
   </div>
 
-  <div class="card rounded-xl p-4 relative">
+  <div class="card card-hover rounded-xl p-4 relative overflow-hidden">
+    <div class="absolute top-0 left-0 right-0 h-0.5" style="background: linear-gradient(90deg,#22c55e,#14b8a6);"></div>
     <div class="flex items-center justify-between mb-3">
-      <div class="w-9 h-9 rounded-lg bg-green-500/15 text-green-400 flex items-center justify-center"><i data-lucide="banknote" class="w-4.5 h-4.5"></i></div>
-      <a href="{% url 'sales_history' %}"><i data-lucide="more-vertical" class="w-4 h-4 text-slate-500"></i></a>
+      <div class="w-10 h-10 rounded-xl bg-green-500/15 text-green-400 flex items-center justify-center"><i data-lucide="banknote" class="w-4.5 h-4.5"></i></div>
+      <a href="{% url 'sales_history' %}"><i data-lucide="arrow-up-right" class="w-4 h-4 text-slate-500"></i></a>
     </div>
     <div class="text-xs text-slate-400 mb-1">Revenue (MWK)</div>
     <div class="text-2xl font-bold text-white">{{ total_revenue|floatformat:0|default:0 }}</div>
@@ -86,7 +108,7 @@
 <div class="grid grid-cols-1 xl:grid-cols-[1.7fr_1fr_1fr] gap-4">
 
   <!-- Sales Trend -->
-  <div class="card rounded-xl p-4 flex flex-col">
+  <div class="card card-hover rounded-xl p-4 flex flex-col">
     <div class="flex items-center justify-between mb-3">
       <div class="flex items-center gap-2 font-semibold text-white text-sm">
         <i data-lucide="trending-up" class="w-4 h-4 text-emerald-400"></i> Sales Trend
@@ -99,20 +121,20 @@
       <canvas id="salesTrendChart"></canvas>
     </div>
     <div class="flex items-center gap-5 mt-3 text-xs text-slate-400 flex-wrap">
-      <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Revenue (MWK)</span>
-      <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-400"></span> Number of Sales</span>
+      <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background:#14b8a6;"></span> Revenue (MWK)</span>
+      <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background:#2563eb;"></span> Number of Sales</span>
     </div>
   </div>
 
   <!-- Recent Sales -->
-  <div class="card rounded-xl p-4">
+  <div class="card card-hover rounded-xl p-4">
     <div class="flex items-center justify-between mb-3">
       <div class="font-semibold text-white text-sm">Recent Sales</div>
       <a href="{% url 'sales_history' %}" class="text-xs text-emerald-400 hover:underline">View all</a>
     </div>
     <div class="space-y-3">
       {% for sale in recent_sales %}
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-3 p-1.5 -mx-1.5 rounded-lg hover:bg-white/5 transition">
         <div class="w-9 h-9 rounded-lg bg-orange-500/15 text-orange-400 flex items-center justify-center flex-shrink-0"><i data-lucide="receipt" class="w-4 h-4"></i></div>
         <div class="flex-1 min-w-0">
           <div class="text-sm font-medium text-white truncate">{{ sale.sale_id }}</div>
@@ -124,20 +146,23 @@
         </div>
       </div>
       {% empty %}
-      <div class="text-xs text-slate-500 text-center py-6">No sales yet today.</div>
+      <div class="text-xs text-slate-500 text-center py-6">
+        <i data-lucide="receipt" class="w-6 h-6 mx-auto mb-2 text-slate-600"></i>
+        No sales yet today.
+      </div>
       {% endfor %}
     </div>
   </div>
 
   <!-- Recent Prescriptions -->
-  <div class="card rounded-xl p-4">
+  <div class="card card-hover rounded-xl p-4">
     <div class="flex items-center justify-between mb-3">
       <div class="font-semibold text-white text-sm">Recent Prescriptions</div>
       <a href="{% url 'prescription_list' %}" class="text-xs text-emerald-400 hover:underline">View all</a>
     </div>
     <div class="space-y-3">
       {% for rx in recent_prescriptions %}
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-3 p-1.5 -mx-1.5 rounded-lg hover:bg-white/5 transition">
         <div class="w-9 h-9 rounded-lg bg-purple-500/15 text-purple-400 flex items-center justify-center flex-shrink-0"><i data-lucide="file-text" class="w-4 h-4"></i></div>
         <div class="flex-1 min-w-0">
           <div class="text-sm font-medium text-white truncate">{{ rx.patient_name }}</div>
@@ -149,7 +174,10 @@
         </div>
       </div>
       {% empty %}
-      <div class="text-xs text-slate-500 text-center py-6">No prescriptions yet.</div>
+      <div class="text-xs text-slate-500 text-center py-6">
+        <i data-lucide="file-text" class="w-6 h-6 mx-auto mb-2 text-slate-600"></i>
+        No prescriptions yet.
+      </div>
       {% endfor %}
     </div>
   </div>
@@ -159,7 +187,7 @@
 <div class="grid grid-cols-1 xl:grid-cols-4 gap-4">
 
   <!-- Inventory Overview -->
-  <div class="card rounded-xl p-4">
+  <div class="card card-hover rounded-xl p-4">
     <div class="flex items-center justify-between mb-3">
       <div class="font-semibold text-white text-sm">Inventory Overview</div>
       <a href="{% url 'drug_list' %}" class="text-xs text-emerald-400 hover:underline">View all</a>
@@ -188,7 +216,7 @@
   </div>
 
   <!-- Top Categories -->
-  <div class="card rounded-xl p-4">
+  <div class="card card-hover rounded-xl p-4">
     <div class="flex items-center justify-between mb-3">
       <div class="font-semibold text-white text-sm">Top Categories</div>
       <a href="{% url 'drug_list' %}" class="text-xs text-emerald-400 hover:underline">View all</a>
@@ -203,13 +231,13 @@
       </thead>
       <tbody class="text-slate-300">
         {% for cat in top_categories %}
-        <tr class="border-t border-white/5">
+        <tr class="border-t border-white/5 hover:bg-white/5 transition">
           <td class="py-2">{{ cat.category }}</td>
           <td class="py-2">{{ cat.count }}</td>
           <td class="py-2 w-28">
             <div class="flex items-center gap-2">
               <div class="flex-1 h-1.5 bg-base-700 rounded-full overflow-hidden">
-                <div class="h-full bg-emerald-400 rounded-full" style="width:{% widthratio cat.count total_drugs 100 %}%"></div>
+                <div class="h-full rounded-full" style="width:{% widthratio cat.count total_drugs 100 %}%; background: linear-gradient(90deg,#14b8a6,#2563eb);"></div>
               </div>
               <span class="text-emerald-400 text-[11px] font-medium">{% widthratio cat.count total_drugs 100 %}%</span>
             </div>
@@ -223,14 +251,14 @@
   </div>
 
   <!-- Low Stock Items -->
-  <div class="card rounded-xl p-4">
+  <div class="card card-hover rounded-xl p-4">
     <div class="flex items-center justify-between mb-3">
       <div class="font-semibold text-white text-sm">Low Stock Items</div>
       <a href="{% url 'inventory_alerts' %}" class="text-xs text-emerald-400 hover:underline">View all</a>
     </div>
     <div class="space-y-3">
       {% for drug in low_stock_items %}
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-3 p-1.5 -mx-1.5 rounded-lg hover:bg-white/5 transition">
         <div class="w-8 h-8 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center flex-shrink-0"><i data-lucide="pill" class="w-4 h-4"></i></div>
         <div class="flex-1 min-w-0">
           <div class="text-sm text-white font-medium truncate">{{ drug.name }}</div>
@@ -239,37 +267,40 @@
         <span class="text-[10px] px-2 py-1 rounded-full font-medium {% if drug.quantity < 5 %}bg-red-500/20 text-red-400{% else %}bg-amber-500/20 text-amber-400{% endif %}">{{ drug.quantity }} left</span>
       </div>
       {% empty %}
-      <div class="text-xs text-slate-500 text-center py-6">All stock levels healthy.</div>
+      <div class="text-xs text-slate-500 text-center py-6">
+        <i data-lucide="check-circle-2" class="w-6 h-6 mx-auto mb-2 text-emerald-500/50"></i>
+        All stock levels healthy.
+      </div>
       {% endfor %}
     </div>
   </div>
 
   <!-- Quick Actions -->
-  <div class="card rounded-xl p-4">
+  <div class="card card-hover rounded-xl p-4">
     <div class="font-semibold text-white text-sm mb-3">Quick Actions</div>
     <div class="grid grid-cols-3 gap-3 text-center">
-      <a href="{% url 'pos_system' %}" class="flex flex-col items-center gap-2 py-3 rounded-lg hover:bg-white/5 transition">
-        <div class="w-10 h-10 rounded-full bg-emerald-500/15 text-emerald-400 flex items-center justify-center"><i data-lucide="shopping-cart" class="w-4.5 h-4.5"></i></div>
+      <a href="{% url 'pos_system' %}" class="flex flex-col items-center gap-2 py-3 rounded-lg hover:bg-white/5 transition group">
+        <div class="w-10 h-10 rounded-full bg-emerald-500/15 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition"><i data-lucide="shopping-cart" class="w-4.5 h-4.5"></i></div>
         <span class="text-[11px] text-slate-400 leading-tight">New Sale</span>
       </a>
-      <a href="{% url 'drug_create' %}" class="flex flex-col items-center gap-2 py-3 rounded-lg hover:bg-white/5 transition">
-        <div class="w-10 h-10 rounded-full bg-blue-500/15 text-blue-400 flex items-center justify-center"><i data-lucide="pill" class="w-4.5 h-4.5"></i></div>
+      <a href="{% url 'drug_create' %}" class="flex flex-col items-center gap-2 py-3 rounded-lg hover:bg-white/5 transition group">
+        <div class="w-10 h-10 rounded-full bg-blue-500/15 text-blue-400 flex items-center justify-center group-hover:scale-110 transition"><i data-lucide="pill" class="w-4.5 h-4.5"></i></div>
         <span class="text-[11px] text-slate-400 leading-tight">Add Drug</span>
       </a>
-      <a href="{% url 'prescription_create' %}" class="flex flex-col items-center gap-2 py-3 rounded-lg hover:bg-white/5 transition">
-        <div class="w-10 h-10 rounded-full bg-purple-500/15 text-purple-400 flex items-center justify-center"><i data-lucide="file-plus" class="w-4.5 h-4.5"></i></div>
+      <a href="{% url 'prescription_create' %}" class="flex flex-col items-center gap-2 py-3 rounded-lg hover:bg-white/5 transition group">
+        <div class="w-10 h-10 rounded-full bg-purple-500/15 text-purple-400 flex items-center justify-center group-hover:scale-110 transition"><i data-lucide="file-plus" class="w-4.5 h-4.5"></i></div>
         <span class="text-[11px] text-slate-400 leading-tight">New Rx</span>
       </a>
-      <a href="{% url 'supplier_create' %}" class="flex flex-col items-center gap-2 py-3 rounded-lg hover:bg-white/5 transition">
-        <div class="w-10 h-10 rounded-full bg-teal-500/15 text-teal-400 flex items-center justify-center"><i data-lucide="truck" class="w-4.5 h-4.5"></i></div>
+      <a href="{% url 'supplier_create' %}" class="flex flex-col items-center gap-2 py-3 rounded-lg hover:bg-white/5 transition group">
+        <div class="w-10 h-10 rounded-full bg-teal-500/15 text-teal-400 flex items-center justify-center group-hover:scale-110 transition"><i data-lucide="truck" class="w-4.5 h-4.5"></i></div>
         <span class="text-[11px] text-slate-400 leading-tight">Add Supplier</span>
       </a>
-      <a href="{% url 'purchase_order_create' %}" class="flex flex-col items-center gap-2 py-3 rounded-lg hover:bg-white/5 transition">
-        <div class="w-10 h-10 rounded-full bg-amber-500/15 text-amber-400 flex items-center justify-center"><i data-lucide="clipboard-list" class="w-4.5 h-4.5"></i></div>
+      <a href="{% url 'purchase_order_create' %}" class="flex flex-col items-center gap-2 py-3 rounded-lg hover:bg-white/5 transition group">
+        <div class="w-10 h-10 rounded-full bg-amber-500/15 text-amber-400 flex items-center justify-center group-hover:scale-110 transition"><i data-lucide="clipboard-list" class="w-4.5 h-4.5"></i></div>
         <span class="text-[11px] text-slate-400 leading-tight">New PO</span>
       </a>
-      <a href="{% url 'customer_create' %}" class="flex flex-col items-center gap-2 py-3 rounded-lg hover:bg-white/5 transition">
-        <div class="w-10 h-10 rounded-full bg-pink-500/15 text-pink-400 flex items-center justify-center"><i data-lucide="user-plus" class="w-4.5 h-4.5"></i></div>
+      <a href="{% url 'customer_create' %}" class="flex flex-col items-center gap-2 py-3 rounded-lg hover:bg-white/5 transition group">
+        <div class="w-10 h-10 rounded-full bg-pink-500/15 text-pink-400 flex items-center justify-center group-hover:scale-110 transition"><i data-lucide="user-plus" class="w-4.5 h-4.5"></i></div>
         <span class="text-[11px] text-slate-400 leading-tight">Add Customer</span>
       </a>
     </div>
@@ -279,7 +310,7 @@
 <!-- Monthly revenue + Top selling products -->
 <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
 
-  <div class="card rounded-xl p-4 xl:col-span-2">
+  <div class="card card-hover rounded-xl p-4 xl:col-span-2">
     <div class="flex items-center justify-between mb-1">
       <div class="font-semibold text-white text-sm">Monthly Revenue</div>
       <select class="bg-base-800 border border-white/10 text-xs text-slate-300 rounded-md px-2 py-1">
@@ -291,14 +322,14 @@
     <div class="h-52"><canvas id="monthlyRevenueChart"></canvas></div>
   </div>
 
-  <div class="card rounded-xl p-4">
+  <div class="card card-hover rounded-xl p-4">
     <div class="flex items-center justify-between mb-3">
       <div class="font-semibold text-white text-sm">Top Selling Products</div>
       <a href="{% url 'sales_history' %}" class="text-xs text-emerald-400 hover:underline">View all</a>
     </div>
     <div class="space-y-3">
       {% for product in top_selling_products %}
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-3 p-1.5 -mx-1.5 rounded-lg hover:bg-white/5 transition">
         <div class="w-8 h-8 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center flex-shrink-0"><i data-lucide="pill" class="w-4 h-4"></i></div>
         <div class="flex-1 min-w-0">
           <div class="text-sm text-white font-medium truncate">{{ product.drug__name }}</div>
@@ -319,6 +350,18 @@
 <script>
 lucide.createIcons();
 
+/* ---------------- Greeting + date ---------------- */
+(function(){
+  const hour = new Date().getHours();
+  const label = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+  const el = document.getElementById('greeting-label');
+  if (el) el.textContent = label;
+  const dateEl = document.getElementById('dashboard-date');
+  if (dateEl) {
+    dateEl.textContent = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' });
+  }
+})();
+
 /* ---------------- Data from Django context ---------------- */
 const salesTrendLabels = [{% for d in sales_data %}"{{ d.date|date:'D' }}",{% endfor %}];
 const salesTrendRevenue = [{% for d in sales_data %}{{ d.total|default:0 }},{% endfor %}];
@@ -333,10 +376,10 @@ const inventoryStats = [
   {{ inventory_stats.critical_stock|default:0 }}
 ];
 
-/* ---------------- Charts ---------------- */
+/* ---------------- Charts (brand teal -> blue palette) ---------------- */
 const inventoryChart = new Chart(document.getElementById('inventoryChart'), {
   type:'doughnut',
-  data:{ datasets:[{ data: inventoryStats, backgroundColor:['#22c55e','#f59e0b','#ef4444'], borderWidth:0 }] },
+  data:{ datasets:[{ data: inventoryStats, backgroundColor:['#14b8a6','#f59e0b','#ef4444'], borderWidth:0 }] },
   options:{ cutout:'72%', plugins:{legend:{display:false}, tooltip:{enabled:true}} }
 });
 
@@ -345,8 +388,8 @@ const salesTrendChart = new Chart(document.getElementById('salesTrendChart'), {
   data:{
     labels: salesTrendLabels,
     datasets:[
-      { label:'Revenue', data: salesTrendRevenue, borderColor:'#22c55e', backgroundColor:'rgba(34,197,94,0.12)', fill:true, tension:.45, pointRadius:2, borderWidth:2, yAxisID:'y' },
-      { label:'Sales', data: salesTrendCount, borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.08)', fill:true, tension:.45, pointRadius:2, borderWidth:2, yAxisID:'y1' }
+      { label:'Revenue', data: salesTrendRevenue, borderColor:'#14b8a6', backgroundColor:'rgba(20,184,166,0.12)', fill:true, tension:.45, pointRadius:2, borderWidth:2, yAxisID:'y' },
+      { label:'Sales', data: salesTrendCount, borderColor:'#2563eb', backgroundColor:'rgba(37,99,235,0.08)', fill:true, tension:.45, pointRadius:2, borderWidth:2, yAxisID:'y1' }
     ]
   },
   options:{
@@ -361,7 +404,7 @@ const salesTrendChart = new Chart(document.getElementById('salesTrendChart'), {
 
 const monthlyRevenueChart = new Chart(document.getElementById('monthlyRevenueChart'), {
   type:'bar',
-  data:{ labels: monthlyLabels, datasets:[{ data: monthlyRevenue, backgroundColor:'#22c55e', borderRadius:4, maxBarThickness:28 }] },
+  data:{ labels: monthlyLabels, datasets:[{ data: monthlyRevenue, backgroundColor:'#14b8a6', borderRadius:4, maxBarThickness:28 }] },
   options:{ plugins:{legend:{display:false}}, scales:{ x:{ grid:{display:false}, ticks:{color:tickColor, font:{size:10}} }, y:{ grid:{color:gridColor}, ticks:{color:tickColor, font:{size:10}} } } }
 });
 
