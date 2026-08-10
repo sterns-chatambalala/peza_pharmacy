@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en" class="light-mode">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>{% block title %}PharmaCare{% endblock %} — Pharmacy. Simplified.</title>
+
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          base: {
+            950: '#070a12',
+            900: '#0b0f1a',
+            850: '#0f1422',
+            800: '#131a2b',
+            750: '#161d30',
+            700: '#1c2438',
+            600: '#26304a',
+            500: '#3a4666',
+          },
+          brand: {
+            teal: '#14b8a6',
+            blue: '#2563eb',
+            green: '#22c55e',
+            orange: '#f97316',
+            red: '#ef4444',
+            purple: '#a855f7',
+            yellow: '#eab308',
+          }
+        },
+        fontFamily: {
+          sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        },
+        boxShadow: {
+          card: '0 1px 0 0 rgba(255,255,255,0.03) inset, 0 8px 24px -8px rgba(0,0,0,0.5)',
+        }
+      }
+    }
+  }
+</script>
+
+<!-- Google font -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+<!-- Lucide icons -->
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+<style>
+  @font-face {
+    font-family: 'Troy';
+    src: url('{% static "troy.woff2" %}') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  html { zoom: 0.67; }
+  html, body { height: 149.2537vh; }
+  .h-screen { height: 149.2537vh !important; }
+
+  html, body { background:#070a12; font-family:'Troy','Inter',sans-serif; }
+  * { font-family: inherit; }
+  ::-webkit-scrollbar{ width:8px; height:8px; }
+  ::-webkit-scrollbar-track{ background:transparent; }
+  ::-webkit-scrollbar-thumb{ background:#1c2438; border-radius:8px; }
+  ::-webkit-scrollbar-thumb:hover{ background:#26304a; }
+
+  .card {
+    background: linear-gradient(180deg, #0f1422 0%, #0d111c 100%);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .nav-link { transition: all .15s ease; }
+  .nav-link:hover { background: rgba(255,255,255,0.04); }
+  .nav-link.active {
+    background: linear-gradient(90deg, rgba(34,197,94,0.14), rgba(34,197,94,0.02));
+    border-left: 3px solid #22c55e;
+    color: #fff;
+  }
+  .sidebar-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    color: #f8fafc;
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .sidebar-brand-logo {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+    display: block;
+    border-radius: 0.8rem;
+    background: rgba(255,255,255,0.95);
+    padding: 0.2rem;
+    box-shadow: 0 8px 20px rgba(15,184,172,0.12);
+  }
+  .sidebar-brand-word {
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+  }
+  .sidebar-brand-green { color: #14b8a6; font-weight: 800; }
+  .sidebar-brand-blue { color: #2563eb; font-weight: 800; }
+  .scrollbar-thin::-webkit-scrollbar{ width:6px; }
+
+  .pulse-dot { position:relative; }
+  .pulse-dot::after {
+    content:'';
+    position:absolute; inset:-6px;
+    border-radius:50%;
+    border:2px solid currentColor;
+    opacity:0.5;
+    animation: pulse-ring 1.8s ease-out infinite;
+  }
+  @keyframes pulse-ring {
+    0% { transform:scale(0.6); opacity:0.6; }
+    100% { transform:scale(1.8); opacity:0; }
+  }
+
+  .glow-live {
+    box-shadow: 0 0 0 0 rgba(34,197,94,0.5);
+    animation: glow 2s infinite;
+  }
+  @keyframes glow {
+    0%,100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.45); }
+    50% { box-shadow: 0 0 0 5px rgba(34,197,94,0); }
+  }
+
+  /* ================= LIGHT MODE ================= */
+  html.light-mode, html.light-mode body { background:#f3f5f9 !important; }
+
+  html.light-mode ::-webkit-scrollbar-thumb{ background:#cbd5e1; }
+  html.light-mode ::-webkit-scrollbar-thumb:hover{ background:#94a3b8; }
+
+  html.light-mode .card {
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid rgba(15,23,42,0.08);
+    box-shadow: 0 1px 0 0 rgba(255,255,255,0.6) inset, 0 8px 20px -8px rgba(15,23,42,0.12);
+  }
+  html.light-mode .nav-link:hover { background: rgba(15,23,42,0.05); }
+  html.light-mode .nav-link.active { color:#0f172a; }
+  html.light-mode .nav-link:not(.active) { color:#475569; }
+
+  html.light-mode .bg-base-950 { background-color:#f3f5f9 !important; }
+  html.light-mode .bg-base-950\/80 { background-color: rgba(255,255,255,0.8) !important; }
+  html.light-mode .bg-base-900 { background-color:#ffffff !important; }
+  html.light-mode .bg-base-800 { background-color:#eef1f6 !important; }
+  html.light-mode .bg-base-700 { background-color:#dfe4ec !important; }
+
+  html.light-mode .text-white { color:#0f172a !important; }
+  html.light-mode .text-slate-200 { color:#334155 !important; }
+  html.light-mode .text-slate-300 { color:#475569 !important; }
+  html.light-mode .text-slate-400 { color:#64748b !important; }
+  html.light-mode .text-slate-500 { color:#94a3b8 !important; }
+
+  html.light-mode .border-white\/5 { border-color: rgba(15,23,42,0.08) !important; }
+  html.light-mode .border-white\/10 { border-color: rgba(15,23,42,0.12) !important; }
+  html.light-mode .bg-white\/5 { background-color: rgba(15,23,42,0.04) !important; }
+  html.light-mode .hover\:bg-white\/5:hover { background-color: rgba(15,23,42,0.05) !important; }
+  html.light-mode .bg-white\/\[0\.02\] { background-color: rgba(15,23,42,0.025) !important; }
+
+  html.light-mode aside .rounded-xl.p-4.bg-gradient-to-br {
+    background: linear-gradient(135deg, #ecfdf5 0%, #f0fdfa 50%, #ffffff 100%) !important;
+    border-color: rgba(16,185,129,0.18) !important;
+  }
+
+  /* ================================================================
+     PREMIUM POLISH LAYER
+     Brand gradient system (teal -> blue, matching the login screen)
+     applied globally to every page that extends this shell, without
+     needing to touch each individual template.
+     ================================================================ */
+  :root {
+    --brand-teal: #14b8a6;
+    --brand-blue: #2563eb;
+    --brand-gradient: linear-gradient(135deg, #14b8a6 0%, #2563eb 100%);
+  }
+
+  /* Cards: subtle lift + glow on hover, crisper edge */
+  .card {
+    border-radius: 0.9rem;
+    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+  }
+  a.card:hover, .card.card-hover:hover {
+    border-color: rgba(20,184,166,0.35);
+    box-shadow: 0 1px 0 0 rgba(255,255,255,0.04) inset, 0 14px 32px -12px rgba(0,0,0,0.6);
+    transform: translateY(-1px);
+  }
+  html.light-mode a.card:hover, html.light-mode .card.card-hover:hover {
+    box-shadow: 0 1px 0 0 rgba(255,255,255,0.6) inset, 0 14px 28px -12px rgba(15,23,42,0.18);
+  }
+
+  /* Primary solid buttons (bg-emerald-500 / bg-blue-500) get the brand gradient */
+  .bg-emerald-500 {
+    background-image: var(--brand-gradient);
+    box-shadow: 0 10px 22px -10px rgba(37,99,235,0.55);
+    transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+  }
+  .bg-emerald-500:hover { filter: brightness(1.08); transform: translateY(-1px); box-shadow: 0 12px 26px -10px rgba(37,99,235,0.65); }
+  .bg-emerald-500:active { transform: translateY(0); }
+  .bg-emerald-500:disabled, .bg-emerald-500.disabled { filter: grayscale(0.4) brightness(0.8); box-shadow: none; }
+
+  .bg-blue-500 {
+    background-image: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+    box-shadow: 0 10px 22px -10px rgba(37,99,235,0.5);
+    transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+  }
+  .bg-blue-500:hover { filter: brightness(1.08); transform: translateY(-1px); }
+
+  .bg-red-500 {
+    background-image: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+    box-shadow: 0 10px 22px -10px rgba(239,68,68,0.45);
+    transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+  }
+  .bg-red-500:hover { filter: brightness(1.08); transform: translateY(-1px); }
+
+  .bg-amber-500 {
+    background-image: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    box-shadow: 0 10px 22px -10px rgba(217,119,6,0.4);
+    transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+  }
+  .bg-amber-500:hover { filter: brightness(1.08); transform: translateY(-1px); }
+
+  /* Secondary buttons */
+  .bg-base-700 { transition: background-color .15s ease, transform .15s ease; }
+  .bg-base-700:hover { transform: translateY(-1px); }
+
+  /* Inputs: brand-colored focus ring everywhere (search, filters, forms) */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select, textarea {
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  input:focus:not([type="checkbox"]):not([type="radio"]), select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--brand-teal) !important;
+    box-shadow: 0 0 0 3px rgba(20,184,166,0.15);
+  }
+
+  /* Table polish: sticky, readable header + hover rows */
+  table thead tr th {
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.7rem;
+  }
+  table tbody tr { transition: background-color .12s ease; }
+
+  /* Badges / pills get a touch more definition */
+  .rounded-full.text-xs.font-medium, .rounded-full.text-xs.font-semibold {
+    letter-spacing: 0.01em;
+  }
+
+  /* Sidebar: brand glow on logo + refined active state */
+  .sidebar-brand-logo { box-shadow: 0 8px 20px rgba(20,184,166,0.25), 0 2px 6px rgba(37,99,235,0.15); }
+  aside { position: relative; }
+  aside::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--brand-gradient);
+    opacity: 0.9;
+  }
+  .nav-link.active {
+    background: linear-gradient(90deg, rgba(20,184,166,0.16), rgba(37,99,235,0.05) 70%, transparent);
+    border-left: 3px solid var(--brand-teal);
+    box-shadow: inset 0 0 0 1px rgba(20,184,166,0.06);
+  }
+  .nav-link.active i[data-lucide] { color: var(--brand-teal) !important; }
+  .nav-link:not(.active) { border-left: 3px solid transparent; }
+
+  /* Topbar polish */
+  header.backdrop-blur { box-shadow: 0 1px 0 0 rgba(255,255,255,0.03); }
+  #profile-btn > div.rounded-full {
+    background: var(--brand-gradient) !important;
+    color: #fff !important;
+    border: none !important;
+  }
+
+  /* Scroll-to-top focus states for accessibility + polish */
+  a, button { -webkit-tap-highlight-color: transparent; }
+
+  /* Empty states */
+  main .text-center.py-12 i[data-lucide], main .text-center.py-16 i[data-lucide] {
+    filter: drop-shadow(0 4px 10px rgba(20,184,166,0.15));
+  }
+
+  {% block extra_style %}{% endblock %}
+</style>
+{% block extra_head %}{% endblock %}
+</head>
+
+<body class="bg-base-950 text-slate-200 antialiased">
+
+<div class="flex h-screen overflow-hidden">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="w-64 flex-shrink-0 bg-base-900 border-r border-white/5 flex flex-col h-screen">
+    <!-- Logo -->
+    <div class="px-5 py-5 border-b border-white/5">
+      <a href="{% url 'dashboard' %}" class="sidebar-brand">
+        <img class="sidebar-brand-logo" src="{% static 'logo.png' %}?v=2" alt="MediCore logo" loading="eager">
+        <span class="sidebar-brand-word">
+          <span class="sidebar-brand-green">Medi</span><span class="sidebar-brand-blue">core</span>
+        </span>
+      </a>
+      <div class="mt-2 text-[10px] uppercase tracking-[0.26em] text-slate-500">Pharmacy. Simplified.</div>
+    </div>
+
+    <nav class="flex-1 overflow-y-auto scrollbar-thin px-3 py-4 space-y-1 text-sm">
+      <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active text-white{% else %}text-slate-400{% endif %} flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium" href="{% url 'dashboard' %}">
+        <i data-lucide="layout-dashboard" class="w-4 h-4 {% if request.resolver_match.url_name == 'dashboard' %}text-emerald-400{% endif %}"></i> Overview
+      </a>
+
+      <div class="pt-4 pb-1 px-3 text-[10px] font-bold tracking-widest text-slate-500">INVENTORY</div>
+      <a class="nav-link {% if request.resolver_match.url_name == 'drug_list' %}active text-white{% else %}text-slate-400{% endif %} flex items-center justify-between px-3 py-2.5 rounded-lg" href="{% url 'drug_list' %}">
+        <span class="flex items-center gap-3"><i data-lucide="pill" class="w-4 h-4"></i> Drugs &amp; Stock</span>
+        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+      </a>
+      <a class="nav-link {% if request.resolver_match.url_name == 'supplier_list' %}active text-white{% else %}text-slate-400{% endif %} flex items-center justify-between px-3 py-2.5 rounded-lg" href="{% url 'supplier_list' %}">
+        <span class="flex items-center gap-3"><i data-lucide="truck" class="w-4 h-4"></i> Suppliers</span>
+        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+      </a>
+      <a class="nav-link {% if request.resolver_match.url_name == 'purchase_order_list' %}active text-white{% else %}text-slate-400{% endif %} flex items-center justify-between px-3 py-2.5 rounded-lg" href="{% url 'purchase_order_list' %}">
+        <span class="flex items-center gap-3"><i data-lucide="clipboard-list" class="w-4 h-4"></i> Purchase Orders</span>
+        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+      </a>
+      <a class="nav-link {% if request.resolver_match.url_name == 'stock_adjustment_list' %}active text-white{% else %}text-slate-400{% endif %} flex items-center justify-between px-3 py-2.5 rounded-lg" href="{% url 'stock_adjustment_list' %}">
+        <span class="flex items-center gap-3"><i data-lucide="sliders-horizontal" class="w-4 h-4"></i> Stock Adjustments</span>
+        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+      </a>
+
+      <div class="pt-4 pb-1 px-3 text-[10px] font-bold tracking-widest text-slate-500">SALES</div>
+      <a class="nav-link {% if request.resolver_match.url_name == 'pos_system' %}active text-white{% else %}text-slate-400{% endif %} flex items-center justify-between px-3 py-2.5 rounded-lg" href="{% url 'pos_system' %}">
+        <span class="flex items-center gap-3"><i data-lucide="shopping-cart" class="w-4 h-4"></i> Point of Sale</span>
+        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+      </a>
+      <a class="nav-link {% if request.resolver_match.url_name == 'sales_history' %}active text-white{% else %}text-slate-400{% endif %} flex items-center justify-between px-3 py-2.5 rounded-lg" href="{% url 'sales_history' %}">
+        <span class="flex items-center gap-3"><i data-lucide="receipt" class="w-4 h-4"></i> Sales History</span>
+        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+      </a>
+      <a class="nav-link {% if request.resolver_match.url_name == 'sale_return_list' %}active text-white{% else %}text-slate-400{% endif %} flex items-center justify-between px-3 py-2.5 rounded-lg" href="{% url 'sale_return_list' %}">
+        <span class="flex items-center gap-3"><i data-lucide="undo-2" class="w-4 h-4"></i> Sale Returns</span>
+        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+      </a>
+      <a class="nav-link {% if request.resolver_match.url_name == 'void_requests_list' %}active text-white{% else %}text-slate-400{% endif %} flex items-center justify-between px-3 py-2.5 rounded-lg" href="{% url 'void_requests_list' %}">
+        <span class="flex items-center gap-3"><i data-lucide="ban" class="w-4 h-4"></i> Void Requests</span>
+        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+      </a>
+
+      <div class="pt-4 pb-1 px-3 text-[10px] font-bold tracking-widest text-slate-500">CARE</div>
+      <a class="nav-link {% if request.resolver_match.url_name == 'prescription_list' %}active text-white{% else %}text-slate-400{% endif %} flex items-center justify-between px-3 py-2.5 rounded-lg" href="{% url 'prescription_list' %}">
+        <span class="flex items-center gap-3"><i data-lucide="file-text" class="w-4 h-4"></i> Prescriptions</span>
+        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+      </a>
+      <a class="nav-link {% if request.resolver_match.url_name == 'insurance_claim_list' %}active text-white{% else %}text-slate-400{% endif %} flex items-center justify-between px-3 py-2.5 rounded-lg" href="{% url 'insurance_claim_list' %}">
+        <span class="flex items-center gap-3"><i data-lucide="shield-plus" class="w-4 h-4"></i> Insurance Claims</span>
+        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+      </a>
+      <a class="nav-link {% if request.resolver_match.url_name == 'customer_list' %}active text-white{% else %}text-slate-400{% endif %} flex items-center justify-between px-3 py-2.5 rounded-lg" href="{% url 'customer_list' %}">
+        <span class="flex items-center gap-3"><i data-lucide="user-square" class="w-4 h-4"></i> Customers</span>
+        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+      </a>
+      <a class="nav-link {% if request.resolver_match.url_name == 'inventory_alerts' %}active text-white{% else %}text-slate-400{% endif %} flex items-center justify-between px-3 py-2.5 rounded-lg" href="{% url 'inventory_alerts' %}">
+        <span class="flex items-center gap-3"><i data-lucide="bell" class="w-4 h-4"></i> Alerts</span>
+        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+      </a>
+
+      <div class="pt-4 pb-1 px-3 text-[10px] font-bold tracking-widest text-slate-500">SYSTEM</div>
+      <a class="nav-link {% if request.resolver_match.url_name == 'user_list' %}active text-white{% else %}text-slate-400{% endif %} flex items-center justify-between px-3 py-2.5 rounded-lg" href="{% url 'user_list' %}">
+        <span class="flex items-center gap-3"><i data-lucide="user-cog" class="w-4 h-4"></i> Users &amp; Roles</span>
+        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+      </a>
+      <a class="nav-link {% if request.resolver_match.url_name == 'subscription_detail' %}active text-white{% else %}text-slate-400{% endif %} flex items-center justify-between px-3 py-2.5 rounded-lg" href="{% url 'subscription_detail' %}">
+        <span class="flex items-center gap-3"><i data-lucide="credit-card" class="w-4 h-4"></i> Subscription</span>
+        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+      </a>
+      <a class="nav-link {% if request.resolver_match.url_name == 'settings' %}active text-white{% else %}text-slate-400{% endif %} flex items-center justify-between px-3 py-2.5 rounded-lg" href="{% url 'settings' %}">
+        <span class="flex items-center gap-3"><i data-lucide="settings" class="w-4 h-4"></i> Settings</span>
+        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+      </a>
+    </nav>
+
+    <div class="p-4"></div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="flex-1 flex flex-col h-screen overflow-hidden">
+
+    <!-- Topbar -->
+    <header class="flex items-center justify-between gap-4 px-6 py-3.5 border-b border-white/5 bg-base-950/80 backdrop-blur relative z-50">
+      <div class="flex-1 max-w-md">
+        <form action="{% url 'global_search' %}" method="get" class="flex items-center gap-2 bg-base-800 border border-white/5 rounded-lg px-3 py-2 text-sm text-slate-400" role="search">
+          <i data-lucide="search" class="w-4 h-4"></i>
+          <input id="global-search-input" name="q" type="search" placeholder="Search drugs, prescriptions, customers..." value="{{ request.GET.q|default_if_none:'' }}" class="flex-1 bg-transparent outline-none text-sm text-slate-300" autocomplete="off" />
+          <kbd class="text-[10px] bg-base-700 px-1.5 py-0.5 rounded text-slate-400">Ctrl + K</kbd>
+        </form>
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="theme-toggle-btn" onclick="toggleTheme()" class="w-9 h-9 rounded-lg bg-base-800 border border-white/5 flex items-center justify-center text-slate-300 hover:text-white"><i id="theme-toggle-icon" data-lucide="moon" class="w-4 h-4"></i></button>
+        <div class="relative topbar-menu">
+          <button id="notifications-btn" type="button" aria-expanded="false" aria-haspopup="true" class="relative w-9 h-9 rounded-lg bg-base-800 border border-white/5 flex items-center justify-center text-slate-300 hover:text-white">
+            <i data-lucide="bell" class="w-4 h-4"></i>
+            <span id="notifications-count" class="hidden absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold"></span>
+          </button>
+          <div id="notifications-panel" class="hidden z-[9999] w-80 origin-top-right rounded-md shadow-lg card p-2 fixed topbar-menu-panel">
+            <div class="text-sm font-semibold px-2 py-2">Notifications</div>
+            <div id="notifications-list" class="max-h-64 overflow-auto text-sm px-2 space-y-2"></div>
+            <div class="text-center py-2"><a href="{% url 'inventory_alerts' %}" class="text-xs text-slate-400">View all alerts</a></div>
+          </div>
+        </div>
+        <div class="relative topbar-menu">
+          <button id="profile-btn" type="button" aria-expanded="false" aria-haspopup="true" class="flex items-center gap-2 pl-2 border-l border-white/10 bg-transparent">
+            <div class="w-9 h-9 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-semibold border border-white/10">{{ request.user.username|slice:":1"|upper }}</div>
+            <div class="text-sm text-left">
+              <div class="font-semibold text-white leading-tight">{{ request.user.get_full_name|default:request.user.username }}</div>
+              <div class="text-[11px] text-emerald-400 leading-tight">{{ request.membership.get_role_display|default:"Team Member" }}</div>
+            </div>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-500"></i>
+          </button>
+          <div id="profile-menu" class="hidden z-[9999] w-48 origin-top-right rounded-md shadow-lg card p-2 fixed topbar-menu-panel">
+            <a href="{% url 'profile' %}" class="block px-3 py-2 text-sm text-slate-200 hover:bg-white/5 rounded">View Profile</a>
+            <a href="{% url 'settings' %}" class="block px-3 py-2 text-sm text-slate-200 hover:bg-white/5 rounded">Settings</a>
+            <form method="post" action="{% url 'logout' %}" class="m-0">
+              {% csrf_token %}
+              <button type="submit" class="w-full text-left block px-3 py-2 text-sm text-red-400 hover:bg-white/5 rounded">Logout</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Scrollable content -->
+    <main class="flex-1 overflow-y-auto p-5 space-y-5">
+      {% if messages %}
+        <div class="space-y-2">
+          {% for message in messages %}
+            <div class="px-4 py-2.5 rounded-lg text-sm border {% if message.tags == 'error' %}bg-red-500/10 border-red-500/20 text-red-400{% elif message.tags == 'success' %}bg-emerald-500/10 border-emerald-500/20 text-emerald-400{% elif message.tags == 'warning' %}bg-amber-500/10 border-amber-500/20 text-amber-400{% else %}bg-blue-500/10 border-blue-500/20 text-blue-400{% endif %}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="flex items-center justify-between px-6 py-2.5 border-t border-white/5 bg-base-950 text-[11px] text-slate-500">
+      <div>© {% now "Y" %} PharmaCare{% if request.tenant %} · {{ request.tenant.name }}{% endif %}. All rights reserved.</div>
+      <div class="flex items-center gap-5">
+        <span class="flex items-center gap-1.5">System <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Online</span>
+        <span id="server-time">Server Time —</span>
+      </div>
+      <div>Made with ❤️ in Malawi 🇲🇼</div>
+    </footer>
+  </div>
+</div>
+
+<script>
+// Single unified script block: icons, server time, theme, search shortcuts, notifications, profile menu
+lucide.createIcons();
+
+/* ---------------- Server time ---------------- */
+function updateServerTime(){
+  const now = new Date();
+  const opts = { hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false };
+  const datePart = now.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+  const el = document.getElementById('server-time');
+  if(el) el.textContent = `Server Time  ${datePart}, ${now.toLocaleTimeString('en-GB', opts)} (CAT)`;
+}
+updateServerTime();
+setInterval(updateServerTime, 1000);
+
+/* ---------------- Theme toggle ---------------- */
+let gridColor = 'rgba(255,255,255,0.05)';
+let tickColor = '#64748b';
+
+function setTheme(isLight){
+  if (isLight) document.documentElement.classList.add('light-mode');
+  else document.documentElement.classList.remove('light-mode');
+  const iconEl = document.getElementById('theme-toggle-icon');
+  if(iconEl){
+    iconEl.outerHTML = `<i id="theme-toggle-icon" data-lucide="${isLight ? 'moon' : 'sun'}" class="w-4 h-4"></i>`;
+    lucide.createIcons();
+  }
+  gridColor = isLight ? 'rgba(15,23,42,0.08)' : 'rgba(255,255,255,0.05)';
+  tickColor = isLight ? '#475569' : '#64748b';
+  if (typeof updateChartsForTheme === 'function') updateChartsForTheme(gridColor, tickColor);
+}
+
+function toggleTheme(){
+  const isLight = !document.documentElement.classList.contains('light-mode');
+  setTheme(isLight);
+  try{ localStorage.setItem('theme', isLight ? 'light' : 'dark'); }catch(e){}
+}
+
+/* ---------------- UI interactions (search, notifications, profile) ---------------- */
+document.addEventListener('DOMContentLoaded', function(){
+  // Initialize theme from localStorage, but default to light mode on first visit/login.
+  try{
+    const saved = localStorage.getItem('theme');
+    const isLight = saved === null ? true : saved === 'light';
+    setTheme(isLight);
+  }catch(e){ setTheme(true); }
+
+  // Search focus (Ctrl/Cmd + K)
+  const input = document.getElementById('global-search-input');
+  if(input){
+    document.addEventListener('keydown', (e)=>{
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k'){
+        e.preventDefault(); input.focus(); input.select();
+      }
+    });
+  }
+
+  // Notifications
+  const notifBtn = document.getElementById('notifications-btn');
+  const notifPanel = document.getElementById('notifications-panel');
+  const notifList = document.getElementById('notifications-list');
+  const notifCount = document.getElementById('notifications-count');
+  let notifOpen = false;
+  let profileOpen = false;
+
+  // Detach the dropdown panels from the header and float them at the body level.
+  // The header uses backdrop-blur, which makes it a containing block for its
+  // descendants; keeping the panels nested inside it can let later page content
+  // (like the dashboard cards) paint over them. Moving them to <body> with
+  // position:fixed and a very high z-index guarantees they always render on top,
+  // positioned relative to their trigger button.
+  if (notifPanel) document.body.appendChild(notifPanel);
+  const profileMenu = document.getElementById('profile-menu');
+  if (profileMenu) document.body.appendChild(profileMenu);
+
+  function closeAllMenus(){
+    const panels = document.querySelectorAll('.topbar-menu-panel');
+    panels.forEach(panel => panel.classList.add('hidden'));
+    document.querySelectorAll('#notifications-btn, #profile-btn').forEach(btn => btn.setAttribute('aria-expanded', 'false'));
+    notifOpen = false;
+    profileOpen = false;
+  }
+
+  function positionMenu(panel, trigger) {
+    if (!panel || !trigger) return;
+    // The page applies `zoom` to <html> (see base styles). getBoundingClientRect()
+    // reports the button's real on-screen (already-zoomed) position, but inline
+    // style values we set on the panel are themselves subject to that same zoom
+    // scale (since the panel is also a descendant of the zoomed <html>). Without
+    // correcting for this, the panel's px offsets get scaled a second time and
+    // land in the wrong place. Divide by the zoom factor to compensate.
+    const zoom = parseFloat(getComputedStyle(document.documentElement).zoom) || 1;
+    const rect = trigger.getBoundingClientRect();
+    const panelRect = panel.getBoundingClientRect();
+    const visualTop = rect.bottom + 8;
+    let visualLeft = rect.right - panelRect.width;
+    visualLeft = Math.max(8, Math.min(visualLeft, window.innerWidth - panelRect.width - 8));
+    panel.style.top = `${visualTop / zoom}px`;
+    panel.style.left = `${visualLeft / zoom}px`;
+    panel.style.right = 'auto';
+  }
+
+  async function fetchNotifs(){
+    try{
+      const res = await fetch("{% url 'notifications_json' %}", { credentials: 'same-origin' });
+      if (!res.ok) return;
+      const data = await res.json();
+      if(notifList) notifList.innerHTML = '';
+      if (data.notifications && data.notifications.length){
+        data.notifications.forEach(n => {
+          const a = document.createElement('a');
+          a.href = n.url || '#';
+          a.className = 'block px-2 py-2 rounded hover:bg-white/5 text-slate-200';
+          a.textContent = n.message;
+          notifList && notifList.appendChild(a);
+        });
+      } else if(notifList){
+        notifList.innerHTML = '<div class="px-2 py-2 text-slate-400 text-sm">No notifications</div>';
+      }
+      if (data.count > 0 && notifCount){ notifCount.textContent = data.count; notifCount.classList.remove('hidden'); }
+      else if(notifCount){ notifCount.classList.add('hidden'); }
+    } catch(err){ console.error(err); }
+  }
+
+  // Initial fetch and polling every 30s
+  fetchNotifs();
+  const notifPoll = setInterval(fetchNotifs, 30000);
+
+  if (notifBtn){
+    notifBtn.addEventListener('click', async (e)=>{
+      e.stopPropagation();
+      if (notifOpen) {
+        closeAllMenus();
+        return;
+      }
+      closeAllMenus();
+      notifOpen = true;
+      notifPanel && notifPanel.classList.remove('hidden');
+      notifBtn.setAttribute('aria-expanded', 'true');
+      await fetchNotifs();
+      positionMenu(notifPanel, notifBtn);
+    });
+  }
+
+  // Profile menu
+  const profileBtn = document.getElementById('profile-btn');
+  if (profileBtn){
+    profileBtn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      if (profileOpen) {
+        closeAllMenus();
+        return;
+      }
+      closeAllMenus();
+      profileOpen = true;
+      profileMenu && profileMenu.classList.remove('hidden');
+      profileBtn.setAttribute('aria-expanded', 'true');
+      positionMenu(profileMenu, profileBtn);
+    });
+  }
+
+  window.addEventListener('resize', ()=>{
+    if (notifOpen && notifPanel && notifBtn) positionMenu(notifPanel, notifBtn);
+    if (profileOpen && profileMenu && profileBtn) positionMenu(profileMenu, profileBtn);
+  });
+
+  // Close on outside click
+  document.addEventListener('click', (e)=>{
+    if (!e.target.closest('.topbar-menu') && !e.target.closest('.topbar-menu-panel')) {
+      closeAllMenus();
+    }
+  });
+
+});
+</script>
+
+{% block extra_scripts %}{% endblock %}
+
+</body>
+</html>

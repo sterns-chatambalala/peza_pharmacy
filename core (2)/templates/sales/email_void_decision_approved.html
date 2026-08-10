@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Void Request Approved</title>
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #059669; color: white; padding: 15px; border-radius: 4px; }
+        .content { padding: 20px; background: #f9f9f9; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Void Request Approved</h1>
+        </div>
+        <div class="content">
+            <p>Your request to void Sale #{{ void_request.sale.sale_id }} has been approved.</p>
+            <p><strong>Reason:</strong> {{ void_request.reason }}</p>
+            <p><strong>Notes:</strong> {{ void_request.notes|default:"None" }}</p>
+            <p><strong>Processed By:</strong> {{ void_request.processed_by.username }}</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,36 @@
+{% extends "error_base.html" %}
+{% block title %}Request Timeout{% endblock %}
+{% block error_code %}408{% endblock %}
+{% block error_title %}Request Timeout{% endblock %}
+{% block error_message %}The server timed out waiting for the request. This might be due to high traffic or a slow network connection.{% endblock %}
+
+{% block error_actions %}
+<a href="javascript:location.reload()" class="btn btn-primary">
+    <i data-lucide="refresh-ccw" class="w-4 h-4"></i> Try Again
+</a>
+<a href="{% url 'dashboard' %}" class="btn btn-secondary">
+    <i data-lucide="home" class="w-4 h-4"></i> Go Home
+</a>
+{% endblock %}
+
+{% block extra_content %}
+<div class="mt-6 p-4 bg-base-800/50 rounded-lg border border-base-700/50">
+    <div class="text-sm text-slate-400">Auto-refresh in</div>
+    <div class="text-2xl font-bold text-brand-orange" id="countdown-timer">10</div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    let seconds = 10;
+    const timerEl = document.getElementById('countdown-timer');
+    const interval = setInterval(() => {
+        seconds--;
+        timerEl.textContent = seconds;
+        if (seconds <= 0) {
+            clearInterval(interval);
+            location.reload();
+        }
+    }, 1000);
+</script>
+{% endblock %}

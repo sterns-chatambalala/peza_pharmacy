@@ -1,0 +1,1217 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account - Medicore</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --accent-teal: #14b8a6;
+            --accent-blue: #2563eb;
+            --btn-gradient: linear-gradient(135deg, #14b8a6 0%, #2563eb 100%);
+            --heading-color: #0f172a;
+            --text-color: #1f2937;
+            --light-text: #6b7280;
+            --border-color: #e6e9ee;
+            --bg-color: #ffffff;
+            --panel-bg: #f8fafc;
+            --radius-lg: 20px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        @font-face {
+            font-family: 'Troy';
+            src: url('{% static "troy.woff2" %}') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font-family: 'Troy', sans-serif;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        input, button, textarea, select {
+            font-family: inherit;
+        }
+
+        .page {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ---------------- LEFT VISUAL PANEL (mirrors login.html) ---------------- */
+        .visual-panel {
+            flex: 0 0 44%;
+            position: relative;
+            min-height: 100vh;
+            overflow: hidden;
+            background: #f0fdfa;
+            border-radius: 24px;
+        }
+
+        .visual-frame {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            border-radius: 24px;
+            background: transparent;
+            box-shadow: none;
+            border: 0;
+            position: relative;
+        }
+
+        .visual-frame img {
+            position: relative;
+            z-index: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .overlay-header {
+            position: absolute;
+            top: 4%;
+            left: 5.5%;
+            width: 48%;
+            pointer-events: none;
+        }
+
+        .overlay-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            color: #0b1730;
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .overlay-logo img {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
+            display: block;
+            border-radius: 0.8rem;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 0.2rem;
+            box-shadow: 0 8px 20px rgba(15, 184, 172, 0.12);
+        }
+
+        .overlay-logo .brand-word {
+            display: inline-flex;
+            align-items: center;
+            gap: 0;
+        }
+
+        .overlay-logo .brand-green {
+            color: var(--accent-teal);
+            font-weight: 800;
+        }
+
+        .overlay-logo .brand-blue {
+            color: #2563eb;
+            font-weight: 800;
+        }
+
+        .overlay-header h2 {
+            margin-top: 10px;
+            font-size: 1.15rem;
+            line-height: 1.22;
+            font-weight: 700;
+            color: var(--heading-color);
+            letter-spacing: -0.3px;
+        }
+
+        .overlay-header h2 .accent {
+            color: var(--accent-teal);
+            display: block;
+        }
+
+        .overlay-header p {
+            margin-top: 8px;
+            max-width: 220px;
+            font-size: 0.62rem;
+            line-height: 1.45;
+            color: var(--text-color);
+        }
+
+        .overlay-features {
+            position: absolute;
+            top: 76%;
+            left: 4.5%;
+            width: 32%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 12px;
+            box-sizing: border-box;
+        }
+
+        .overlay-feature {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .overlay-feature .icon-circle {
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #0f3d3d;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .overlay-feature .icon-circle .material-icons {
+            font-size: 11px;
+        }
+
+        .overlay-feature h4 {
+            font-size: 0.6rem;
+            font-weight: 600;
+            color: var(--heading-color);
+            margin-bottom: 1px;
+        }
+
+        .overlay-feature p {
+            font-size: 0.52rem;
+            line-height: 1.3;
+            color: var(--light-text);
+        }
+
+        /* ---------------- RIGHT FORM PANEL (mirrors login.html) ---------------- */
+        .form-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 56px 24px;
+            position: relative;
+            background: var(--bg-color);
+        }
+
+        .lang-selector {
+            position: absolute;
+            top: 36px;
+            right: 40px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-color);
+            font-size: 0.88rem;
+            font-weight: 500;
+            background: var(--bg-color);
+            cursor: pointer;
+        }
+
+        .lang-selector .material-icons {
+            font-size: 17px;
+            color: var(--light-text);
+        }
+
+        .lang-selector .material-icons:last-child {
+            font-size: 16px;
+        }
+
+        .form-wrap {
+            width: 100%;
+            max-width: 420px;
+            transform: scale(0.78);
+            transform-origin: center;
+        }
+
+        .form-header {
+            margin-bottom: 26px;
+        }
+
+        .form-header h1 {
+            font-size: 2.05rem;
+            font-weight: 700;
+            color: var(--heading-color);
+            margin-bottom: 6px;
+            letter-spacing: -0.5px;
+        }
+
+        .form-header p {
+            color: var(--light-text);
+            font-size: 0.97rem;
+        }
+
+        .alert {
+            padding: 13px 16px;
+            margin-bottom: 18px;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: 500;
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert.error, .alert-error { background-color: #dc3545; }
+        .alert.success, .alert-success { background-color: #198754; }
+        .alert.warning, .alert-warning { background-color: #fd7e14; }
+        .alert.info, .alert-info { background-color: #2563eb; }
+
+        /* ---------------- STEP INDICATOR ---------------- */
+        .steps-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            margin-bottom: 26px;
+        }
+
+        .steps-container::before {
+            content: '';
+            position: absolute;
+            top: 13px;
+            left: 13px;
+            right: 13px;
+            height: 2px;
+            background-color: var(--border-color);
+            z-index: 0;
+        }
+
+        .step {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .step > span:first-child {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background-color: var(--border-color);
+            color: #9aa3b2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.78rem;
+            font-weight: 700;
+            transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .step-label {
+            font-size: 0.62rem;
+            font-weight: 600;
+            color: var(--light-text);
+            letter-spacing: 0.02em;
+        }
+
+        .step.active > span:first-child {
+            background: var(--btn-gradient);
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.28);
+        }
+
+        .step.active .step-label {
+            color: var(--heading-color);
+        }
+
+        .step.completed > span:first-child {
+            background-color: var(--accent-teal);
+            color: #fff;
+        }
+
+        /* ---------------- FORM STEPS ---------------- */
+        .form-step {
+            display: none;
+        }
+
+        .form-step.active {
+            display: block;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: 600;
+            font-size: 0.87rem;
+            color: var(--heading-color);
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-with-icon .material-icons {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9aa3b2;
+            font-size: 19px;
+            pointer-events: none;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 13px 16px 13px 44px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-size: 0.93rem;
+            font-family: inherit;
+        }
+
+        .password-field .form-control {
+            padding-right: 44px;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-teal);
+            box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.1);
+        }
+
+        .form-control::placeholder {
+            color: #9ca3af;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: #9aa3b2;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-toggle .material-icons {
+            position: static;
+            transform: none;
+        }
+
+        .password-toggle:hover {
+            color: var(--accent-blue);
+        }
+
+        /* Password strength indicator */
+        .password-strength {
+            margin-top: 8px;
+            height: 4px;
+            border-radius: 2px;
+            background-color: var(--border-color);
+            overflow: hidden;
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s, background-color 0.3s;
+        }
+
+        .password-strength.weak .password-strength-bar { width: 25%; background-color: #dc3545; }
+        .password-strength.fair .password-strength-bar { width: 50%; background-color: #fd7e14; }
+        .password-strength.good .password-strength-bar { width: 75%; background-color: #ffc107; }
+        .password-strength.strong .password-strength-bar { width: 100%; background-color: #198754; }
+
+        /* Username availability + validation messages */
+        .username-availability, .validation-message, .input-validation-feedback {
+            font-size: 0.8rem;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .username-availability .material-icons,
+        .validation-message .material-icons,
+        .input-validation-feedback .material-icons {
+            font-size: 15px;
+        }
+
+        .username-available, .validation-success { color: #198754; }
+        .username-taken, .validation-error, .validation-invalid { color: #dc3545; }
+        .username-checking { color: var(--light-text); }
+
+        .spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid transparent;
+            border-top: 2px solid var(--light-text);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .systems-description {
+            font-size: 0.83rem;
+            color: var(--light-text);
+            margin-bottom: 14px;
+        }
+
+        .systems-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .system-card { position: relative; }
+
+        .system-card .system-radio {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .system-card-content {
+            display: block;
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px 14px;
+            cursor: pointer;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+            height: 100%;
+        }
+
+        .system-card .system-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            background: var(--panel-bg);
+            color: var(--accent-teal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .system-card-content h3 {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--heading-color);
+            margin-bottom: 4px;
+        }
+
+        .system-card-content p {
+            font-size: 0.72rem;
+            line-height: 1.35;
+            color: var(--light-text);
+        }
+
+        .system-card .system-radio:checked + .system-card-content {
+            border-color: var(--accent-teal);
+            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.12);
+            background: rgba(20, 184, 166, 0.04);
+        }
+
+        .system-card.disabled .system-card-content {
+            cursor: not-allowed;
+            opacity: 0.55;
+        }
+
+        /* ---------------- STEP NAVIGATION ---------------- */
+        .step-navigation {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 22px;
+        }
+
+        .step-button {
+            flex: 1;
+            padding: 15px;
+            background: var(--btn-gradient);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.22);
+            transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+        }
+
+        .step-button:hover {
+            filter: brightness(1.04);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 22px rgba(37, 99, 235, 0.28);
+        }
+
+        .step-button:active { transform: translateY(0); }
+
+        .step-button.prev {
+            background: var(--bg-color);
+            color: var(--text-color);
+            border: 1.5px solid var(--border-color);
+            box-shadow: none;
+            flex: 0 0 auto;
+            min-width: 110px;
+        }
+
+        .step-button.prev:hover {
+            background: var(--panel-bg);
+            filter: none;
+            box-shadow: none;
+        }
+
+        .step-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .register-footer, .contact-sales {
+            text-align: center;
+            font-size: 0.88rem;
+            color: var(--light-text);
+            margin-top: 22px;
+            margin-bottom: 10px;
+        }
+
+        .register-footer a, .contact-sales a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .register-footer a:hover, .contact-sales a:hover {
+            text-decoration: underline;
+        }
+
+        .form-footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            font-size: 0.78rem;
+            color: #9ca3af;
+            border-top: 1px solid var(--border-color);
+            padding-top: 18px;
+            margin-top: 12px;
+        }
+
+        .form-footer .material-icons { font-size: 15px; }
+
+        @media (max-width: 991px) {
+            .visual-panel { display: none; }
+            .form-panel { padding-top: 90px; }
+        }
+
+        @media (max-width: 480px) {
+            .lang-selector { top: 18px; right: 18px; }
+            .form-header h1 { font-size: 1.7rem; }
+            .systems-cards { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <!-- LEFT VISUAL PANEL -->
+        <div class="visual-panel">
+            <div class="visual-frame">
+                <img src="{% static 'loginpic.png' %}" alt="Medicore Pharmacy">
+
+                <div class="overlay-header">
+                    <div class="overlay-logo">
+                        <img src="{% static 'logo.png' %}?v=2" alt="MediCore logo" loading="eager">
+                        <span class="brand-word">
+                            <span class="brand-green">Medi</span><span class="brand-blue">core</span>
+                        </span>
+                    </div>
+                    <h2>
+                        Start Managing Smarter.
+                        <span class="accent">In Minutes, Not Weeks.</span>
+                    </h2>
+                    <p>Create your workspace and get your pharmacy's inventory, sales and prescriptions running on one platform.</p>
+                </div>
+
+                <div class="overlay-features">
+                    <div class="overlay-feature">
+                        <div class="icon-circle"><span class="material-icons">bolt</span></div>
+                        <div>
+                            <h4>Quick Setup</h4>
+                            <p>Be up and running with your pharmacy in a few short steps.</p>
+                        </div>
+                    </div>
+                    <div class="overlay-feature">
+                        <div class="icon-circle"><span class="material-icons">shield</span></div>
+                        <div>
+                            <h4>Secure &amp; Compliant</h4>
+                            <p>Your data is protected with enterprise-grade security.</p>
+                        </div>
+                    </div>
+                    <div class="overlay-feature">
+                        <div class="icon-circle"><span class="material-icons">support_agent</span></div>
+                        <div>
+                            <h4>24/7 Support</h4>
+                            <p>Our team is always here to help you succeed.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT FORM PANEL -->
+        <div class="form-panel">
+            <div class="lang-selector">
+                <span class="material-icons">language</span>
+                <span>English</span>
+                <span class="material-icons">expand_more</span>
+            </div>
+
+            <div class="form-wrap">
+                <div class="form-header">
+                    <h1>Create Your Account</h1>
+                    <p>Set up your Medicore workspace in three quick steps</p>
+                </div>
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+
+                {% if form.errors %}
+                    <div class="alert alert-error">
+                        Please correct the errors below.
+                    </div>
+                {% endif %}
+
+                <form method="post" id="registerForm">
+                    {% csrf_token %}
+
+                    <div class="steps-container">
+                        <div class="step active" id="step-1">
+                            <span>1</span>
+                            <span class="step-label">Account</span>
+                        </div>
+                        <div class="step" id="step-2">
+                            <span>2</span>
+                            <span class="step-label">Business</span>
+                        </div>
+                        <div class="step" id="step-3">
+                            <span>3</span>
+                            <span class="step-label">System</span>
+                        </div>
+                    </div>
+
+                    <!-- STEP 1: ACCOUNT -->
+                    <div class="form-step active" id="step-1-content">
+                        <div class="form-group">
+                            <label for="{{ form.username.id_for_label }}">Username</label>
+                            <div class="input-with-icon">
+                                <span class="material-icons">person</span>
+                                <input type="text"
+                                       name="username"
+                                       id="id_username"
+                                       class="form-control"
+                                       placeholder="Enter your username"
+                                       value="{{ form.username.value|default_if_none:'' }}"
+                                       required>
+                            </div>
+                            <div class="username-availability" id="username-feedback"></div>
+                            {% if form.username.errors %}
+                                <div class="input-validation-feedback validation-invalid">
+                                    <span class="material-icons validation-icon">error</span>
+                                    {{ form.username.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.email.id_for_label }}">Email Address</label>
+                            <div class="input-with-icon">
+                                <span class="material-icons">mail_outline</span>
+                                <input type="email"
+                                       name="email"
+                                       id="id_email"
+                                       class="form-control"
+                                       placeholder="Enter your email address"
+                                       value="{{ form.email.value|default_if_none:'' }}"
+                                       required>
+                            </div>
+                            {% if form.email.errors %}
+                                <div class="input-validation-feedback validation-invalid">
+                                    <span class="material-icons validation-icon">error</span>
+                                    {{ form.email.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.password1.id_for_label }}">Password</label>
+                            <div class="input-with-icon password-field">
+                                <span class="material-icons">lock_outline</span>
+                                <input type="password"
+                                       name="password1"
+                                       id="id_password1"
+                                       class="form-control"
+                                       placeholder="Create a strong password"
+                                       required>
+                                <button type="button" class="password-toggle" id="togglePassword1">
+                                    <span class="material-icons">visibility_off</span>
+                                </button>
+                            </div>
+                            <div class="password-strength" id="password-strength">
+                                <div class="password-strength-bar"></div>
+                            </div>
+                            <div class="validation-message" id="password-validation"></div>
+                            {% if form.password1.errors %}
+                                <div class="input-validation-feedback validation-invalid">
+                                    <span class="material-icons validation-icon">error</span>
+                                    {{ form.password1.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+                            <div class="input-with-icon password-field">
+                                <span class="material-icons">lock_outline</span>
+                                <input type="password"
+                                       name="password2"
+                                       id="id_password2"
+                                       class="form-control"
+                                       placeholder="Confirm your password"
+                                       required>
+                                <button type="button" class="password-toggle" id="togglePassword2">
+                                    <span class="material-icons">visibility_off</span>
+                                </button>
+                            </div>
+                            <div class="validation-message" id="password-confirmation"></div>
+                            {% if form.password2.errors %}
+                                <div class="input-validation-feedback validation-invalid">
+                                    <span class="material-icons validation-icon">error</span>
+                                    {{ form.password2.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="step-navigation">
+                            <div></div>
+                            <button type="button" class="step-button next-step" id="to-step-2">
+                                Next <span class="material-icons" style="font-size:18px;vertical-align:middle;">arrow_forward</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 2: BUSINESS -->
+                    <div class="form-step" id="step-2-content">
+                        <div class="form-group">
+                            <label for="{{ form.legal_name.id_for_label }}">Business Name</label>
+                            <div class="input-with-icon">
+                                <span class="material-icons">business</span>
+                                <input type="text"
+                                       name="legal_name"
+                                       id="id_legal_name"
+                                       class="form-control"
+                                       placeholder="Enter your business name"
+                                       value="{{ form.legal_name.value|default_if_none:'' }}"
+                                       required>
+                            </div>
+                            {% if form.legal_name.errors %}
+                                <div class="input-validation-feedback validation-invalid">
+                                    <span class="material-icons validation-icon">error</span>
+                                    {{ form.legal_name.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.registration_number.id_for_label }}">Business Reg. Number (Optional)</label>
+                            <div class="input-with-icon">
+                                <span class="material-icons">numbers</span>
+                                <input type="text"
+                                       name="registration_number"
+                                       id="id_registration_number"
+                                       class="form-control"
+                                       placeholder="Enter your business registration number"
+                                       value="{{ form.registration_number.value|default_if_none:'' }}">
+                            </div>
+                            {% if form.registration_number.errors %}
+                                <div class="input-validation-feedback validation-invalid">
+                                    <span class="material-icons validation-icon">error</span>
+                                    {{ form.registration_number.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="step-navigation">
+                            <button type="button" class="step-button prev prev-step" id="to-step-1">Previous</button>
+                            <button type="button" class="step-button next-step" id="to-step-3">
+                                Next <span class="material-icons" style="font-size:18px;vertical-align:middle;">arrow_forward</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 3: SYSTEM -->
+                    <div class="form-step" id="step-3-content">
+                        <div class="form-group">
+                            <label>Select Management System</label>
+                            <p class="systems-description">Choose the management system for your organization:</p>
+                            <div class="systems-cards">
+                                {% for value, label in form.systems.field.choices %}
+                                    {% if value %}
+                                        <div class="system-card {% if value != 'PHARMACY' %}disabled{% endif %}" data-system="{{ value }}">
+                                            <input type="radio"
+                                                   name="{{ form.systems.name }}"
+                                                   value="{{ value }}"
+                                                   id="system_{{ value|lower }}"
+                                                   class="system-radio"
+                                                   {% if form.systems.value == value %}checked{% endif %}
+                                                   {% if value != 'PHARMACY' %}disabled{% endif %}>
+                                            <label for="system_{{ value|lower }}" class="system-card-content">
+                                                <div class="system-icon">
+                                                    {% if value == 'PHARMACY' %}
+                                                        <span class="material-icons">local_pharmacy</span>
+                                                    {% elif value == 'SCHOOL' %}
+                                                        <span class="material-icons">school</span>
+                                                    {% endif %}
+                                                </div>
+                                                <h3>{{ label }}</h3>
+                                                <p>
+                                                    {% if value == 'PHARMACY' %}
+                                                        Manage inventory, prescriptions, and sales for your pharmacy business
+                                                    {% elif value == 'SCHOOL' %}
+                                                        Manage students, courses, and academic operations
+                                                    {% endif %}
+                                                </p>
+                                                {% if value != 'PHARMACY' %}
+                                                    <div style="margin-top: 10px; font-size: 0.68rem; color: #dc3545; display:flex; align-items:center; gap:4px;">
+                                                        <span class="material-icons" style="font-size: 14px;">info</span>
+                                                        Coming Soon
+                                                    </div>
+                                                {% endif %}
+                                            </label>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            {% if form.systems.errors %}
+                                <div class="input-validation-feedback validation-invalid">
+                                    <span class="material-icons validation-icon">error</span>
+                                    {{ form.systems.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="step-navigation">
+                            <button type="button" class="step-button prev prev-step" id="to-step-2-from-3">Previous</button>
+                            <button type="submit" class="step-button" id="submit-button">Register</button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="register-footer">
+                    Already have an account? <a href="{% url 'login' %}">Log in</a>
+                </div>
+
+                <div class="form-footer">
+                    <span class="material-icons">lock</span>
+                    <span>&copy; {% now "Y" %} Medicore. All rights reserved.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Password visibility toggles
+        document.querySelectorAll('.password-toggle').forEach(button => {
+            button.addEventListener('click', () => {
+                const input = button.previousElementSibling;
+                const icon = button.querySelector('.material-icons');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.textContent = 'visibility';
+                } else {
+                    input.type = 'password';
+                    icon.textContent = 'visibility_off';
+                }
+            });
+        });
+
+        // Multi-step form navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            const step1 = document.getElementById('step-1');
+            const step2 = document.getElementById('step-2');
+            const step3 = document.getElementById('step-3');
+            const step1Content = document.getElementById('step-1-content');
+            const step2Content = document.getElementById('step-2-content');
+            const step3Content = document.getElementById('step-3-content');
+            const toStep2Btn = document.getElementById('to-step-2');
+            const toStep1Btn = document.getElementById('to-step-1');
+            const toStep3Btn = document.getElementById('to-step-3');
+            const toStep2FromStep3Btn = document.getElementById('to-step-2-from-3');
+
+            toStep2Btn.addEventListener('click', function() {
+                if (validateStep1()) {
+                    step1Content.classList.remove('active');
+                    step2Content.classList.add('active');
+                    step1.classList.remove('active');
+                    step1.classList.add('completed');
+                    step2.classList.add('active');
+                }
+            });
+
+            toStep1Btn.addEventListener('click', function() {
+                step2Content.classList.remove('active');
+                step1Content.classList.add('active');
+                step2.classList.remove('active');
+                step1.classList.remove('completed');
+                step1.classList.add('active');
+            });
+
+            toStep3Btn.addEventListener('click', function() {
+                if (validateStep2()) {
+                    step2Content.classList.remove('active');
+                    step3Content.classList.add('active');
+                    step2.classList.remove('active');
+                    step2.classList.add('completed');
+                    step3.classList.add('active');
+                }
+            });
+
+            toStep2FromStep3Btn.addEventListener('click', function() {
+                step3Content.classList.remove('active');
+                step2Content.classList.add('active');
+                step3.classList.remove('active');
+                step2.classList.remove('completed');
+                step2.classList.add('active');
+            });
+        });
+
+        // Real-time validation
+        const usernameInput = document.getElementById('id_username');
+        const passwordInput = document.getElementById('id_password1');
+        const confirmPasswordInput = document.getElementById('id_password2');
+        const passwordStrength = document.getElementById('password-strength');
+        const passwordValidation = document.getElementById('password-validation');
+        const passwordConfirmation = document.getElementById('password-confirmation');
+        const usernameFeedback = document.getElementById('username-feedback');
+
+        function getCSRFToken() {
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+            return csrfToken ? csrfToken.value : '';
+        }
+
+        usernameInput.addEventListener('input', function() {
+            let username = this.value.trim();
+            username = username.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
+            if (username !== this.value) this.value = username;
+
+            if (username.length < 3) {
+                usernameFeedback.innerHTML = '<span class="material-icons validation-icon">error</span> Username must be at least 3 characters';
+                usernameFeedback.className = 'username-availability username-taken';
+                return;
+            }
+
+            usernameFeedback.innerHTML = '<div class="spinner"></div> Checking username availability...';
+            usernameFeedback.className = 'username-availability username-checking';
+
+            clearTimeout(window.usernameTimeout);
+            window.usernameTimeout = setTimeout(() => {
+                checkUsernameAvailability(username);
+            }, 500);
+        });
+
+        function checkUsernameAvailability(username) {
+            fetch('/check-username/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: `username=${encodeURIComponent(username)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.available) {
+                    usernameFeedback.innerHTML = '<span class="material-icons validation-icon">check_circle</span> Username is available';
+                    usernameFeedback.className = 'username-availability username-available';
+                } else {
+                    usernameFeedback.innerHTML = '<span class="material-icons validation-icon">error</span> A user with that username already exists';
+                    usernameFeedback.className = 'username-availability username-taken';
+                }
+            })
+            .catch(error => {
+                console.error('Error checking username:', error);
+                usernameFeedback.innerHTML = '<span class="material-icons validation-icon">error</span> Error checking username availability';
+                usernameFeedback.className = 'username-availability username-taken';
+            });
+        }
+
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            let strength = 0;
+            let message = '';
+
+            if (password.length >= 8) strength += 25;
+            if (/[a-z]/.test(password)) strength += 25;
+            if (/[A-Z]/.test(password)) strength += 25;
+            if (/[0-9]/.test(password) || /[^a-zA-Z0-9]/.test(password)) strength += 25;
+
+            passwordStrength.className = 'password-strength';
+            if (strength <= 25) { passwordStrength.classList.add('weak'); message = 'Weak password'; }
+            else if (strength <= 50) { passwordStrength.classList.add('fair'); message = 'Fair password'; }
+            else if (strength <= 75) { passwordStrength.classList.add('good'); message = 'Good password'; }
+            else { passwordStrength.classList.add('strong'); message = 'Strong password'; }
+
+            if (password.length > 0) {
+                passwordValidation.innerHTML = `<span class="material-icons validation-icon">${strength >= 75 ? 'check_circle' : 'info'}</span> ${message}`;
+                passwordValidation.className = `validation-message ${strength >= 75 ? 'validation-success' : 'validation-error'}`;
+            } else {
+                passwordValidation.innerHTML = '';
+            }
+
+            checkPasswordMatch();
+        });
+
+        confirmPasswordInput.addEventListener('input', checkPasswordMatch);
+
+        function checkPasswordMatch() {
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+
+            if (confirmPassword.length === 0) {
+                passwordConfirmation.innerHTML = '';
+                return;
+            }
+
+            if (password === confirmPassword) {
+                passwordConfirmation.innerHTML = '<span class="material-icons validation-icon">check_circle</span> Passwords match';
+                passwordConfirmation.className = 'validation-message validation-success';
+            } else {
+                passwordConfirmation.innerHTML = '<span class="material-icons validation-icon">error</span> Passwords do not match';
+                passwordConfirmation.className = 'validation-message validation-error';
+            }
+        }
+
+        function validateStep1() {
+            const username = usernameInput.value.trim();
+            const email = document.getElementById('id_email').value.trim();
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+
+            let isValid = true;
+
+            if (username.length < 3) {
+                showFieldError(usernameInput, 'Username must be at least 3 characters');
+                isValid = false;
+            } else {
+                const usernameAvailable = usernameFeedback.classList.contains('username-available');
+                if (!usernameAvailable) {
+                    showFieldError(usernameInput, 'Please choose an available username');
+                    isValid = false;
+                } else {
+                    clearFieldError(usernameInput);
+                }
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showFieldError(document.getElementById('id_email'), 'Please enter a valid email address');
+                isValid = false;
+            } else {
+                clearFieldError(document.getElementById('id_email'));
+            }
+
+            if (password.length < 8) {
+                showFieldError(passwordInput, 'Password must be at least 8 characters');
+                isValid = false;
+            } else {
+                clearFieldError(passwordInput);
+            }
+
+            if (password !== confirmPassword) {
+                showFieldError(confirmPasswordInput, 'Passwords do not match');
+                isValid = false;
+            } else {
+                clearFieldError(confirmPasswordInput);
+            }
+
+            return isValid;
+        }
+
+        function validateStep2() {
+            const businessName = document.getElementById('id_legal_name').value.trim();
+            let isValid = true;
+
+            if (businessName.length < 2) {
+                showFieldError(document.getElementById('id_legal_name'), 'Business name must be at least 2 characters');
+                isValid = false;
+            } else {
+                clearFieldError(document.getElementById('id_legal_name'));
+            }
+
+            return isValid;
+        }
+
+        function showFieldError(field, message) {
+            clearFieldError(field);
+            field.style.borderColor = '#dc3545';
+            field.style.boxShadow = '0 0 0 3px rgba(220, 53, 69, 0.1)';
+
+            const errorElement = document.createElement('div');
+            errorElement.className = 'input-validation-feedback validation-invalid';
+            errorElement.innerHTML = `<span class="material-icons validation-icon">error</span> ${message}`;
+            field.parentNode.parentNode.appendChild(errorElement);
+        }
+
+        function clearFieldError(field) {
+            field.style.borderColor = '';
+            field.style.boxShadow = '';
+            const parent = field.parentNode.parentNode;
+            const errorElements = parent.querySelectorAll('.input-validation-feedback');
+            errorElements.forEach(element => {
+                if (element.parentNode === parent) element.remove();
+            });
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            if (!validateStep1() || !validateStep2()) {
+                e.preventDefault();
+                document.getElementById('step-1-content').classList.add('active');
+                document.getElementById('step-2-content').classList.remove('active');
+                document.getElementById('step-3-content').classList.remove('active');
+                document.getElementById('step-1').classList.add('active');
+                document.getElementById('step-2').classList.remove('active');
+                document.getElementById('step-3').classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

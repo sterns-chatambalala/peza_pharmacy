@@ -1,0 +1,4 @@
+Your request to void Sale #{{ void_request.sale.sale_id }} has been rejected.
+Reason: {{ void_request.reason }}
+Notes: {{ void_request.notes|default:"None" }}
+Processed By: {{ void_request.processed_by.username }}

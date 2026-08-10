@@ -1,0 +1,360 @@
+{% extends 'base.html' %}
+{% block title %}{% if prescription %}Edit{% else %}Create{% endif %} Prescription{% endblock %}
+{% block content %}
+<div class="dashboard-header">
+    <div class="dashboard-title">
+        <h1>{% if prescription %}Edit{% else %}Create New{% endif %} Prescription</h1>
+        <p class="dashboard-subtitle">{% if prescription %}Update prescription details{% else %}Add a new patient prescription{% endif %}</p>
+    </div>
+    
+    <a href="{% url 'prescription_list' %}" class="btn-secondary">
+        <span class="material-icons">arrow_back</span>
+        Back to Prescriptions
+    </a>
+</div>
+
+<div class="table-container">
+    <form method="post" class="prescription-form">
+        {% csrf_token %}
+        
+        <div class="form-section">
+            <h3 class="section-title">Patient Information</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="patient_name">Patient Name *</label>
+                    <input type="text" id="patient_name" name="patient_name" value="{{ prescription.patient_name|default:'' }}" required 
+                           class="form-input" placeholder="Enter patient full name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="patient_age">Patient Age *</label>
+                    <input type="number" id="patient_age" name="patient_age" value="{{ prescription.patient_age|default:'' }}" min="0" max="120" required 
+                           class="form-input" placeholder="Enter age">
+                </div>
+                
+                <div class="form-group">
+                    <label for="patient_phone">Phone Number</label>
+                    <input type="tel" id="patient_phone" name="patient_phone" value="{{ prescription.patient_phone|default:'' }}" 
+                           class="form-input" placeholder="Enter phone number">
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="patient_address">Address *</label>
+                    <textarea id="patient_address" name="patient_address" required 
+                              class="form-input" placeholder="Enter patient address" rows="3">{{ prescription.patient_address|default:'' }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3 class="section-title">Doctor Information</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="doctor_name">Doctor Name *</label>
+                    <input type="text" id="doctor_name" name="doctor_name" value="{{ prescription.doctor_name|default:'' }}" required 
+                           class="form-input" placeholder="Enter doctor's name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="doctor_license">License Number</label>
+                    <input type="text" id="doctor_license" name="doctor_license" value="{{ prescription.doctor_license|default:'' }}" 
+                           class="form-input" placeholder="Enter license number">
+                </div>
+                
+                <div class="form-group">
+                    <label for="prescription_id">Prescription ID *</label>
+                    <input type="text" id="prescription_id" name="prescription_id" value="{{ prescription.prescription_id|default:'' }}" required 
+                           class="form-input" placeholder="Enter prescription ID">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3 class="section-title">Medications</h3>
+            <div id="medications-container">
+                {% if prescription %}
+                    {% for item in prescription.prescriptionitem_set.all %}
+                    <div class="medication-item">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Medication</label>
+                                <select name="drugs" class="form-input" required>
+                                    <option value="">Select medication</option>
+                                    {% for drug in drugs %}
+                                    <option value="{{ drug.id }}" {% if drug.id == item.drug.id %}selected{% endif %}>{{ drug.name }} ({{ drug.category }}) - Stock: {{ drug.quantity }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Quantity</label>
+                                <input type="number" name="quantities" value="{{ item.quantity }}" min="1" required class="form-input" placeholder="Qty">
+                            </div>
+                            <div class="form-group">
+                                <label>Instructions</label>
+                                <input type="text" name="instructions" value="{{ item.instructions|default:'' }}" class="form-input" placeholder="Instructions">
+                            </div>
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <button type="button" class="btn-danger remove-medication">
+                                    <span class="material-icons">delete</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div class="medication-item">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Medication</label>
+                            <select name="drugs" class="form-input" required>
+                                <option value="">Select medication</option>
+                                {% for drug in drugs %}
+                                <option value="{{ drug.id }}">{{ drug.name }} ({{ drug.category }}) - Stock: {{ drug.quantity }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Quantity</label>
+                            <input type="number" name="quantities" value="1" min="1" required class="form-input" placeholder="Qty">
+                        </div>
+                        <div class="form-group">
+                            <label>Instructions</label>
+                            <input type="text" name="instructions" class="form-input" placeholder="Instructions">
+                        </div>
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button type="button" class="btn-danger remove-medication">
+                                <span class="material-icons">delete</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <button type="button" id="add-medication" class="btn-secondary" style="margin-top: 15px;">
+                <span class="material-icons">add</span>
+                Add Another Medication
+            </button>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">
+                <span class="material-icons">{% if prescription %}save{% else %}add{% endif %}</span>
+                {% if prescription %}Update Prescription{% else %}Create Prescription{% endif %}
+            </button>
+            
+            <a href="{% url 'prescription_list' %}" class="btn-secondary">
+                <span class="material-icons">cancel</span>
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .prescription-form {
+        padding: 0;
+    }
+    
+    .form-section {
+        margin-bottom: 30px;
+        padding-bottom: 25px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .form-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    
+    .section-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: var(--text-color);
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+    }
+    
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+    
+    .form-group label {
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: var(--text-color);
+        font-size: 0.95rem;
+    }
+    
+    .form-input {
+        padding: 12px 15px;
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        background: var(--card-bg);
+        color: var(--text-color);
+        font-size: 1rem;
+        transition: var(--transition);
+        font-family: inherit;
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(0, 102, 58, 0.1);
+    }
+    
+    .form-input::placeholder {
+        color: var(--light-text);
+    }
+    
+    textarea.form-input {
+        resize: vertical;
+        min-height: 80px;
+    }
+    
+    .medication-item {
+        margin-bottom: 15px;
+        padding: 15px;
+        background: var(--bg-color);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+    }
+    
+    .remove-medication {
+        background: var(--danger-color);
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .remove-medication:hover {
+        background: #dc2626;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: flex-end;
+        padding-top: 25px;
+        margin-top: 30px;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .btn-primary, .btn-secondary {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add medication functionality
+        const addButton = document.getElementById('add-medication');
+        const container = document.getElementById('medications-container');
+        
+        addButton.addEventListener('click', function() {
+            const newItem = document.createElement('div');
+            newItem.className = 'medication-item';
+            newItem.innerHTML = `
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Medication</label>
+                        <select name="drugs" class="form-input" required>
+                            <option value="">Select medication</option>
+                            {% for drug in drugs %}
+                            <option value="{{ drug.id }}">{{ drug.name }} ({{ drug.category }}) - Stock: {{ drug.quantity }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Quantity</label>
+                        <input type="number" name="quantities" value="1" min="1" required class="form-input" placeholder="Qty">
+                    </div>
+                    <div class="form-group">
+                        <label>Instructions</label>
+                        <input type="text" name="instructions" class="form-input" placeholder="Instructions">
+                    </div>
+                    <div class="form-group">
+                        <label>&nbsp;</label>
+                        <button type="button" class="btn-danger remove-medication">
+                            <span class="material-icons">delete</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(newItem);
+            
+            // Add event listener to the new remove button
+            newItem.querySelector('.remove-medication').addEventListener('click', function() {
+                if (container.children.length > 1) {
+                    container.removeChild(newItem);
+                }
+            });
+        });
+        
+        // Remove medication functionality
+        document.querySelectorAll('.remove-medication').forEach(button => {
+            button.addEventListener('click', function() {
+                if (container.children.length > 1) {
+                    this.closest('.medication-item').remove();
+                }
+            });
+        });
+        
+        // Form validation
+        const form = document.querySelector('.prescription-form');
+        form.addEventListener('submit', function(e) {
+            const age = parseInt(document.getElementById('patient_age').value);
+            const medications = container.querySelectorAll('select[name="drugs"]');
+            
+            if (age < 0 || age > 120) {
+                e.preventDefault();
+                alert('Please enter a valid age between 0 and 120.');
+                return false;
+            }
+            
+            let hasEmptyMedication = false;
+            medications.forEach(select => {
+                if (!select.value) {
+                    hasEmptyMedication = true;
+                    select.style.borderColor = 'var(--danger-color)';
+                }
+            });
+            
+            if (hasEmptyMedication) {
+                e.preventDefault();
+                alert('Please select a medication for all items.');
+                return false;
+            }
+        });
+    });
+</script>
+{% endblock %}

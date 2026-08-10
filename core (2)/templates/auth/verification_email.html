@@ -1,0 +1,89 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Medicore Account</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f2f4f8;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 520px;
+            margin: 30px auto;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            padding: 40px 35px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header img {
+            max-height: 48px;
+            width: auto;
+        }
+        .header h1 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #0b2b26;
+            margin: 8px 0 0;
+        }
+        .content {
+            font-size: 15px;
+            color: #1e293b;
+        }
+        .content p {
+            margin: 0 0 16px 0;
+        }
+        .otp-box {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            padding: 16px 20px;
+            text-align: center;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            color: #0d9488;
+            margin: 20px 0;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9edf2;
+            font-size: 13px;
+            color: #94a3b8;
+            text-align: center;
+        }
+        @media (max-width: 600px) {
+            .container { padding: 25px 20px; }
+            .otp-box { font-size: 26px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="{% static 'logo.png' %}" alt="Medicore Logo">
+            <h1>Medicore</h1>
+        </div>
+        <div class="content">
+            <p>Hello <strong>{{ user.username }}</strong>,</p>
+            <p>Thank you for registering with Medicore. Please use the one‑time password (OTP) below to verify your account:</p>
+            <div class="otp-box">{{ otp }}</div>
+            <p>This OTP is valid for <strong>10 minutes</strong>. If you didn’t create an account, you can safely ignore this email.</p>
+        </div>
+        <div class="footer">
+            &copy; {% now "Y" %} Medicore. All rights reserved.
+        </div>
+    </div>
+</body>
+</html>

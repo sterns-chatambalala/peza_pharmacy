@@ -1,0 +1,2694 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediCore IMS - Integrated Management System</title>
+    <meta name="description" content="MediCore IMS is an all-in-one integrated management solution for pharmacies, schools, and businesses. Streamline operations, enhance productivity, and drive growth.">
+    <meta name="keywords" content="pharmacy management system, school management system, integrated management system, business intelligence, project management, HR management, CRM, MediCore">
+    <meta name="author" content="MediCore">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://ims.medicoremw.com/">
+    <meta property="og:title" content="MediCore IMS - Integrated Management System">
+    <meta property="og:description" content="MediCore IMS is an all-in-one integrated management solution for pharmacies, schools, and businesses. Streamline operations, enhance productivity, and drive growth.">
+    <meta property="og:image" content="https://camo.githubusercontent.com/7801068d0f353d1366c9959d10f227699b0a2e3481657e1a85bf3f2d25dc60fa/68747470733a2f2f73696d706c65786f66742e636f6d2f696d616765732f323032332f31312f31302f646f74736c696e65735f32346670732d312e676966">
+
+    <!-- Google -->
+    <meta name="google-site-verification" content="JGnfJqRr8oYHouYOSA2UW_rvbh1IwIMfVrEVSIBVaM4" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="http://ims.medicoremw.com/">
+    <meta property="twitter:title" content="MediCore IMS - Integrated Management System">
+    <meta property="twitter:description" content="MediCore IMS is an all-in-one integrated management solution for pharmacies, schools, and businesses. Streamline operations, enhance productivity, and drive growth.">
+    <meta property="twitter:image" content="https://camo.githubusercontent.com/7801068d0f353d1366c9959d10f227699b0a2e3481657e1a85bf3f2d25dc60fa/68747470733a2f2f73696d706c65786f66742e636f6d2f696d616765732f323032332f31312f31302f646f74736c696e65735f32346670732d312e676966">
+
+    <link rel="canonical" href="http://ims.medicoremw.com/">
+    <link rel="icon" href="{% static 'logo.png' %}?v=2" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #00663a;
+            --primary-dark: #004d2c;
+            --primary-light: #008f51;
+            --secondary-color: #2563eb;
+            --secondary-dark: #1e40af;
+            --accent-color: #3b82f6;
+            --text-color: #1f2937;
+            --text-light: #6b7280;
+            --light-bg: #f9fafb;
+            --light-text: #f9fafb;
+            --background-color: #ffffff;
+            --dark-background: #111827;
+            --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+
+            /* MediCore hero/header theme (matches brand mock) */
+            --mc-teal: #0fb8ac;
+            --mc-teal-dark: #0b9a90;
+            --mc-blue: #2f7bf6;
+            --mc-navy: #0b1730;
+            --mc-slate: #5b6b82;
+            --mc-bg: #eef6fb;
+            --mc-card: #ffffff;
+            --mc-border: #e6edf3;
+
+            /* Expanded accent palette — used deliberately across sections so the
+               page reads as a coherent multi-hue system, not a single blue/teal wash */
+            --mc-coral: #ff6b5b;
+            --mc-coral-dark: #e5503f;
+            --mc-amber: #f6a723;
+            --mc-amber-dark: #d98a0c;
+            --mc-violet: #8b5cf6;
+            --mc-violet-dark: #6d3ff0;
+            --mc-lime: #7cc242;
+            --mc-lime-dark: #5fa02b;
+            --mc-pink: #ec4899;
+        }
+
+        /* Zoom out page slightly for wider view */
+        html {
+            zoom: 0.77;
+        }
+
+        @font-face {
+            font-family: 'Troy';
+            src: url('{% static "troy.woff2" %}') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Troy', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* Header Styles */
+        header {
+            background-color: rgba(255, 255, 255, 0.92);
+            padding: 0.9rem 5%;
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(15, 23, 42, 0.06);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--mc-border);
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            color: var(--mc-navy);
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+        
+        .logo img {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
+            display: block;
+            border-radius: 0.8rem;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 0.2rem;
+            box-shadow: 0 8px 20px rgba(15, 184, 172, 0.12);
+            transition: var(--transition);
+        }
+        
+        .logo:hover img {
+            transform: rotate(5deg);
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.1;
+        }
+
+        .logo-text .logo-sub {
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            color: var(--mc-slate);
+            margin-top: 0.1rem;
+        }
+        
+        .logo span {
+            color: var(--mc-teal);
+            font-weight: 800;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2.25rem;
+        }
+        
+        .nav-links a {
+            color: var(--mc-navy);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            position: relative;
+            padding: 0.5rem 0;
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--mc-teal);
+            transition: var(--transition);
+        }
+        
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        
+        .nav-links a:hover {
+            color: var(--mc-teal);
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--mc-navy);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            transition: var(--transition);
+        }
+        
+        .mobile-menu-btn:hover {
+            background-color: rgba(15, 184, 172, 0.1);
+        }
+        
+        .btn {
+            padding: 0.75rem 1.75rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        .nav-buttons .btn-outline {
+            border-radius: 2rem;
+            color: var(--mc-teal);
+            border: 1.5px solid var(--mc-teal);
+            background: transparent;
+        }
+
+        .nav-buttons .btn-outline:hover {
+            background-color: rgba(15, 184, 172, 0.08);
+        }
+
+        .nav-buttons .btn-primary {
+            background: linear-gradient(90deg, var(--mc-teal) 0%, var(--mc-blue) 100%);
+            box-shadow: 0 8px 16px rgba(15, 184, 172, 0.25);
+            border: none;
+        }
+
+        .nav-buttons .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(15, 184, 172, 0.35);
+            background: linear-gradient(90deg, var(--mc-teal-dark) 0%, var(--secondary-dark) 100%);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 102, 58, 0.2);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 102, 58, 0.3);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn-outline:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: white;
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--secondary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(37, 99, 235, 0.3);
+        }
+        
+        /* Hero Section - MediCore (PEZA-style) */
+        .hero {
+            background: linear-gradient(180deg, #eaf8fb 0%, #f8fbfe 45%, var(--mc-bg) 100%);
+            color: var(--mc-navy);
+            padding: 5.5rem 5% 3.2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 3rem;
+            min-height: 78vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 4%;
+            right: 9%;
+            width: 28rem;
+            height: 28rem;
+            background: radial-gradient(circle, rgba(15,184,172,0.22) 0%, rgba(15,184,172,0.00) 60%);
+            filter: blur(64px);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: 6%;
+            left: 6%;
+            width: 20rem;
+            height: 20rem;
+            background: radial-gradient(circle, rgba(59,130,246,0.1) 0%, rgba(59,130,246,0.00) 65%);
+            filter: blur(54px);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .hero-warm-blob {
+            content: '';
+            position: absolute;
+            top: 34%;
+            left: -4%;
+            width: 18rem;
+            height: 18rem;
+            background: radial-gradient(circle, rgba(246, 167, 35, 0.16) 0%, rgba(246, 167, 35, 0.00) 65%);
+            filter: blur(56px);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .hero-content {
+            max-width: 560px;
+            z-index: 2;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(15, 184, 172, 0.16);
+            color: var(--mc-teal-dark);
+            padding: 0.85rem 1.25rem;
+            border-radius: 2.4rem;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 1.8rem;
+            position: relative;
+            z-index: 1010;
+            border: 1px solid rgba(15, 184, 172, 0.2);
+            box-shadow: 0 22px 48px rgba(15, 184, 172, 0.08);
+            transition: transform 0.3s ease, opacity 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .hero-badge:hover {
+            transform: translateY(1px);
+            opacity: 0.98;
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 4vw, 3.6rem);
+            margin-bottom: 1.6rem;
+            line-height: 1.04;
+            font-weight: 800;
+            color: var(--mc-navy);
+            letter-spacing: -0.03em;
+            max-width: 38rem;
+            text-shadow: 0 8px 20px rgba(14, 22, 48, 0.04);
+        }
+
+        .hero h1 .accent {
+            color: var(--mc-teal);
+        }
+        
+        .hero p.hero-desc {
+            font-size: 1.05rem;
+            margin-bottom: 2.3rem;
+            color: #475569;
+            font-weight: 400;
+            max-width: 42rem;
+            line-height: 1.8;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: nowrap;
+            align-items: center;
+            margin-bottom: 2.4rem;
+            white-space: nowrap;
+        }
+
+        .hero-buttons .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(90deg, var(--mc-teal) 0%, var(--mc-blue) 100%);
+            border-radius: 2rem;
+            box-shadow: 0 16px 36px rgba(15, 184, 172, 0.22);
+            height: 56px;
+            padding: 0 2rem;
+            min-width: 190px;
+            letter-spacing: 0.01em;
+        }
+
+        .hero-buttons .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 24px rgba(15, 184, 172, 0.4);
+        }
+
+        .watch-demo {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.85rem;
+            color: var(--mc-navy);
+            text-decoration: none;
+            height: 56px;
+            padding: 0 1.15rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid rgba(15, 184, 172, 0.24);
+            box-shadow: 0 14px 32px rgba(15, 23, 48, 0.08);
+            transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .watch-demo:hover {
+            transform: translateY(-1px);
+            background: rgba(15, 184, 172, 0.08);
+            border-color: rgba(15, 184, 172, 0.35);
+        }
+
+        .watch-demo .play-circle {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            border: 1.75px solid rgba(15, 184, 172, 0.28);
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--mc-navy);
+            box-shadow: 0 14px 32px rgba(15, 23, 48, 0.08);
+            transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .watch-demo:hover .play-circle {
+            background: var(--mc-teal);
+            color: white;
+        }
+
+        .trust-label {
+            font-size: 0.8rem;
+            color: var(--mc-slate);
+            font-weight: 700;
+            margin: 1.8rem 0 1rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        .trust-stats {
+            display: flex;
+            gap: 2.2rem;
+            flex-wrap: nowrap;
+            align-items: center;
+            overflow-x: auto;
+            padding-bottom: 0.3rem;
+        }
+
+        .trust-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .trust-stat .stat-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .trust-stat:nth-child(1) .stat-icon { background: rgba(15,184,172,0.12); color: var(--mc-teal); }
+        .trust-stat:nth-child(2) .stat-icon { background: rgba(47,123,246,0.12); color: var(--mc-blue); }
+        .trust-stat:nth-child(3) .stat-icon { background: rgba(139,92,246,0.12); color: #8b5cf6; }
+
+        .trust-stat .stat-number {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--mc-navy);
+            line-height: 1.1;
+        }
+
+        .trust-stat .stat-label {
+            font-size: 0.8rem;
+            color: var(--mc-slate);
+        }
+        
+        .hero-image {
+            width: 54%;
+            z-index: 2;
+            animation: float 6s ease-in-out infinite;
+            position: relative;
+            padding: 2.5rem 2.25rem 2.5rem 0;
+            min-width: 500px;
+        }
+
+        /* Dashboard mockup */
+        .dash-mock {
+            position: relative;
+            background: rgba(255, 255, 255, 0.96);
+            border-radius: 1.75rem;
+            box-shadow: 0 38px 90px -40px rgba(11, 23, 48, 0.22);
+            border: 1px solid rgba(15, 184, 172, 0.12);
+            overflow: visible;
+            display: flex;
+            z-index: 1;
+        }
+
+        .dash-sidebar {
+            width: 170px;
+            background: #fbfdfe;
+            border-right: 1px solid var(--mc-border);
+            padding: 1rem 0.85rem;
+            flex-shrink: 0;
+        }
+
+        .dash-sidebar .dash-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: var(--mc-navy);
+            margin-bottom: 1.25rem;
+        }
+
+        .dash-logo-box {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border-radius: 0.45rem;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 4px 10px rgba(15, 184, 172, 0.12);
+            margin: 0.05rem 0 0.3rem;
+        }
+
+        .dash-logo-mark {
+            width: 16px;
+            height: 16px;
+            display: block;
+            object-fit: contain;
+            border-radius: 0;
+            background: transparent;
+            padding: 0;
+            box-shadow: none;
+            margin: 0;
+        }
+
+        .dash-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--mc-slate);
+            padding: 0.55rem 0.7rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .dash-nav-item.active {
+            background: var(--mc-teal);
+            color: white;
+        }
+
+        .dash-main {
+            flex: 1;
+            padding: 1.1rem 1.2rem;
+            min-width: 0;
+        }
+
+        .dash-main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .dash-main-header h4 {
+            font-size: 1rem;
+            color: var(--mc-navy);
+        }
+
+        .dash-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--mc-navy);
+        }
+
+        .dash-avatar {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--mc-teal), var(--mc-blue));
+        }
+
+        .dash-stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.6rem;
+            margin-bottom: 0.85rem;
+        }
+
+        .dash-stat-card {
+            background: white;
+            border: 1px solid var(--mc-border);
+            border-radius: 0.65rem;
+            padding: 0.6rem 0.7rem;
+        }
+
+        .dash-stat-card .label {
+            font-size: 0.62rem;
+            color: var(--mc-slate);
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .dash-stat-card .value {
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: var(--mc-navy);
+        }
+
+        .dash-stat-card .delta {
+            font-size: 0.6rem;
+            font-weight: 700;
+            margin-top: 0.15rem;
+        }
+
+        .dash-stat-card .delta.up { color: #16a34a; }
+        .dash-stat-card .delta.down { color: #dc2626; }
+
+        .dash-chart-card {
+            background: white;
+            border: 1px solid var(--mc-border);
+            border-radius: 0.65rem;
+            padding: 0.7rem 0.8rem;
+            margin-bottom: 0.85rem;
+        }
+
+        .dash-chart-card .chart-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--mc-navy);
+            margin-bottom: 0.4rem;
+        }
+
+        .dash-chart-card .chart-head span.tag {
+            font-weight: 600;
+            color: var(--mc-slate);
+            background: var(--mc-bg);
+            padding: 0.15rem 0.5rem;
+            border-radius: 1rem;
+            font-size: 0.6rem;
+        }
+
+        .dash-orders {
+            background: white;
+            border: 1px solid var(--mc-border);
+            border-radius: 0.65rem;
+            padding: 0.7rem 0.8rem;
+        }
+
+        .dash-orders .orders-head {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--mc-navy);
+            margin-bottom: 0.45rem;
+        }
+
+        .dash-order-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.62rem;
+            color: var(--mc-slate);
+            padding: 0.28rem 0;
+            border-bottom: 1px dashed var(--mc-border);
+        }
+
+        .dash-order-row:last-child { border-bottom: none; }
+
+        .dash-order-row .oid { font-weight: 700; color: var(--mc-navy); }
+
+        .status-pill {
+            padding: 0.05rem 0.45rem;
+            border-radius: 1rem;
+            font-weight: 700;
+            font-size: 0.58rem;
+        }
+
+        .status-pill.paid { background: #dcfce7; color: #16a34a; }
+        .status-pill.processing { background: #fef3c7; color: #d97706; }
+
+        /* Floating cards on the mockup */
+        .float-card {
+            position: absolute;
+            background: white;
+            border-radius: 0.85rem;
+            box-shadow: 0 15px 30px rgba(11, 23, 48, 0.15);
+            border: 1px solid var(--mc-border);
+            padding: 0.85rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            z-index: 3;
+        }
+
+        .float-card .float-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 0.65rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .float-rx {
+            top: -0.5rem;
+            /* move further right so the card clears the hero photo */
+            right: 1.2rem;
+            max-width: 195px;
+        }
+
+        .float-rx .float-icon { background: rgba(47,123,246,0.12); color: var(--mc-blue); }
+        .float-rx .float-title { font-size: 0.78rem; font-weight: 800; color: var(--mc-navy); }
+        .float-rx .float-sub { font-size: 0.65rem; color: var(--mc-slate); margin: 0.15rem 0 0.45rem; }
+        .float-rx button {
+            border: none;
+            background: var(--mc-teal);
+            color: white;
+            font-size: 0.62rem;
+            font-weight: 700;
+            padding: 0.3rem 0.7rem;
+            border-radius: 1rem;
+            cursor: pointer;
+        }
+
+        .float-top {
+            bottom: -0.75rem;
+            /* keep the bottom float visible near the hero edge */
+            right: 1.8rem;
+            max-width: 185px;
+        }
+
+        .float-top .float-icon { background: rgba(15,184,172,0.12); color: var(--mc-teal); }
+        .float-top .float-title { font-size: 0.68rem; font-weight: 700; color: var(--mc-slate); }
+        .float-top .float-value { font-size: 0.78rem; font-weight: 800; color: var(--mc-navy); }
+        .float-top .float-sub2 { font-size: 0.62rem; color: var(--mc-slate); }
+
+        /* Pharmacist hero photo — sits in front of the dashboard mock, bottom-right
+           of the hero-image container, matching the reference composition */
+        .hero-photo {
+            position: absolute;
+            right: -0.4rem;
+            bottom: -1.1rem;
+            width: 82%;
+            max-width: 700px;
+            z-index: 2;
+            pointer-events: none;
+            user-select: none;
+            overflow: visible;
+        }
+
+        .hero-photo img {
+            display: block;
+            width: 100%;
+            height: auto;
+            transform: scale(1.34, 1.3);
+            transform-origin: center right;
+            transition: transform 0.4s ease;
+        }
+        
+        .hero-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 1rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transition: var(--transition);
+        }
+
+        .hero-photo img {
+            border-radius: 0;
+            box-shadow: none;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+
+        /* ================= Body sections (post-hero) ================= */
+
+        .page-section {
+            background: var(--mc-bg);
+            padding: 2.75rem 3.5%;
+        }
+
+        .panel {
+            background: var(--mc-card);
+            border-radius: 1.5rem;
+            border: 1px solid var(--mc-border);
+            box-shadow: 0 30px 60px -35px rgba(11, 23, 48, 0.18);
+            padding: 3rem 3.25rem;
+            max-width: 1560px;
+            margin: 0 auto;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(15, 184, 172, 0.12);
+            color: var(--mc-teal-dark);
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 0.4rem 0.9rem;
+            border-radius: 2rem;
+            margin-bottom: 1.1rem;
+        }
+
+        /* Each section gets its own accent so the page reads as a considered
+           multi-hue system rather than one color repeated everywhere */
+        .eyebrow--violet { background: rgba(139, 92, 246, 0.12); color: var(--mc-violet-dark); }
+        .eyebrow--amber  { background: rgba(246, 167, 35, 0.16); color: var(--mc-amber-dark); }
+        .eyebrow--coral  { background: rgba(255, 107, 91, 0.14); color: var(--mc-coral-dark); }
+        .eyebrow--lime   { background: rgba(124, 194, 66, 0.16); color: var(--mc-lime-dark); }
+
+        .panel-heading {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--mc-navy);
+            letter-spacing: -0.02em;
+            line-height: 1.15;
+            margin-bottom: 0.6rem;
+        }
+
+        .panel-heading .accent { color: var(--mc-teal); }
+
+        .panel-sub {
+            color: var(--mc-slate);
+            font-size: 1rem;
+            line-height: 1.7;
+            max-width: 34rem;
+        }
+
+        /* ---------- About ---------- */
+        .about-panel {
+            display: flex;
+            align-items: center;
+            gap: 3.5rem;
+        }
+
+        .about-copy { flex: 1; min-width: 320px; }
+
+        .about-stats {
+            display: flex;
+            gap: 2.25rem;
+            margin-top: 2rem;
+        }
+
+        .about-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        .about-stat .stat-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        .about-stat:nth-child(1) .stat-icon { background: rgba(15, 184, 172, 0.12); color: var(--mc-teal); }
+        .about-stat:nth-child(2) .stat-icon { background: rgba(246, 167, 35, 0.14); color: var(--mc-amber-dark); }
+        .about-stat:nth-child(3) .stat-icon { background: rgba(139, 92, 246, 0.12); color: var(--mc-violet); }
+
+        .about-stat .stat-number {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--mc-navy);
+            line-height: 1.1;
+        }
+
+        .about-stat .stat-label {
+            font-size: 0.72rem;
+            color: var(--mc-slate);
+        }
+
+        .about-media {
+            flex: 1;
+            min-width: 340px;
+            position: relative;
+        }
+
+        .about-media img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 1.25rem;
+            display: block;
+        }
+
+        .about-trust-card {
+            position: absolute;
+            left: -1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 20px 40px rgba(11, 23, 48, 0.18);
+            border: 1px solid var(--mc-border);
+            padding: 1rem 1.2rem;
+            width: 180px;
+        }
+
+        .about-trust-card .trust-tag {
+            font-size: 0.68rem;
+            color: var(--mc-slate);
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .about-trust-card .trust-num {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--mc-navy);
+            line-height: 1.1;
+        }
+
+        .about-trust-card .trust-sub {
+            font-size: 0.72rem;
+            color: var(--mc-slate);
+            margin-bottom: 0.7rem;
+        }
+
+        .avatar-stack {
+            display: flex;
+            align-items: center;
+        }
+
+        .avatar-stack .avatar-circle {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid white;
+            margin-left: -8px;
+            background: linear-gradient(135deg, var(--mc-teal), var(--mc-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.55rem;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .avatar-stack .avatar-circle:first-child { margin-left: 0; }
+        .avatar-stack .avatar-circle:nth-child(2) { background: linear-gradient(135deg, var(--mc-coral), var(--mc-amber)); }
+        .avatar-stack .avatar-circle:nth-child(3) { background: linear-gradient(135deg, var(--mc-violet), var(--mc-pink)); }
+        .avatar-stack .avatar-circle:nth-child(4) { background: linear-gradient(135deg, var(--mc-lime), var(--mc-teal)); }
+
+        .avatar-stack .avatar-more {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--mc-teal-dark);
+            margin-left: 0.4rem;
+        }
+
+        /* ---------- Key Features ---------- */
+        .features-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+        }
+
+        .features-head .panel-sub {
+            max-width: 22rem;
+            padding-top: 0.5rem;
+        }
+
+        .kf-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1.1rem;
+        }
+
+        /* Spotlight strip: the one signature visual, kept short and horizontal
+           so it never dictates the height of the rest of the grid */
+        .kf-spotlight {
+            grid-column: 1 / -1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+            flex-wrap: wrap;
+            padding: 1.35rem 1.75rem;
+            border-radius: 1.25rem;
+            background: linear-gradient(120deg, rgba(15, 184, 172, 0.09), rgba(47, 123, 246, 0.05));
+            border: 1px solid rgba(15, 184, 172, 0.22);
+            box-shadow: 0 20px 40px -26px rgba(15, 184, 172, 0.4);
+        }
+
+        .kf-spotlight-left {
+            display: flex;
+            align-items: center;
+            gap: 1.1rem;
+            flex: 1;
+            min-width: 260px;
+        }
+
+        .kf-spotlight-copy h4 {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--mc-navy);
+            margin-bottom: 0.3rem;
+        }
+
+        .kf-spotlight-copy p {
+            font-size: 0.85rem;
+            color: var(--mc-slate);
+            line-height: 1.55;
+            max-width: 24rem;
+        }
+
+        .kf-spotlight-stats {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .kf-stat-col {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            min-width: 108px;
+        }
+
+        .kf-stat-col .kf-stat-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+
+        .kf-stat-col .kf-stat-name {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--mc-navy);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .kf-stat-col .kf-stat-pct {
+            font-size: 0.66rem;
+            font-weight: 700;
+            color: var(--mc-slate);
+            flex-shrink: 0;
+        }
+
+        .kf-stat-bar {
+            height: 6px;
+            border-radius: 999px;
+            background: rgba(11, 23, 48, 0.08);
+            overflow: hidden;
+        }
+
+        .kf-stat-bar span {
+            display: block;
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, var(--mc-teal), var(--mc-blue));
+        }
+
+        .kf-stat-col.low .kf-stat-bar span {
+            background: linear-gradient(90deg, #f97316, #ef4444);
+        }
+
+        .kf-stat-col.low .kf-stat-name { color: #c2410c; }
+
+        .kf-spotlight-alert {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #c2410c;
+            background: rgba(249, 115, 22, 0.1);
+            border: 1px solid rgba(249, 115, 22, 0.22);
+            padding: 0.55rem 0.85rem;
+            border-radius: 0.7rem;
+            white-space: nowrap;
+        }
+
+        /* Uniform feature cards: short and consistent, no more oversized tiles */
+        .kf-card {
+            position: relative;
+            overflow: hidden;
+            padding: 1.25rem 1.35rem;
+            border-radius: 1.1rem;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(240, 247, 255, 0.96));
+            border: 1px solid rgba(11, 23, 48, 0.07);
+            box-shadow: 0 14px 26px -20px rgba(11, 23, 48, 0.24);
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.9rem;
+        }
+
+        .kf-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(15, 184, 172, 0.06), transparent 55%);
+            pointer-events: none;
+        }
+
+        .kf-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(15, 184, 172, 0.28);
+            box-shadow: 0 18px 30px -18px rgba(11, 23, 48, 0.26);
+        }
+
+        .kf-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: white;
+            box-shadow: 0 10px 20px -12px rgba(0, 0, 0, 0.28);
+            transition: transform 0.25s ease;
+            flex-shrink: 0;
+        }
+
+        .kf-card:hover .kf-icon {
+            transform: translateY(-2px) scale(1.04);
+        }
+
+        .kf-card-body {
+            position: relative;
+            z-index: 1;
+            min-width: 0;
+        }
+
+        .kf-card h4 {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--mc-navy);
+            margin-bottom: 0.3rem;
+        }
+
+        .kf-card p {
+            font-size: 0.82rem;
+            color: var(--mc-slate);
+            line-height: 1.5;
+        }
+
+        .kf-access-strip { background: linear-gradient(120deg, rgba(47, 123, 246, 0.07), rgba(15, 184, 172, 0.05)); border-color: rgba(47, 123, 246, 0.2); }
+
+        .kf-devices {
+            display: flex;
+            gap: 0.55rem;
+            flex-wrap: wrap;
+        }
+
+        .kf-devices span {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.74rem;
+            font-weight: 700;
+            color: var(--mc-navy);
+            background: rgba(47, 123, 246, 0.08);
+            border: 1px solid rgba(47, 123, 246, 0.16);
+            padding: 0.4rem 0.75rem;
+            border-radius: 999px;
+        }
+
+        .kf-devices i { color: var(--mc-blue); font-size: 0.78rem; }
+
+        .kf-teal   { background: linear-gradient(135deg, var(--mc-teal), #14b8a6); }
+        .kf-blue   { background: linear-gradient(135deg, var(--mc-blue), #60a5fa); }
+        .kf-purple { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+        .kf-green  { background: linear-gradient(135deg, #65a30d, #84cc16); }
+        .kf-orange { background: linear-gradient(135deg, #f97316, #fb923c); }
+        .kf-pink   { background: linear-gradient(135deg, #ec4899, #f472b6); }
+
+        @media (max-width: 1100px) {
+            .kf-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 640px) {
+            .kf-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .kf-card {
+                padding: 1.1rem;
+            }
+
+            .kf-spotlight {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 1.25rem;
+            }
+
+            .kf-spotlight-stats {
+                gap: 1.1rem;
+            }
+        }
+
+        /* ---------- Pricing ---------- */
+        .pricing-head-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 2.5rem;
+        }
+
+        .billing-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .billing-toggle span {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--mc-slate);
+        }
+
+        .billing-toggle span.on { color: var(--mc-navy); }
+
+        .toggle-switch {
+            width: 46px;
+            height: 26px;
+            border-radius: 999px;
+            background: var(--mc-teal);
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+        }
+
+        .save-badge {
+            background: rgba(246, 167, 35, 0.16);
+            color: var(--mc-amber-dark);
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 0.25rem 0.6rem;
+            border-radius: 1rem;
+        }
+
+        .price-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            align-items: stretch;
+        }
+
+        .price-card {
+            border: 1px solid var(--mc-border);
+            border-top: 3px solid var(--mc-teal);
+            border-radius: 1.1rem;
+            padding: 1.6rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+
+        .price-card.featured {
+            border: 1.5px solid var(--mc-coral);
+            border-top: 3px solid var(--mc-coral);
+            box-shadow: 0 25px 45px -20px rgba(255, 107, 91, 0.4);
+            position: relative;
+        }
+
+        .price-card--business { border-top-color: var(--mc-violet); }
+
+        .price-card--enterprise {
+            border-top-color: var(--mc-amber);
+            background: linear-gradient(165deg, var(--mc-navy) 0%, #16213d 100%);
+        }
+
+        .price-card--enterprise .price-title,
+        .price-card--enterprise .price-amount { color: white; }
+
+        .price-card--enterprise .price-desc,
+        .price-card--enterprise .price-billed,
+        .price-card--enterprise .price-features li,
+        .price-card--enterprise .price-amount .period { color: rgba(255, 255, 255, 0.68); }
+
+        .price-badge {
+            position: absolute;
+            top: -0.9rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(90deg, var(--mc-coral) 0%, var(--mc-amber) 100%);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.3rem 0.9rem;
+            border-radius: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            white-space: nowrap;
+        }
+
+        .price-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--mc-navy);
+            margin-bottom: 0.25rem;
+        }
+
+        .price-desc {
+            font-size: 0.78rem;
+            color: var(--mc-slate);
+            margin-bottom: 1.2rem;
+        }
+
+        .price-amount {
+            font-size: 1.55rem;
+            font-weight: 800;
+            color: var(--mc-navy);
+        }
+
+        .price-amount .period {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--mc-slate);
+        }
+
+        .price-billed {
+            font-size: 0.74rem;
+            color: var(--mc-slate);
+            margin-bottom: 1.3rem;
+        }
+
+        .price-features {
+            list-style: none;
+            margin-bottom: 1.6rem;
+            flex: 1;
+        }
+
+        .price-features li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.55rem;
+            font-size: 0.82rem;
+            color: var(--mc-slate);
+            margin-bottom: 0.65rem;
+        }
+
+        .price-features li i {
+            color: var(--mc-teal);
+            margin-top: 0.2rem;
+            font-size: 0.75rem;
+        }
+
+        .price-card.featured .price-features li i { color: var(--mc-coral); }
+        .price-card--business .price-features li i { color: var(--mc-violet); }
+        .price-card--enterprise .price-features li i { color: var(--mc-amber); }
+
+        .price-cta {
+            text-align: center;
+            border-radius: 2rem;
+            padding: 0.7rem 1rem;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-decoration: none;
+            border: 1.5px solid var(--mc-teal);
+            color: var(--mc-teal-dark);
+            transition: var(--transition);
+        }
+
+        .price-cta:hover {
+            background: rgba(15, 184, 172, 0.08);
+        }
+
+        .price-cta.solid {
+            background: linear-gradient(90deg, var(--mc-coral) 0%, var(--mc-amber) 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .price-cta.solid:hover {
+            background: linear-gradient(90deg, var(--mc-coral-dark) 0%, var(--mc-amber-dark) 100%);
+        }
+
+        .price-card--business .price-cta {
+            border-color: var(--mc-violet);
+            color: var(--mc-violet-dark);
+        }
+
+        .price-card--business .price-cta:hover {
+            background: rgba(139, 92, 246, 0.08);
+        }
+
+        .price-card--enterprise .price-cta {
+            border-color: var(--mc-amber);
+            color: var(--mc-amber);
+        }
+
+        .price-card--enterprise .price-cta:hover {
+            background: rgba(246, 167, 35, 0.14);
+        }
+
+        /* ---------- Testimonials + Partners ---------- */
+        .split-row {
+            display: flex;
+            gap: 2rem;
+            max-width: 1280px;
+            margin: 2rem auto 0;
+            align-items: stretch;
+        }
+
+        .split-panel {
+            flex: 1;
+            background: var(--mc-card);
+            border-radius: 1.5rem;
+            border: 1px solid var(--mc-border);
+            box-shadow: 0 30px 60px -35px rgba(11, 23, 48, 0.18);
+            padding: 2.5rem 2.75rem;
+        }
+
+        .testimonial-card {
+            margin-top: 1.75rem;
+            border: 1px solid var(--mc-border);
+            border-radius: 1rem;
+            padding: 1.25rem 1.4rem;
+            position: relative;
+        }
+
+        .testimonial-person {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.9rem;
+        }
+
+        .testimonial-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .testimonial-name {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--mc-navy);
+        }
+
+        .testimonial-role {
+            font-size: 0.75rem;
+            color: var(--mc-slate);
+        }
+
+        .testimonial-quote {
+            font-size: 0.9rem;
+            color: var(--mc-slate);
+            line-height: 1.65;
+            margin-bottom: 0.9rem;
+        }
+
+        .testimonial-stars {
+            color: #f59e0b;
+            font-size: 0.8rem;
+        }
+
+        .testimonial-nav {
+            position: absolute;
+            top: 1.1rem;
+            right: 1.2rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .testimonial-nav button {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 1px solid var(--mc-border);
+            background: white;
+            color: var(--mc-slate);
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+
+        .testimonial-dots {
+            display: flex;
+            gap: 0.35rem;
+            margin-top: 1rem;
+        }
+
+        .testimonial-dots span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--mc-border);
+        }
+
+        .testimonial-dots span.active {
+            width: 16px;
+            border-radius: 4px;
+            background: var(--mc-teal);
+        }
+
+        .partners-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-top: 1.75rem;
+        }
+
+        .partner-logo {
+            border: 1px solid var(--mc-border);
+            border-radius: 0.85rem;
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.05rem;
+        }
+
+        /* ---------- CTA bar ---------- */
+        .cta-bar {
+            max-width: 1280px;
+            margin: 2rem auto 0;
+            background: white;
+            border: 1px solid var(--mc-border);
+            border-radius: 1.5rem;
+            box-shadow: 0 30px 60px -35px rgba(11, 23, 48, 0.18);
+            padding: 1.5rem 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .cta-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 1.1rem;
+        }
+
+        .cta-bar-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--mc-coral), var(--mc-amber));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            flex-shrink: 0;
+            box-shadow: 0 10px 22px -10px rgba(255, 107, 91, 0.55);
+        }
+
+        .cta-bar-left h3 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--mc-navy);
+            margin-bottom: 0.15rem;
+        }
+
+        .cta-bar-left p {
+            font-size: 0.85rem;
+            color: var(--mc-slate);
+        }
+
+        .cta-bar-buttons {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+        }
+
+        .cta-bar-buttons .btn-primary {
+            background: linear-gradient(90deg, var(--mc-coral) 0%, var(--mc-amber) 100%);
+            border-radius: 2rem;
+            padding: 0.8rem 1.6rem;
+            font-weight: 700;
+            box-shadow: 0 12px 24px rgba(255, 107, 91, 0.3);
+        }
+
+        .cta-bar-buttons .btn-primary:hover {
+            background: linear-gradient(90deg, var(--mc-coral-dark) 0%, var(--mc-amber-dark) 100%);
+        }
+
+        .cta-bar-buttons .btn-outline-nav {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.4rem;
+            border-radius: 2rem;
+            border: 1.5px solid var(--mc-border);
+            color: var(--mc-navy);
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+
+        /* ---------- Responsive ---------- */
+        @media (max-width: 1024px) {
+            .price-grid { grid-template-columns: repeat(2, 1fr); }
+            .split-row { flex-direction: column; }
+            .about-panel { flex-direction: column; }
+            .about-trust-card { position: static; transform: none; margin-top: -2.5rem; margin-left: 1.5rem; }
+        }
+
+        @media (max-width: 640px) {
+            .panel, .split-panel, .cta-bar { padding: 1.75rem 1.5rem; }
+            .price-grid { grid-template-columns: 1fr; }
+            .partners-grid { grid-template-columns: repeat(2, 1fr); }
+            .features-head, .pricing-head-row { flex-direction: column; align-items: flex-start; }
+        }
+        
+        /* Mobile Menu */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 80%;
+            max-width: 400px;
+            height: 100vh;
+            background-color: var(--dark-background);
+            z-index: 2000;
+            padding: 3rem 2rem;
+            transition: left 0.4s ease;
+            overflow-y: auto;
+            box-shadow: 5px 0 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .mobile-menu.active {
+            left: 0;
+        }
+        
+        .mobile-menu-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            transition: var(--transition);
+        }
+        
+        .mobile-menu-close:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .mobile-menu-links {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+        
+        .mobile-menu-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.25rem;
+            font-weight: 500;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            transition: var(--transition);
+        }
+        
+        .mobile-menu-links a:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            padding-left: 1.5rem;
+        }
+        
+        .mobile-menu-buttons {
+            margin-top: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1999;
+            display: none;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 1200px) {
+            .hero h1 {
+                font-size: 3rem;
+            }
+        }
+        
+        @media (max-width: 1024px) {
+            .hero {
+                flex-direction: column;
+                text-align: center;
+                gap: 4rem;
+                padding-top: 8rem;
+                min-height: auto;
+            }
+            
+            .hero-content {
+                max-width: 100%;
+            }
+            
+            .hero-buttons {
+                justify-content: center;
+            }
+
+            .trust-stats {
+                justify-content: center;
+            }
+            
+            .hero-image {
+                width: 90%;
+            }
+
+            .float-rx, .float-top {
+                display: none;
+            }
+
+            .hero-photo {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                padding: 0.75rem 5%;
+            }
+            
+            .nav-links, .nav-buttons {
+                display: none;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .hero {
+                padding-top: 6rem;
+                min-height: auto;
+            }
+            
+            .hero h1 {
+                font-size: 2.25rem;
+            }
+            
+            .hero p.hero-desc {
+                font-size: 1.05rem;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .hero-image {
+                width: 100%;
+            }
+
+            .dash-sidebar {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 1.5rem;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero-image {
+                width: 100%;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark-background);
+            color: white;
+            padding: 4rem 5% 1rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-links h4 {
+            margin-bottom: 1.5rem;
+            font-size: 1.25rem;
+            color: white;
+            position: relative;
+            padding-bottom: 0.75rem;
+        }
+
+        .footer-links h4::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background-color: var(--mc-teal);
+            border-radius: 2px;
+        }
+
+        .footer-links:nth-child(2) h4::after { background-color: var(--mc-coral); }
+        .footer-links:nth-child(3) h4::after { background-color: var(--mc-violet); }
+
+        .footer-links ul {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .footer-links a i {
+            font-size: 0.7rem;
+            color: var(--mc-teal);
+            transition: var(--transition);
+        }
+
+        .footer-links:nth-child(2) a i { color: var(--mc-coral); }
+        .footer-links:nth-child(3) a i { color: var(--mc-violet); }
+
+        .footer-links a:hover {
+            color: var(--mc-teal);
+            transform: translateX(5px);
+        }
+
+        .footer-links:nth-child(2) a:hover { color: var(--mc-coral); }
+        .footer-links:nth-child(3) a:hover { color: var(--mc-violet); }
+
+        .footer-links a:hover i {
+            transform: translateX(3px);
+        }
+
+        .footer-contact h4 {
+            margin-bottom: 1.5rem;
+            font-size: 1.25rem;
+            color: white;
+            position: relative;
+            padding-bottom: 0.75rem;
+        }
+
+        .footer-contact h4::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background-color: var(--mc-amber);
+            border-radius: 2px;
+        }
+
+        .contact-info p {
+            margin-bottom: 0.75rem;
+            opacity: 0.8;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .contact-info i {
+            color: var(--mc-amber);
+            width: 20px;
+        }
+
+        .newsletter {
+            margin-top: 1.5rem;
+        }
+
+        .newsletter h5 {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .newsletter form {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .newsletter input {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 0.375rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .newsletter input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .newsletter button {
+            padding: 0.75rem 1rem;
+            background: linear-gradient(90deg, var(--mc-teal) 0%, var(--mc-blue) 100%);
+            color: white;
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .newsletter button:hover {
+            background: linear-gradient(90deg, var(--mc-teal-dark) 0%, var(--secondary-dark) 100%);
+        }
+
+        .footer-bottom {
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-bottom-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-bottom p {
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        .legal-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .legal-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .legal-links a:hover {
+            color: var(--mc-teal);
+        }
+
+        @media (max-width: 768px) {
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-bottom-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .legal-links {
+                justify-content: center;
+            }
+            
+            .newsletter form {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .footer-links {
+                margin-bottom: 2rem;
+            }
+            
+            .legal-links {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+               <img src="{% static 'logo.png' %}?v=2" alt="MediCore Logo" loading="eager">
+               <div class="logo-text">
+                   <div>Medi<span>Core</span></div>
+                   <div class="logo-sub">PHARMACY SYSTEM</div>
+               </div>
+            </div>
+            <div class="nav-links">
+                <a href="#about">About Us</a>
+                <a href="#features">Features</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#testimonials">Reviews</a>
+                <a href="#contact">Contact</a>
+            </div>
+            <div class="nav-buttons">
+                <a href="{% url 'login' %}" class="btn btn-outline">Log In</a>
+                <a href="{% url 'register' %}" class="btn btn-primary">Get Started <i class="fas fa-arrow-right" style="font-size:0.8em;margin-left:0.35rem;"></i></a>
+            </div>
+            <button class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </nav>
+    </header>
+
+    <div class="mobile-menu">
+        <button class="mobile-menu-close">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="mobile-menu-links">
+            <a href="#about">About Us</a>
+            <a href="#features">Features</a>
+            <a href="#pricing">Pricing</a>
+            <a href="#testimonials">Reviews</a>
+            <a href="#contact">Contact</a>
+        </div>
+        <div class="mobile-menu-buttons">
+            <a href="{% url 'login' %}" class="btn btn-outline">Log In</a>
+            <a href="{% url 'register' %}" class="btn btn-primary">Get Started</a>
+        </div>
+    </div>
+    
+    <div class="overlay"></div>
+
+    <section class="hero">
+        <div class="hero-warm-blob"></div>
+        <div class="hero-content">
+            <div class="hero-badge">
+                <i class="fas fa-shield-alt"></i> Smart Pharmacy Management
+            </div>
+            <h1>Simplify. Manage.<br>Care <span class="accent">Better.</span></h1>
+            <p class="hero-desc">MediCore Pharmacy System helps you manage inventory, sales, prescriptions, and customers — all in one powerful platform. Built for pharmacies. Designed for growth.</p>
+            <div class="hero-buttons">
+                <a href="{% url 'register' %}" class="btn btn-primary">Get Started Now <i class="fas fa-arrow-right" style="font-size:0.85em;margin-left:0.4rem;"></i></a>
+                <a href="#" class="watch-demo"><span class="play-circle"><i class="fas fa-play" style="font-size:1rem;"></i></span> Watch Demo</a>
+            </div>
+
+            <div class="trust-label">Trusted by Pharmacies Worldwide</div>
+            <div class="trust-stats">
+                <div class="trust-stat">
+                    <div class="stat-icon"><i class="fas fa-store"></i></div>
+                    <div>
+                        <div class="stat-number">500+</div>
+                        <div class="stat-label">Pharmacies</div>
+                    </div>
+                </div>
+                <div class="trust-stat">
+                    <div class="stat-icon"><i class="fas fa-box"></i></div>
+                    <div>
+                        <div class="stat-number">50K+</div>
+                        <div class="stat-label">Products Managed</div>
+                    </div>
+                </div>
+                <div class="trust-stat">
+                    <div class="stat-icon"><i class="fas fa-users"></i></div>
+                    <div>
+                        <div class="stat-number">100K+</div>
+                        <div class="stat-label">Happy Customers</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="hero-image">
+                <div class="dash-mock">
+                <div class="dash-sidebar">
+                    <div class="dash-logo-box">
+                        <img src="{% static 'logo.png' %}" alt="MediCore logo" class="dash-logo-mark" loading="eager">
+                    </div>
+                    <div class="dash-nav-item active"><i class="fas fa-th-large"></i> Dashboard</div>
+                    <div class="dash-nav-item"><i class="fas fa-boxes"></i> Inventory</div>
+                    <div class="dash-nav-item"><i class="fas fa-cash-register"></i> Sales</div>
+                    <div class="dash-nav-item"><i class="fas fa-file-prescription"></i> Prescriptions</div>
+                    <div class="dash-nav-item"><i class="fas fa-user-friends"></i> Customers</div>
+                    <div class="dash-nav-item"><i class="fas fa-truck"></i> Suppliers</div>
+                    <div class="dash-nav-item"><i class="fas fa-chart-bar"></i> Reports</div>
+                    <div class="dash-nav-item"><i class="fas fa-cog"></i> Settings</div>
+                </div>
+                <div class="dash-main">
+                    <div class="dash-main-header">
+                        <h4>Dashboard</h4>
+                        <div class="dash-profile"><i class="far fa-bell"></i> <span class="dash-avatar"></span> Pharmacist</div>
+                    </div>
+                    <div class="dash-stats-row">
+                        <div class="dash-stat-card">
+                            <div class="label">Total Sales</div>
+                            <div class="value">MWK 12,540,000</div>
+                            <div class="delta up">↑ 12.5% from last month</div>
+                        </div>
+                        <div class="dash-stat-card">
+                            <div class="label">Total Orders</div>
+                            <div class="value">1,482</div>
+                            <div class="delta up">↑ 8.3% from last month</div>
+                        </div>
+                        <div class="dash-stat-card">
+                            <div class="label">Low Stock</div>
+                            <div class="value">24</div>
+                            <div class="delta down">↓ 4 since yesterday</div>
+                        </div>
+                    </div>
+                    <div class="dash-chart-card">
+                        <div class="chart-head">Sales Overview <span class="tag">This Month</span></div>
+                        <svg viewBox="0 0 300 80" width="100%" height="70" preserveAspectRatio="none">
+                            <polyline points="0,60 30,45 60,50 90,30 120,38 150,20 180,28 210,15 240,22 270,10 300,18" fill="none" stroke="#0fb8ac" stroke-width="2.5"/>
+                            <polygon points="0,60 30,45 60,50 90,30 120,38 150,20 180,28 210,15 240,22 270,10 300,18 300,80 0,80" fill="#0fb8ac" opacity="0.08"/>
+                        </svg>
+                    </div>
+                    <div class="dash-orders">
+                        <div class="orders-head">Recent Orders</div>
+                        <div class="dash-order-row"><span class="oid">#ORD-001</span><span>Customer</span><span>MWK 250,000</span><span class="status-pill paid">Paid</span></div>
+                        <div class="dash-order-row"><span class="oid">#ORD-002</span><span>Customer</span><span>MWK 125,000</span><span class="status-pill processing">Processing</span></div>
+                        <div class="dash-order-row"><span class="oid">#ORD-003</span><span>Customer</span><span>MWK 320,000</span><span class="status-pill paid">Paid</span></div>
+                    </div>
+                </div>
+
+                <div class="float-card float-rx">
+                    <div class="float-icon"><i class="fas fa-file-prescription"></i></div>
+                    <div>
+                        <div class="float-title">Prescription</div>
+                        <div class="float-sub">Upload &amp; Manage Prescriptions easily</div>
+                        <button>Upload Now</button>
+                    </div>
+                </div>
+
+                <div class="float-card float-top">
+                    <div class="float-icon"><i class="fas fa-pills"></i></div>
+                    <div>
+                        <div class="float-title">Top Selling Product</div>
+                        <div class="float-value">Paracetamol 500mg</div>
+                        <div class="float-sub2">1,250 units sold</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-photo">
+                <img src="{% static 'image.png' %}" alt="Pharmacist reviewing inventory on a tablet">
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= ABOUT ================= -->
+    <section id="about" class="page-section">
+        <div class="panel about-panel">
+            <div class="about-copy">
+                <div class="eyebrow eyebrow--violet"><i class="fas fa-heart"></i> About MediCore</div>
+                <h2 class="panel-heading">Empowering Pharmacies.<br><span class="accent">Improving Lives.</span></h2>
+                <p class="panel-sub">MediCore is an all-in-one pharmacy management system designed to simplify operations and enhance patient care. From inventory to prescriptions, we help you focus on what matters most — your customers.</p>
+
+                <div class="about-stats">
+                    <div class="about-stat">
+                        <div class="stat-icon"><i class="fas fa-shield-alt"></i></div>
+                        <div>
+                            <div class="stat-number">100%</div>
+                            <div class="stat-label">Secure &amp; Compliant</div>
+                        </div>
+                    </div>
+                    <div class="about-stat">
+                        <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                        <div>
+                            <div class="stat-number">99.9%</div>
+                            <div class="stat-label">Uptime</div>
+                        </div>
+                    </div>
+                    <div class="about-stat">
+                        <div class="stat-icon"><i class="fas fa-headset"></i></div>
+                        <div>
+                            <div class="stat-number">24/7</div>
+                            <div class="stat-label">Dedicated Support</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="about-media">
+                <img src="{% static 'image 2.png' %}" alt="Pharmacist reviewing inventory on a tablet">
+                <div class="about-trust-card">
+                    <div class="trust-tag">Trusted by</div>
+                    <div class="trust-num">500+</div>
+                    <div class="trust-sub">Pharmacies Worldwide</div>
+                    <div class="avatar-stack">
+                        <span class="avatar-circle"></span>
+                        <span class="avatar-circle"></span>
+                        <span class="avatar-circle"></span>
+                        <span class="avatar-circle"></span>
+                        <span class="avatar-more">+500</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= KEY FEATURES ================= -->
+    <section id="features" class="page-section">
+        <div class="panel">
+            <div class="features-head">
+                <div>
+                    <div class="eyebrow"><i class="fas fa-shield-alt"></i> Key Features</div>
+                    <h2 class="panel-heading">Everything You Need.<br><span class="accent">In One Place.</span></h2>
+                </div>
+                <p class="panel-sub">Powerful tools to streamline your pharmacy operations and deliver exceptional service.</p>
+            </div>
+
+            <div class="kf-grid">
+                <div class="kf-spotlight">
+                    <div class="kf-spotlight-left">
+                        <div class="kf-icon kf-teal"><i class="fas fa-boxes"></i></div>
+                        <div class="kf-spotlight-copy">
+                            <h4>Smart Inventory</h4>
+                            <p>Real-time stock tracking with automatic reordering — shelves stay full, capital never sits idle.</p>
+                        </div>
+                    </div>
+                    <div class="kf-spotlight-stats">
+                        <div class="kf-stat-col">
+                            <div class="kf-stat-top"><span class="kf-stat-name">Amoxicillin</span><span class="kf-stat-pct">82%</span></div>
+                            <div class="kf-stat-bar"><span style="width:82%"></span></div>
+                        </div>
+                        <div class="kf-stat-col low">
+                            <div class="kf-stat-top"><span class="kf-stat-name">Paracetamol</span><span class="kf-stat-pct">14%</span></div>
+                            <div class="kf-stat-bar"><span style="width:14%"></span></div>
+                        </div>
+                        <div class="kf-stat-col">
+                            <div class="kf-stat-top"><span class="kf-stat-name">ORS Sachets</span><span class="kf-stat-pct">63%</span></div>
+                            <div class="kf-stat-bar"><span style="width:63%"></span></div>
+                        </div>
+                    </div>
+                    <div class="kf-spotlight-alert"><i class="fas fa-bell"></i> Reorder alert: Paracetamol 500mg</div>
+                </div>
+
+                <div class="kf-card">
+                    <div class="kf-icon kf-blue"><i class="fas fa-clipboard-list"></i></div>
+                    <div class="kf-card-body">
+                        <h4>Prescription Management</h4>
+                        <p>Digital handling of prescriptions with dosage instructions and history.</p>
+                    </div>
+                </div>
+
+                <div class="kf-card">
+                    <div class="kf-icon kf-purple"><i class="fas fa-chart-bar"></i></div>
+                    <div class="kf-card-body">
+                        <h4>Sales &amp; Reports</h4>
+                        <p>Powerful analytics and reports to help you make data-driven decisions.</p>
+                    </div>
+                </div>
+
+                <div class="kf-card">
+                    <div class="kf-icon kf-green"><i class="fas fa-user"></i></div>
+                    <div class="kf-card-body">
+                        <h4>Customer Management</h4>
+                        <p>Manage customer profiles, purchase history, and loyalty programs.</p>
+                    </div>
+                </div>
+
+                <div class="kf-card">
+                    <div class="kf-icon kf-orange"><i class="fas fa-truck"></i></div>
+                    <div class="kf-card-body">
+                        <h4>Supplier Management</h4>
+                        <p>Track suppliers, manage purchases, and monitor payments.</p>
+                    </div>
+                </div>
+
+                <div class="kf-card">
+                    <div class="kf-icon kf-pink"><i class="fas fa-bell"></i></div>
+                    <div class="kf-card-body">
+                        <h4>Alerts &amp; Notifications</h4>
+                        <p>Get notified about low stock, expiring products, and updates.</p>
+                    </div>
+                </div>
+
+                <div class="kf-card">
+                    <div class="kf-icon kf-teal"><i class="fas fa-shield-alt"></i></div>
+                    <div class="kf-card-body">
+                        <h4>Secure &amp; Reliable</h4>
+                        <p>Your data is encrypted and backed up securely in the cloud.</p>
+                    </div>
+                </div>
+
+                <div class="kf-spotlight kf-access-strip">
+                    <div class="kf-spotlight-left">
+                        <div class="kf-icon kf-blue"><i class="fas fa-mobile-alt"></i></div>
+                        <div class="kf-spotlight-copy">
+                            <h4>Access Anywhere</h4>
+                            <p>Your pharmacy data, anytime, on any device.</p>
+                        </div>
+                    </div>
+                    <div class="kf-devices">
+                        <span><i class="fas fa-desktop"></i> Desktop</span>
+                        <span><i class="fas fa-tablet-alt"></i> Tablet</span>
+                        <span><i class="fas fa-mobile-alt"></i> Mobile</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= PRICING ================= -->
+    <section id="pricing" class="page-section">
+        <div class="panel">
+            <div class="pricing-head-row">
+                <div>
+                    <div class="eyebrow eyebrow--amber"><i class="fas fa-tags"></i> Transparent Pricing</div>
+                    <h2 class="panel-heading">Simple. Fair. <span class="accent">Affordable.</span></h2>
+                </div>
+                <div class="billing-toggle">
+                    <span>Monthly</span>
+                    <span class="toggle-switch"></span>
+                    <span class="on">Yearly</span>
+                    <span class="save-badge">Save 20%</span>
+                </div>
+            </div>
+
+            <div class="price-grid">
+                <div class="price-card">
+                    <div class="price-title">Starter</div>
+                    <div class="price-desc">Perfect for small pharmacies</div>
+                    <div class="price-amount">MWK 25,000<span class="period"> /month</span></div>
+                    <div class="price-billed">Billed yearly</div>
+                    <ul class="price-features">
+                        <li><i class="fas fa-check"></i> Inventory Management</li>
+                        <li><i class="fas fa-check"></i> Prescription Management</li>
+                        <li><i class="fas fa-check"></i> Sales &amp; Reports</li>
+                        <li><i class="fas fa-check"></i> Customer Management</li>
+                        <li><i class="fas fa-check"></i> Email Support</li>
+                    </ul>
+                    <a href="{% url 'register' %}" class="price-cta">Get Started</a>
+                </div>
+
+                <div class="price-card featured">
+                    <div class="price-badge"><i class="fas fa-star"></i> Most Popular</div>
+                    <div class="price-title">Professional</div>
+                    <div class="price-desc">Ideal for growing pharmacies</div>
+                    <div class="price-amount">MWK 50,000<span class="period"> /month</span></div>
+                    <div class="price-billed">Billed yearly</div>
+                    <ul class="price-features">
+                        <li><i class="fas fa-check"></i> Everything in Starter</li>
+                        <li><i class="fas fa-check"></i> Supplier Management</li>
+                        <li><i class="fas fa-check"></i> Advanced Reports</li>
+                        <li><i class="fas fa-check"></i> Alerts &amp; Notifications</li>
+                        <li><i class="fas fa-check"></i> Priority Support</li>
+                    </ul>
+                    <a href="{% url 'register' %}" class="price-cta solid">Get Started</a>
+                </div>
+
+                <div class="price-card price-card--business">
+                    <div class="price-title">Business</div>
+                    <div class="price-desc">For large pharmacies</div>
+                    <div class="price-amount">MWK 100,000<span class="period"> /month</span></div>
+                    <div class="price-billed">Billed yearly</div>
+                    <ul class="price-features">
+                        <li><i class="fas fa-check"></i> Everything in Professional</li>
+                        <li><i class="fas fa-check"></i> Multi-branch Management</li>
+                        <li><i class="fas fa-check"></i> Custom Integrations</li>
+                        <li><i class="fas fa-check"></i> Dedicated Account Manager</li>
+                        <li><i class="fas fa-check"></i> 24/7 Phone Support</li>
+                    </ul>
+                    <a href="{% url 'register' %}" class="price-cta">Get Started</a>
+                </div>
+
+                <div class="price-card price-card--enterprise">
+                    <div class="price-title">Enterprise</div>
+                    <div class="price-desc">For enterprise &amp; chains</div>
+                    <div class="price-amount">Custom Pricing</div>
+                    <div class="price-billed">Contact us for a quote</div>
+                    <ul class="price-features">
+                        <li><i class="fas fa-check"></i> Everything in Business</li>
+                        <li><i class="fas fa-check"></i> Custom Features</li>
+                        <li><i class="fas fa-check"></i> On-premise Deployment</li>
+                        <li><i class="fas fa-check"></i> Training &amp; Onboarding</li>
+                        <li><i class="fas fa-check"></i> SLA &amp; Premium Support</li>
+                    </ul>
+                    <a href="#contact" class="price-cta">Contact Sales</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= TESTIMONIALS + PARTNERS ================= -->
+    <section id="testimonials" class="page-section" style="padding-top: 0;">
+        <div class="split-row">
+            <div class="split-panel">
+                <div class="eyebrow eyebrow--coral"><i class="fas fa-comment-dots"></i> What Our Customers Say</div>
+                <h2 class="panel-heading">Trusted by Pharmacists.<br><span class="accent">Loved by Customers.</span></h2>
+
+                <div class="testimonial-card">
+                    <div class="testimonial-nav">
+                        <button aria-label="Previous testimonial"><i class="fas fa-chevron-left"></i></button>
+                        <button aria-label="Next testimonial"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="testimonial-person">
+                        <img class="testimonial-avatar" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=faces" alt="Grace M.">
+                        <div>
+                            <div class="testimonial-name">Grace M.</div>
+                            <div class="testimonial-role">Pharmacist, HealthPlus Pharmacy</div>
+                        </div>
+                    </div>
+                    <p class="testimonial-quote">MediCore has transformed how we manage our pharmacy. It's fast, reliable, and the support is excellent!</p>
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <div class="testimonial-dots">
+                        <span class="active"></span><span></span><span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="split-panel">
+                <div class="eyebrow eyebrow--lime"><i class="fas fa-handshake"></i> Our Trusted Partners</div>
+                <h2 class="panel-heading">In Partnership with<br><span class="accent">Leading Solutions</span></h2>
+
+                <div class="partners-grid">
+                    <div class="partner-logo" style="color:#f7941e;">mo<span style="color:#00a651;">Pamba</span></div>
+                    <div class="partner-logo" style="color:#e2001a;"><i class="fas fa-signal" style="margin-right:0.4rem;"></i>airtel</div>
+                    <div class="partner-logo" style="color:#1a1f71;">VISA</div>
+                    <div class="partner-logo">
+                        <span style="display:inline-flex;align-items:center;">
+                            <span style="width:22px;height:22px;border-radius:50%;background:#eb001b;display:inline-block;margin-right:-8px;"></span>
+                            <span style="width:22px;height:22px;border-radius:50%;background:#f79e1b;display:inline-block;opacity:0.85;"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= CTA BAR ================= -->
+    <section class="page-section" style="padding-top: 0; padding-bottom: 3.5rem;">
+        <div class="cta-bar">
+            <div class="cta-bar-left">
+                <div class="cta-bar-icon"><i class="fas fa-rocket"></i></div>
+                <div>
+                    <h3>Ready to Transform Your Pharmacy?</h3>
+                    <p>Join 500+ pharmacies already using MediCore to simplify operations and deliver better care.</p>
+                </div>
+            </div>
+            <div class="cta-bar-buttons">
+                <a href="{% url 'register' %}" class="btn btn-primary">Get Started Now <i class="fas fa-arrow-right" style="font-size:0.8em;margin-left:0.35rem;"></i></a>
+                <a href="#" class="btn-outline-nav"><i class="fas fa-play"></i> Watch Demo</a>
+            </div>
+        </div>
+    </section>
+
+    <br>
+<footer id="contact">
+    <div class="footer-content">
+        <div class="footer-links">
+            <h4>Solutions</h4>
+            <ul>
+                <li><a href="#features"><i class="fas fa-chevron-right"></i> Inventory Management</a></li>
+                <li><a href="#features"><i class="fas fa-chevron-right"></i> Prescription Management</a></li>
+                <li><a href="#features"><i class="fas fa-chevron-right"></i> Sales &amp; Reports</a></li>
+                <li><a href="#features"><i class="fas fa-chevron-right"></i> Customer Management</a></li>
+                <li><a href="#pricing"><i class="fas fa-chevron-right"></i> Pricing</a></li>
+            </ul>
+        </div>
+        
+        <div class="footer-links">
+            <h4>Company</h4>
+            <ul>
+                <li><a href="#about"><i class="fas fa-chevron-right"></i> About Us</a></li>
+                <li><a href="#"><i class="fas fa-chevron-right"></i> Careers</a></li>
+                <li><a href="#"><i class="fas fa-chevron-right"></i> Our Team</a></li>
+                <li><a href="#"><i class="fas fa-chevron-right"></i> Partners</a></li>
+                <li><a href="#testimonials"><i class="fas fa-chevron-right"></i> Customer Stories</a></li>
+            </ul>
+        </div>
+        
+        <div class="footer-links">
+            <h4>Resources</h4>
+            <ul>
+                <li><a href="#"><i class="fas fa-chevron-right"></i> Documentation</a></li>
+                <li><a href="#"><i class="fas fa-chevron-right"></i> Knowledge Base</a></li>
+                <li><a href="#"><i class="fas fa-chevron-right"></i> Blog</a></li>
+                <li><a href="#"><i class="fas fa-chevron-right"></i> Webinars</a></li>
+                <li><a href="#"><i class="fas fa-chevron-right"></i> Support Center</a></li>
+            </ul>
+        </div>
+        
+        <div class="footer-contact">
+            <h4>Contact Us</h4>
+            <div class="contact-info">
+                <p><i class="fas fa-map-marker-alt"></i> Area 25B P.O. Box: 40343, Lilongwe, Malawi</p>
+                <p><i class="fas fa-envelope"></i> info@medicoremw.com</p>
+                <p><i class="fas fa-phone"></i> +265 880 41 98 97</p>
+            </div>
+            
+            <div class="newsletter">
+                <h5>Subscribe to our newsletter</h5>
+                <form>
+                    <input type="email" placeholder="Your email address" aria-label="Your email address">
+                    <button type="submit">Subscribe</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer-bottom">
+        <div class="footer-bottom-content">
+            <p>&copy; <span id="year"></span> MediCore IMS. All rights reserved.</p>
+            <div class="legal-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Cookie Policy</a>
+                <a href="#">Sitemap</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+    <script>
+        // Function to set the current year
+        function updateYear() {
+            const yearSpan = document.getElementById("year");
+            const currentYear = new Date().getFullYear();
+            yearSpan.textContent = currentYear;
+        }
+
+        // Mobile menu functionality
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        const mobileMenuClose = document.querySelector('.mobile-menu-close');
+        const mobileMenu = document.querySelector('.mobile-menu');
+        const overlay = document.querySelector('.overlay');
+        
+        function openMobileMenu() {
+            mobileMenu.classList.add('active');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeMobileMenu() {
+            mobileMenu.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+        
+        mobileMenuBtn.addEventListener('click', openMobileMenu);
+        mobileMenuClose.addEventListener('click', closeMobileMenu);
+        overlay.addEventListener('click', closeMobileMenu);
+
+        // Pricing billing toggle (visual only — wire up to a real yearly/monthly price map as needed)
+        const billingToggle = document.querySelector('.toggle-switch');
+        if (billingToggle) {
+            billingToggle.style.cursor = 'pointer';
+            billingToggle.addEventListener('click', () => {
+                const monthlyLabel = document.querySelector('.billing-toggle span:first-child');
+                const yearlyLabel = document.querySelector('.billing-toggle span.on');
+                monthlyLabel.classList.toggle('on');
+                yearlyLabel.classList.toggle('on');
+            });
+        }
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            updateYear();
+        });
+    </script>
+</body>
+</html>
