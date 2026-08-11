@@ -1,4 +1,1 @@
-update paychangu key
-create a new email and update the settings to use it
-error pages must have their own 
-customize email pages
+update the subscription process.. a user must be able to by pass the free trial and subscribe to a paid plan
