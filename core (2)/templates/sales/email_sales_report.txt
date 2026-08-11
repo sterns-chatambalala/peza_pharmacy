@@ -1,8 +1,0 @@
-Dear {{ admin.username }},
-
-{{ frequency }} Sales and Claims Report for {{ tenant.name }}
-Period: {{ start_date|date:"M d, Y" }} to {{ end_date|date:"M d, Y" }}
-Total Sales: {{ total_sales }}
-Total Revenue: MWK{{ total_revenue|intcomma }}
-Total Insurance Claims: {{ total_claims }}
-Total Claim Amount: MWK{{ total_claim_amount|intcomma }}

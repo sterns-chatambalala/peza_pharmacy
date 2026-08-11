@@ -1,5 +1,0 @@
-Dear {{ admin.username }},
-
-Sale #{{ sale.sale_id }} has been voided by {{ voided_by.username }}.
-Reason: {{ reason }}
-Date: {{ sale.date|date:"M d, Y H:i" }}

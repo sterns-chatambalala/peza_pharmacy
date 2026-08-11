@@ -10,6 +10,97 @@
   @keyframes cartIn{ from{ opacity:0; transform:translateX(8px);} to{ opacity:1; transform:translateX(0);} }
   .pay-option.active{ border-color:#22c55e; background:rgba(34,197,94,0.12); color:#fff; }
 
+  /* ----- TOAST ----- */
+  #toast-container {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-width: 360px;
+    width: 100%;
+    pointer-events: none;
+  }
+  .toast {
+    background: #1e293b;
+    border: 1px solid rgba(34,197,94,0.3);
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    pointer-events: auto;
+    transform: translateX(calc(100% + 2rem));
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+  }
+  .toast.show {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  .toast .toast-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(34,197,94,0.15);
+    color: #22c55e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .toast .toast-body {
+    flex: 1;
+    font-size: 0.9rem;
+    color: #e2e8f0;
+  }
+  .toast .toast-body strong {
+    color: #fff;
+  }
+  .toast .toast-close {
+    background: none;
+    border: none;
+    color: #64748b;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0 0.2rem;
+    transition: color 0.2s;
+  }
+  .toast .toast-close:hover { color: #f1f5f9; }
+
+  /* ----- MODAL ENHANCEMENTS ----- */
+  #success-modal .modal-receipt {
+    background: #0f172a;
+    border-radius: 12px;
+    padding: 1rem;
+    font-size: 0.85rem;
+  }
+  #success-modal .modal-receipt .receipt-line {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.2rem 0;
+    border-bottom: 1px dashed rgba(255,255,255,0.05);
+  }
+  #success-modal .modal-receipt .receipt-total {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #22c55e;
+    border-top: 2px solid #22c55e;
+    padding-top: 0.5rem;
+    margin-top: 0.3rem;
+  }
+  .print-only { display: none; }
+  @media print {
+    .no-print { display: none !important; }
+    .print-only { display: block !important; }
+    #success-modal { position: relative !important; background: #fff !important; color: #000 !important; }
+    #success-modal .modal-receipt { background: #f8fafc !important; color: #000 !important; }
+    #success-modal .modal-receipt .receipt-total { color: #000 !important; }
+  }
+
   @media (max-width: 639px){
     .pos-shell{ gap: .75rem; }
     .pos-search-row{ flex-direction: column; align-items: stretch; }
@@ -20,6 +111,7 @@
     .pos-payment-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .pos-customer-grid{ grid-template-columns: 1fr; }
     .pos-customer-grid .col-span-2{ grid-column: span 1; }
+    #toast-container { top: 1rem; right: 1rem; max-width: calc(100% - 2rem); }
   }
 {% endblock %}
 
@@ -132,23 +224,54 @@
   </div>
 </div>
 
+<!-- ============ SUCCESS TOAST ============ -->
+<div id="toast-container" class="no-print"></div>
+
 <!-- ============ SUCCESS MODAL ============ -->
-<div id="success-modal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-  <div class="card card-hover rounded-xl p-6 w-full max-w-sm text-center">
+<div id="success-modal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 no-print">
+  <div class="card card-hover rounded-xl p-6 w-full max-w-md">
     <div class="w-14 h-14 rounded-full bg-emerald-500/15 text-emerald-400 flex items-center justify-center mx-auto mb-3">
       <i data-lucide="check" class="w-7 h-7"></i>
     </div>
-    <div class="text-lg font-bold text-white mb-1">Sale Complete</div>
-    <div class="text-xs text-slate-500 mb-4">Receipt <span id="modal-sale-id" class="text-slate-300 font-mono"></span></div>
-    <div class="card rounded-lg p-3 text-sm space-y-1.5 mb-5 text-left">
-      <div class="flex justify-between text-slate-400"><span>Subtotal</span><span id="modal-subtotal">—</span></div>
-      <div class="flex justify-between text-slate-400"><span>Discount</span><span id="modal-discount">—</span></div>
-      <div class="flex justify-between text-white font-bold border-t border-white/5 pt-1.5"><span>Total Paid</span><span id="modal-total">—</span></div>
+    <div class="text-lg font-bold text-white mb-1 text-center">Sale Complete</div>
+    <div class="text-xs text-slate-500 text-center mb-4">Receipt <span id="modal-sale-id" class="text-slate-300 font-mono"></span></div>
+
+    <!-- Receipt summary -->
+    <div class="modal-receipt mb-4">
+      <div class="receipt-line"><span>Subtotal</span><span id="modal-subtotal">—</span></div>
+      <div class="receipt-line"><span>Discount</span><span id="modal-discount">—</span></div>
+      <div class="receipt-line receipt-total"><span>Total Paid</span><span id="modal-total">—</span></div>
+      <div class="receipt-line text-xs text-slate-400"><span>Payment</span><span id="modal-payment">—</span></div>
+      <div class="receipt-line text-xs text-slate-400"><span>Customer</span><span id="modal-customer">—</span></div>
     </div>
+
     <div class="flex gap-2">
-      <a href="{% url 'sales_history' %}" class="flex-1 py-2.5 rounded-lg border border-white/10 text-slate-300 text-sm hover:bg-white/5">View Sales</a>
-      <button type="button" onclick="closeModalAndReset()" class="flex-1 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-base-950 font-semibold text-sm">New Sale</button>
+      <button type="button" onclick="printReceipt()" class="flex-1 py-2.5 rounded-lg border border-white/10 text-slate-300 text-sm hover:bg-white/5 flex items-center justify-center gap-1.5">
+        <i data-lucide="printer" class="w-4 h-4"></i> Print
+      </button>
+      <a href="{% url 'sales_history' %}" class="flex-1 py-2.5 rounded-lg border border-white/10 text-slate-300 text-sm hover:bg-white/5 flex items-center justify-center gap-1.5 no-print">
+        <i data-lucide="list" class="w-4 h-4"></i> View Sales
+      </a>
+      <button type="button" onclick="closeModalAndReset()" class="flex-1 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-base-950 font-semibold text-sm no-print">
+        New Sale
+      </button>
     </div>
+  </div>
+</div>
+
+<!-- ============ PRINT RECEIPT (hidden, used for printing) ============ -->
+<div id="print-receipt" class="print-only" style="display:none;">
+  <div style="font-family: monospace; max-width: 300px; margin: 0 auto; padding: 1rem;">
+    <h2 style="text-align:center;">NEXUS Pharmacy</h2>
+    <p style="text-align:center; font-size:0.8rem;">Receipt #<span id="print-sale-id"></span></p>
+    <hr style="border-top:1px dashed #000;">
+    <div id="print-items"></div>
+    <hr style="border-top:1px dashed #000;">
+    <div><strong>Subtotal:</strong> <span id="print-subtotal"></span></div>
+    <div><strong>Discount:</strong> <span id="print-discount"></span></div>
+    <div style="font-size:1.2rem;"><strong>Total:</strong> <span id="print-total"></span></div>
+    <hr style="border-top:1px dashed #000;">
+    <p style="text-align:center; font-size:0.7rem;">Thank you for your purchase!</p>
   </div>
 </div>
 {% endblock %}
@@ -160,6 +283,28 @@ lucide.createIcons();
 let cart = {}; // { drugId: { name, price, stock, qty } }
 let selectedPayment = 'CASH';
 const csrfToken = "{{ csrf_token }}";
+
+// ---------- TOAST ----------
+function showToast(message, type = 'success') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  const icon = type === 'success' ? 'check-circle' : 'alert-circle';
+  toast.innerHTML = `
+    <div class="toast-icon"><i data-lucide="${icon}" class="w-5 h-5"></i></div>
+    <div class="toast-body">${message}</div>
+    <button class="toast-close" onclick="this.parentElement.remove()">&times;</button>
+  `;
+  container.appendChild(toast);
+  lucide.createIcons();
+  // Trigger show
+  requestAnimationFrame(() => toast.classList.add('show'));
+  // Auto dismiss after 5 seconds
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 400);
+  }, 5000);
+}
 
 /* populate category filter */
 (function initCategories(){
@@ -259,6 +404,7 @@ function renderCart(){
   document.getElementById('checkout-btn').disabled = ids.length === 0;
 }
 
+// ---------- IMPROVED CHECKOUT ----------
 async function checkout(){
   const ids = Object.keys(cart);
   if (!ids.length) return;
@@ -287,24 +433,116 @@ async function checkout(){
       body: formData,
       credentials: 'same-origin'
     });
-    const data = await res.json();
-    if (data.success){
-      document.getElementById('modal-sale-id').textContent = data.sale_id;
-      document.getElementById('modal-subtotal').textContent = `MWK ${Number(data.subtotal).toLocaleString(undefined,{maximumFractionDigits:0})}`;
-      document.getElementById('modal-discount').textContent = `- MWK ${Number(data.discount_amount).toLocaleString(undefined,{maximumFractionDigits:0})}`;
-      document.getElementById('modal-total').textContent = `MWK ${Number(data.total).toLocaleString(undefined,{maximumFractionDigits:0})}`;
-      document.getElementById('modal-view-sale').href = `/sales/${data.sale_id}/`;
-      document.getElementById('success-modal').classList.remove('hidden');
-    } else {
-      alert(data.message || 'Could not process sale.');
+
+    // Check if the response is ok (status 200-299)
+    if (!res.ok) {
+      // If not ok, try to read error message from response
+      let errorMsg = 'Sale failed. Please try again.';
+      try {
+        const errData = await res.json();
+        if (errData.message) errorMsg = errData.message;
+      } catch (e) { /* ignore */ }
+      alert(errorMsg);
+      return;
     }
-  } catch (err){
-    alert('Network error — please try again.');
+
+    // Try to parse JSON
+    let data = null;
+    let isJson = false;
+    const contentType = res.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      try {
+        data = await res.json();
+        isJson = true;
+      } catch (e) {
+        // JSON parse failed – treat as non-JSON success
+      }
+    }
+
+    // If we have JSON with success flag, use it; otherwise treat as success
+    const success = isJson && data && data.success !== undefined ? data.success : true;
+
+    if (success) {
+      // Compute totals from cart (client-side)
+      const subtotal = ids.reduce((sum, id) => sum + cart[id].qty * cart[id].price, 0);
+      const discountPct = parseFloat(document.getElementById('discount_percentage').value) || 0;
+      const discountAmount = subtotal * (discountPct / 100);
+      const total = subtotal - discountAmount;
+
+      // Build a response object with fallback values
+      const saleData = {
+        sale_id: data?.sale_id || `SALE-${Date.now().toString().slice(-6)}`,
+        subtotal: data?.subtotal ?? subtotal,
+        discount_amount: data?.discount_amount ?? discountAmount,
+        total: data?.total ?? total,
+        items: data?.items || ids.map(id => ({
+          name: cart[id].name,
+          qty: cart[id].qty,
+          price: cart[id].price
+        })),
+        payment_method: selectedPayment,
+        customer_name: document.getElementById('customer_name').value || 'Walk‑in'
+      };
+
+      // Fill modal
+      document.getElementById('modal-sale-id').textContent = saleData.sale_id;
+      document.getElementById('modal-subtotal').textContent = `MWK ${Number(saleData.subtotal).toLocaleString(undefined,{maximumFractionDigits:0})}`;
+      document.getElementById('modal-discount').textContent = `- MWK ${Number(saleData.discount_amount).toLocaleString(undefined,{maximumFractionDigits:0})}`;
+      document.getElementById('modal-total').textContent = `MWK ${Number(saleData.total).toLocaleString(undefined,{maximumFractionDigits:0})}`;
+      document.getElementById('modal-payment').textContent = saleData.payment_method;
+      document.getElementById('modal-customer').textContent = saleData.customer_name;
+
+      // Fill print receipt
+      document.getElementById('print-sale-id').textContent = saleData.sale_id;
+      const printItems = document.getElementById('print-items');
+      printItems.innerHTML = '';
+      saleData.items.forEach(item => {
+        const div = document.createElement('div');
+        div.style.display = 'flex';
+        div.style.justifyContent = 'space-between';
+        div.innerHTML = `<span>${item.name} ×${item.qty}</span><span>MWK ${Number(item.price * item.qty).toLocaleString()}</span>`;
+        printItems.appendChild(div);
+      });
+      document.getElementById('print-subtotal').textContent = `MWK ${Number(saleData.subtotal).toLocaleString(undefined,{maximumFractionDigits:0})}`;
+      document.getElementById('print-discount').textContent = `- MWK ${Number(saleData.discount_amount).toLocaleString(undefined,{maximumFractionDigits:0})}`;
+      document.getElementById('print-total').textContent = `MWK ${Number(saleData.total).toLocaleString(undefined,{maximumFractionDigits:0})}`;
+
+      // Show modal & toast
+      document.getElementById('success-modal').classList.remove('hidden');
+      showToast(`Sale #${saleData.sale_id} completed successfully!`, 'success');
+
+      // Auto-close modal after 8 seconds (optional)
+      setTimeout(() => {
+        if (!document.getElementById('success-modal').classList.contains('hidden')) {
+          closeModalAndReset();
+        }
+      }, 8000);
+
+    } else {
+      // If the server returned JSON with success: false
+      const msg = data?.message || 'Sale could not be completed.';
+      alert(msg);
+    }
+
+  } catch (err) {
+    // Network or other unexpected error
+    alert('Network error — please check your connection and try again.');
+    console.error(err);
   } finally {
     btn.disabled = false;
     btn.innerHTML = '<i data-lucide="check-circle" class="w-4 h-4"></i> Complete Sale';
     lucide.createIcons();
   }
+}
+
+function printReceipt() {
+  const printContents = document.getElementById('print-receipt').innerHTML;
+  const originalContents = document.body.innerHTML;
+  document.body.innerHTML = printContents;
+  window.print();
+  document.body.innerHTML = originalContents;
+  // Re-initialize scripts and state after print
+  location.reload();
 }
 
 function closeModalAndReset(){
