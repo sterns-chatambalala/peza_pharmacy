@@ -95,17 +95,21 @@
             overflow-x: hidden;
         }
         
-        /* Header Styles */
+        /* Header Styles — floating rounded pill navbar (matches brand mock) */
         header {
-            background-color: rgba(255, 255, 255, 0.92);
-            padding: 0.9rem 5%;
+            background-color: rgba(255, 255, 255, 0.97);
+            padding: 0.85rem 2rem;
             position: fixed;
-            width: 100%;
+            top: 1.1rem;
+            left: 1.5rem;
+            right: 1.5rem;
+            width: auto;
+            border-radius: 2.2rem;
             z-index: 1000;
-            box-shadow: 0 2px 20px rgba(15, 23, 42, 0.06);
+            box-shadow: 0 14px 40px rgba(15, 23, 42, 0.1);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--mc-border);
+            border: 1px solid var(--mc-border);
         }
         
         nav {
@@ -191,6 +195,23 @@
         
         .nav-links a:hover {
             color: var(--mc-teal);
+        }
+
+        .nav-links a.nav-dropdown {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .nav-links a.nav-dropdown i {
+            font-size: 0.7rem;
+            color: var(--mc-slate);
+            transition: var(--transition);
+        }
+
+        .nav-links a.nav-dropdown:hover i {
+            color: var(--mc-teal);
+            transform: translateY(1px);
         }
         
         .nav-buttons {
@@ -291,7 +312,7 @@
         .hero {
             background: linear-gradient(180deg, #eaf8fb 0%, #f8fbfe 45%, var(--mc-bg) 100%);
             color: var(--mc-navy);
-            padding: 5.5rem 5% 3.2rem;
+            padding: 10rem 5% 3.2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -1795,7 +1816,7 @@
                 flex-direction: column;
                 text-align: center;
                 gap: 4rem;
-                padding-top: 8rem;
+                padding-top: 10rem;
                 min-height: auto;
             }
             
@@ -1838,7 +1859,7 @@
             }
             
             .hero {
-                padding-top: 6rem;
+                padding-top: 8rem;
                 min-height: auto;
             }
             
@@ -2110,9 +2131,9 @@
             </div>
             <div class="nav-links">
                 <a href="#about">About Us</a>
+                <a href="#" class="nav-dropdown">Our Systems <i class="fas fa-chevron-down"></i></a>
                 <a href="#features">Features</a>
                 <a href="#pricing">Pricing</a>
-                <a href="#testimonials">Reviews</a>
                 <a href="#contact">Contact</a>
             </div>
             <div class="nav-buttons">
@@ -2131,9 +2152,9 @@
         </button>
         <div class="mobile-menu-links">
             <a href="#about">About Us</a>
+            <a href="#">Our Systems</a>
             <a href="#features">Features</a>
             <a href="#pricing">Pricing</a>
-            <a href="#testimonials">Reviews</a>
             <a href="#contact">Contact</a>
         </div>
         <div class="mobile-menu-buttons">
